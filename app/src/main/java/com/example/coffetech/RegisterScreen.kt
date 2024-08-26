@@ -67,6 +67,7 @@ fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController){
             PasswordField(password = password, onPasswordChange = { password = it })
             ConfirmPassword(confirmpassword = confirmPassword, onConfirmPasswordChange= { confirmPassword = it})
             RegisterButton(
+                email = email,
                 password = password,
                 confirmPassword = confirmPassword,
                 onValidationError = { errorMessage = it }
@@ -225,17 +226,24 @@ fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
 }
 
 @Composable
-fun RegisterButton(password: String, confirmPassword: String, onValidationError: (String) -> Unit) {
+fun RegisterButton(
+    email: String,
+    password: String,
+    confirmPassword: String,
+    onValidationError: (String) -> Unit
+) {
     Button(
         onClick = {
-            val (isValid, message) = validatePassword(password, confirmPassword)
-            if (isValid) {
-                // Lógica para registrar al usuario
+            val (isValidPassword, passwordMessage) = validatePassword(password, confirmPassword)
+            val isValidEmail = validateEmail(email)
+
+            if (!isValidEmail) {
+                onValidationError("Correo electrónico no válido")
+            } else if (!isValidPassword) {
+                onValidationError(passwordMessage)
+            } else {
                 onValidationError("") // Limpiar el mensaje de error
                 println("Usuario registrado con éxito")
-            } else {
-                // Mostrar el mensaje de error en la UI
-                onValidationError(message)
             }
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
@@ -269,6 +277,11 @@ fun validatePassword(password: String, confirmPassword: String): Pair<Boolean, S
         else -> Pair(true, "Contraseña válida")
     }
 }
+
+fun validateEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
+
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {

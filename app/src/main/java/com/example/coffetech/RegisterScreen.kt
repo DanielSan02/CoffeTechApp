@@ -47,7 +47,8 @@ fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController){
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("")}
     var password by remember { mutableStateOf("") }
-    var confirmpassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     Box (
         modifier = modifier
@@ -64,8 +65,18 @@ fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController){
             RegisterNameField(name= name, onNameChange = { name = it })
             RegisterEmailField(email = email, onEmailChange = { email = it })
             PasswordField(password = password, onPasswordChange = { password = it })
-            ConfirmPassword(confirmpassword = confirmpassword, onConfirmPasswordChange= { confirmpassword = it})
-            RegisterButton()
+            ConfirmPassword(confirmpassword = confirmPassword, onConfirmPasswordChange= { confirmPassword = it})
+            RegisterButton(
+                password = password,
+                confirmPassword = confirmPassword,
+                onValidationError = { errorMessage = it }
+            )
+
+            // Mostrar mensaje de error si existe
+            if (errorMessage.isNotEmpty()) {
+                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+            }
+
             ToLoginButton(navController = navController)
         }
     }
@@ -214,15 +225,26 @@ fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
 }
 
 @Composable
-fun RegisterButton() {
+fun RegisterButton(password: String, confirmPassword: String, onValidationError: (String) -> Unit) {
     Button(
-        onClick = { /* handle login */ },
+        onClick = {
+            val (isValid, message) = validatePassword(password, confirmPassword)
+            if (isValid) {
+                // Lógica para registrar al usuario
+                onValidationError("") // Limpiar el mensaje de error
+                println("Usuario registrado con éxito")
+            } else {
+                // Mostrar el mensaje de error en la UI
+                onValidationError(message)
+            }
+        },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
         modifier = Modifier.padding(bottom = 5.dp, top = 18.dp)
     ) {
         Text("Registrarse")
     }
 }
+
 
 @Composable
 fun ToLoginButton(navController: NavController) {
@@ -233,6 +255,18 @@ fun ToLoginButton(navController: NavController) {
         Text("¿Ya tienes cuenta? Inicia sesión",
             color = Color(0xFF49602D))
 
+    }
+}
+fun validatePassword(password: String, confirmPassword: String): Pair<Boolean, String> {
+    val specialCharacterPattern = Regex(".*[!@#\$%^&*(),.?\":{}|<>].*")
+    val uppercasePattern = Regex(".*[A-Z].*")
+
+    return when {
+        password != confirmPassword -> Pair(false, "Las contraseñas no coinciden")
+        password.length < 8 -> Pair(false, "La contraseña debe tener al menos 8 caracteres")
+        !specialCharacterPattern.containsMatchIn(password) -> Pair(false, "La contraseña debe contener al menos un carácter especial")
+        !uppercasePattern.containsMatchIn(password) -> Pair(false, "La contraseña debe contener al menos una letra mayúscula")
+        else -> Pair(true, "Contraseña válida")
     }
 }
 @Preview(showBackground = true)

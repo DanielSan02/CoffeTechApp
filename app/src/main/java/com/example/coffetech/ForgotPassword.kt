@@ -32,15 +32,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.coffetech.ui.theme.CoffeTechTheme
 
-@Composable
-fun ForgotPassword(modifier: Modifier.Companion = Modifier, navController: NavController) {
+val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
 
+@Composable
+fun ForgotPassword(modifier: Modifier = Modifier, navController: NavController) {
     var email by remember { mutableStateOf("") }
+    var isEmailValid by remember { mutableStateOf(true) } // Estado para rastrear la validez del correo
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(50.dp),
+            .padding(5.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -49,13 +51,19 @@ fun ForgotPassword(modifier: Modifier.Companion = Modifier, navController: NavCo
         ) {
             ForgotTitle()
             ForgotText()
-            ForgotEmailField(email = email, onEmailChange = { email = it })
-            ForgotButton()
+            ForgotEmailField(
+                email = email,
+                onEmailChange = {
+                    email = it
+                    isEmailValid = isValidEmail(it) // Validar correo cada vez que cambie
+                },
+                isEmailValid = isEmailValid
+            )
+            ForgotButton(isEmailValid)
             ForgotBack(navController = navController)
-            }
-
         }
     }
+}
 
 
 @Composable
@@ -86,41 +94,52 @@ fun ForgotText() {
 }
 
 @Composable
-fun ForgotEmailField(email: String, onEmailChange: (String) -> Unit) {
-
-    TextField(
-
-        value = email,
-        onValueChange = onEmailChange,
-        placeholder = { Text("Correo Electrónico") },
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-        ),
-        modifier = Modifier.run {
-            padding(bottom = 50.dp)
-                .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
-
+fun ForgotEmailField(email: String, onEmailChange: (String) -> Unit, isEmailValid: Boolean) {
+    Column {
+        TextField(
+            value = email,
+            onValueChange = onEmailChange,
+            placeholder = { Text("Correo Electrónico") },
+            colors = TextFieldDefaults.colors(
+                focusedPlaceholderColor = Color.Gray,
+                unfocusedPlaceholderColor = Color.Gray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent, // Para quitar la línea del textfield
+                unfocusedIndicatorColor = Color.Transparent // Para quitar la línea del textfield
+            ),
+            modifier = Modifier
+                .padding(bottom = 10.dp)
+                .border(2.dp, if (isEmailValid) Color.Gray else Color.Red, RoundedCornerShape(4.dp)) // Cambiar el color del borde si no es válido
+        )
+        if (!isEmailValid) {
+            Text(
+                text = "Correo electrónico no válido",
+                color = Color.Red,
+                style = TextStyle(fontSize = 12.sp)
+            )
         }
-    )
+    }
 }
 
 @Composable
-fun ForgotButton() {
+fun ForgotButton(isEmailValid: Boolean) {
     Button(
-        onClick = { /* handle login */ },
+        onClick = {
+            if (isEmailValid) {
+                // manejar envío de correo
+            } else {
+                // mostrar mensaje de error o deshabilitar el botón
+            }
+        },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
-        modifier = Modifier.padding(bottom = 5.dp)
+        modifier = Modifier.padding(bottom = 16.dp),
+        enabled = isEmailValid // Desactivar botón si el correo no es válido
     ) {
         Text("Enviar correo")
     }
 }
-
 @Composable
 fun ForgotBack(navController: NavController) {
     TextButton(
@@ -132,6 +151,9 @@ fun ForgotBack(navController: NavController) {
             color = Color(0xFF49602D))
 
     }
+}
+fun isValidEmail(email: String): Boolean {
+    return emailRegex.matches(email)
 }
 
 @Preview(showBackground = true)

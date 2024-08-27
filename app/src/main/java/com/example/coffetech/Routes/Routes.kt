@@ -1,4 +1,4 @@
-package com.example.coffetech
+package com.example.coffetech.Routes
 
 object Routes {
     var LoginScreen = "loginScreen"

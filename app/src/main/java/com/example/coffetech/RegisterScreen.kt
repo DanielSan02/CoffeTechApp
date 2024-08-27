@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.ui.theme.CoffeTechTheme
 
 
@@ -67,6 +68,7 @@ fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController){
             PasswordField(password = password, onPasswordChange = { password = it })
             ConfirmPassword(confirmpassword = confirmPassword, onConfirmPasswordChange= { confirmPassword = it})
             RegisterButton(
+                name = name,
                 email = email,
                 password = password,
                 confirmPassword = confirmPassword,
@@ -227,6 +229,7 @@ fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
 
 @Composable
 fun RegisterButton(
+    name: String,
     email: String,
     password: String,
     confirmPassword: String,
@@ -234,6 +237,12 @@ fun RegisterButton(
 ) {
     Button(
         onClick = {
+            // Validar que todos los campos estén completos
+            if (name.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+                onValidationError("Todos los campos son obligatorios")
+                return@Button
+            }
+
             val (isValidPassword, passwordMessage) = validatePassword(password, confirmPassword)
             val isValidEmail = validateEmail(email)
 

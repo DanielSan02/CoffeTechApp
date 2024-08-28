@@ -1,4 +1,5 @@
 package com.example.coffetech
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,14 +39,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.data.LoginRequest
+import com.example.coffetech.data.LoginResponse
+import com.example.coffetech.data.RetrofitInstance
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import okhttp3.Response
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import retrofit2.Call
+import retrofit2.Callback
 
 
 
 @Composable
-fun LoginScreen(modifier: Modifier.Companion = Modifier, navController: NavController) {
+fun LoginScreen(modifier: Modifier = Modifier, navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     Box(
         modifier = modifier
@@ -63,11 +77,23 @@ fun LoginScreen(modifier: Modifier.Companion = Modifier, navController: NavContr
             LoginEmailField(email = email, onEmailChange = { email = it })
             LoginPasswordField(password = password, onPasswordChange = { password = it })
             ForgotPasswordButton(navController = navController)
-            LoginButton()
+            LoginButton(
+                email = email,
+                password = password,
+                onLoginSuccess = {
+                    // Navegar a la pantalla de inicio o pantalla principal después del inicio de sesión exitoso
+                    //navController.navigate(Routes.HomeScreen)
+                },
+                onLoginError = { errorMessage = it } // Mostrar mensaje de error en caso de fallo
+            )
+            if (errorMessage.isNotEmpty()) {
+                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+            }
             LoginToRegisterButton(navController = navController)
         }
     }
 }
+
 
 @Composable
 fun LoginLogoImage() {
@@ -189,16 +215,56 @@ fun ForgotPasswordButton(navController: NavController) {
     }
 }
 
+
 @Composable
-fun LoginButton() {
+fun LoginButton(
+    email: String,
+    password: String,
+    onLoginSuccess: () -> Unit, // Callback para manejar el éxito del inicio de sesión
+    onLoginError: (String) -> Unit // Callback para manejar errores
+) {
+    val context = LocalContext.current
+
     Button(
-        onClick = { /* handle login */ },
+        onClick = {
+            // Validar que los campos no estén vacíos
+            if (email.isBlank() || password.isBlank()) {
+                onLoginError("El correo y la contraseña son obligatorios")
+                return@Button
+            }
+
+            // Crear la solicitud de inicio de sesión
+            val loginRequest = LoginRequest(email = email, password = password)
+
+            // Enviar la solicitud al servidor
+            RetrofitInstance.api.loginUser(loginRequest).enqueue(object : Callback<LoginResponse> {
+                override fun onResponse(
+                    call: Call<LoginResponse>,
+                    response: retrofit2.Response<LoginResponse>
+                ) { // Elimina <LoginResponse>
+                    if (response.isSuccessful) {
+                        // Manejar respuesta exitosa
+                        Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_LONG).show()
+                        onLoginSuccess()
+                    } else {
+                        // Manejar error en la respuesta
+                        onLoginError("Error al iniciar sesión: ${response.message()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                    // Manejar fallo en la solicitud
+                    onLoginError("Error de red: ${t.localizedMessage}")
+                }
+            })
+        },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
         modifier = Modifier.padding(bottom = 16.dp)
     ) {
         Text("Iniciar sesión")
     }
 }
+
 
 @Composable
 fun LoginToRegisterButton(navController: NavController) {

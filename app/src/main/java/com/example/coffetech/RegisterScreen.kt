@@ -40,6 +40,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import android.widget.Toast
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.example.coffetech.data.RegisterRequest
+import com.example.coffetech.data.RegisterResponse
+import com.example.coffetech.data.RetrofitInstance
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 
 
 @Composable
@@ -235,6 +248,8 @@ fun RegisterButton(
     confirmPassword: String,
     onValidationError: (String) -> Unit
 ) {
+    val context = LocalContext.current
+
     Button(
         onClick = {
             // Validar que todos los campos estén completos
@@ -252,7 +267,27 @@ fun RegisterButton(
                 onValidationError(passwordMessage)
             } else {
                 onValidationError("") // Limpiar el mensaje de error
-                println("Usuario registrado con éxito")
+
+                // Crear la solicitud de registro
+                val registerRequest = RegisterRequest(name, email, password, confirmPassword)
+
+                // Enviar la solicitud al servidor
+                RetrofitInstance.api.registerUser(registerRequest).enqueue(object : Callback<RegisterResponse> {
+                    override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
+                        if (response.isSuccessful) {
+                            // Manejar respuesta exitosa
+                            Toast.makeText(context, "Usuario registrado con éxito", Toast.LENGTH_LONG).show()
+                        } else {
+                            // Manejar error en la respuesta
+                            onValidationError("Error al registrar usuario: ${response.message()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
+                        // Manejar fallo en la solicitud
+                        onValidationError("Error de red: ${t.localizedMessage}")
+                    }
+                })
             }
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
@@ -261,6 +296,7 @@ fun RegisterButton(
         Text("Registrarse")
     }
 }
+
 
 
 @Composable

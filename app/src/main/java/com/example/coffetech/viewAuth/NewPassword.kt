@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -18,20 +19,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.LogoImage
+import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableTextField
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ResetPasswordScreen()
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResetPasswordScreen() {
+fun ResetPasswordScreen(navController: NavController) {
     // Variables de estado para los campos de entrada
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -48,68 +47,43 @@ fun ResetPasswordScreen() {
             modifier = Modifier
                 .padding(16.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo), //
-                contentDescription = "Logo",
-                modifier = Modifier.size(205.dp) //
-            )
+            LogoImage()
+            Spacer(modifier = Modifier.height(80.dp))
+            ReusableDescriptionText(text = "Ingrese su nueva contraseña", fontSize = 25)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Ingrese su nueva contraseña",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFF373737), // Texto color gris oscuro
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            TextField(
+            ReusableTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.White
-                )
+                placeholder = "Contraseña",
+                isPassword = true
             )
             Spacer(modifier = Modifier.height(8.dp))
-            TextField(
+            ReusableTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirmar contraseña") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.White
-                )
+                placeholder = "Confirmar contraseña",
+                isPassword = true
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { /* Acción de restablecer */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(24.dp), // Borde redondeado
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4B5720) // Color verde del botón
-                )
-            ) {
-                Text("Restablecer", color = Color.White)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Cancelar",
-                color = Color(0xFF4B5720), // Color verde del texto
-                fontSize = 14.sp,
-                modifier = Modifier.clickable { /* Acción de cancelar */ },
-                textAlign = TextAlign.Center
-            )
+            ReusableButton(text ="Restablecer" , onClick = { /*TODO*/ }, )
+            CancelButton(navController = navController)
         }
     }
 }
-
+@Composable
+fun CancelButton(navController: NavController) {
+    TextButton(
+        onClick = {
+            navController.navigate(Routes.LoginScreen)
+        },
+        modifier = Modifier.padding(bottom = 16.dp)
+    ) {
+        Text("Cancelar",
+            color = Color(0xFF49602D))
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun PreviewResetPasswordScreen() {
-    ResetPasswordScreen()
+    ResetPasswordScreen(navController = NavController(LocalContext.current))
 }

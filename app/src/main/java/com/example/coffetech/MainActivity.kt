@@ -8,9 +8,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.Routes.Routes
-
+import com.example.coffetech.viewAuth.ForgotPassword
+import com.example.coffetech.viewAuth.LoginScreen
+import com.example.coffetech.viewAuth.RegisterScreen
+import com.example.coffetech.viewAuth.VerifyAccount
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -20,12 +24,19 @@ class MainActivity : ComponentActivity() {
                 composable(Routes.LoginScreen){
                    LoginScreen(navController =  navController)
                 }
+
                 composable(Routes.RegisterScreen){
                     RegisterScreen(navController = navController)
                 }
+
                 composable(Routes.ForgotScreen){
                     ForgotPassword(navController = navController)
                 }
+
+                composable(Routes.VerifyAccount){
+                    VerifyAccount(navController = navController)
+                }
+
 
 
             }

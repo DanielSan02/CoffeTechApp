@@ -1,4 +1,4 @@
-package com.example.coffetech
+package com.example.coffetech.viewAuth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,11 +41,9 @@ import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import android.widget.Toast
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.example.coffetech.R
 import com.example.coffetech.data.RegisterRequest
 import com.example.coffetech.data.RegisterResponse
 import com.example.coffetech.data.RetrofitInstance
@@ -53,192 +51,93 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.example.coffetech.common.*
 
 
 @Composable
 fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController){
 
     var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("")}
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+
+    val scrollState = rememberScrollState()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Box (
         modifier = modifier
             .fillMaxSize()
             .padding(5.dp),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(top = 25.dp),
+            // Hacer la columna scrolleable
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
+
             LogoImage()
-            RegisterTitle()
-            RegisterNameField(name= name, onNameChange = { name = it })
-            RegisterEmailField(email = email, onEmailChange = { email = it })
-            PasswordField(password = password, onPasswordChange = { password = it })
-            ConfirmPassword(confirmpassword = confirmPassword, onConfirmPasswordChange= { confirmPassword = it})
-            RegisterButton(
-                name = name,
-                email = email,
-                password = password,
-                confirmPassword = confirmPassword,
-                onValidationError = { errorMessage = it }
+            LargeText(text = "Crea tu Cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+
+            ReusableTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholder = "Nombre"
             )
+
+            ReusableTextField(
+                value = email,
+                onValueChange = { email = it },
+                placeholder = "Correo Electrónico"
+            )
+
+            ReusableTextField(
+                value = password,
+                onValueChange = { password = it },
+                placeholder = "Contraseña",
+                isPassword = true
+            )
+
+            ReusableTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                placeholder = "Confirmar Contraseña",
+                isPassword = true
+            )
+
 
             // Mostrar mensaje de error si existe
             if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
             }
 
+            RegisterButton(
+                name = name,
+                email = email,
+                password = password,
+                confirmPassword = confirmPassword,
+                navController = navController,
+                onValidationError = { errorMessage = it }
+            )
+
+
+
             ToLoginButton(navController = navController)
         }
     }
-}
-@Composable
-fun RegisterTitle() {
-    Text(
-        text = "Crea tu Cuenta",
-        style = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontSize = 40.sp,
-            fontWeight = FontWeight.W800),
-        color = Color(0xFF31373E),
-        modifier = Modifier.padding(top = 60.dp, bottom = 40.dp)
-    )
-}
-@Composable
-fun RegisterNameField(name: String, onNameChange: (String) -> Unit) {
 
-    TextField(
 
-        value = name,
-        onValueChange = onNameChange,
-        placeholder = { Text("Nombre de usuario") },
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-        ),
-        modifier = Modifier.run {
-            padding(bottom = 10.dp)
-                .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
-
-        }
-
-    )
-}
-@Composable
-fun ConfirmPassword(confirmpassword: String, onConfirmPasswordChange: (String) -> Unit) {
-    TextField(
-        value = confirmpassword,
-        onValueChange = onConfirmPasswordChange,
-        placeholder = { Text("Confirmar Contraseña") },
-        visualTransformation = PasswordVisualTransformation(),
-        modifier = Modifier
-            .padding(top = 10.dp)
-            .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-        )
-    )
 }
 
-
-@Composable
-fun LogoImage() {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(width = 205.dp, height = 212.dp)
-    ) {
-        // Sombra
-        Box(
-            modifier = Modifier
-                .size(width = 205.dp, height = 212.dp)
-                .offset(y = 5.dp) // Sombra hacia abajo
-                .graphicsLayer {
-                    shadowElevation = 10.dp.toPx()
-                    shape = CircleShape
-                    clip = true // Para recortar la sombra segun su forma
-                    alpha = 3f // Opacidad
-                }
-                .background(Color.Transparent)
-        )
-
-        // Logo sin sombra
-        Image(
-            painter = painterResource(R.drawable.logo),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .size(width = 205.dp, height = 212.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-        )
-    }
-}
-
-
-@Composable
-fun RegisterEmailField(email: String, onEmailChange: (String) -> Unit) {
-
-    TextField(
-
-        value = email,
-        onValueChange = onEmailChange,
-        placeholder = { Text("Correo Electrónico") },
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-        ),
-        modifier = Modifier.run {
-            padding(bottom = 10.dp)
-                .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
-
-        }
-    )
-}
-
-
-
-
-@Composable
-fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
-    TextField(
-        value = password,
-        onValueChange = onPasswordChange,
-        placeholder = { Text("Contraseña") },
-        visualTransformation = PasswordVisualTransformation(),
-        modifier = Modifier
-            .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-        )
-
-    )
-}
 
 @Composable
 fun RegisterButton(
@@ -246,6 +145,7 @@ fun RegisterButton(
     email: String,
     password: String,
     confirmPassword: String,
+    navController: NavController,
     onValidationError: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -277,6 +177,7 @@ fun RegisterButton(
                         if (response.isSuccessful) {
                             // Manejar respuesta exitosa
                             Toast.makeText(context, "Usuario registrado con éxito", Toast.LENGTH_LONG).show()
+                            navController.navigate(Routes.VerifyAccount)
                         } else {
                             // Manejar error en la respuesta
                             onValidationError("Error al registrar usuario: ${response.message()}")

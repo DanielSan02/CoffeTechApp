@@ -23,6 +23,15 @@ data class LoginResponse(
     val message: String // Ajusta esto de acuerdo a la respuesta que tu servidor devuelve
 )
 
+data class VerifyRequest(
+    val token: String,
+)
+
+data class VerifyResponse(
+    val message: String // Ajusta esto de acuerdo a la respuesta que tu servidor devuelve
+)
+
+
 
 interface ApiService {
     @POST("/register")
@@ -30,6 +39,9 @@ interface ApiService {
 
     @POST("/login")
     fun loginUser(@Body request: LoginRequest): Call<LoginResponse>
+
+    @POST("/verify")
+    fun verifyUser(@Body request: VerifyRequest): Call<VerifyResponse>
 
 
 }

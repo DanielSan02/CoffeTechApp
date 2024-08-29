@@ -1,4 +1,4 @@
-package com.example.coffetech
+package com.example.coffetech.viewAuth
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -29,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,13 +46,12 @@ import com.example.coffetech.data.LoginRequest
 import com.example.coffetech.data.LoginResponse
 import com.example.coffetech.data.RetrofitInstance
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import okhttp3.Response
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import com.example.coffetech.R
+import com.example.coffetech.common.LargeText
+import com.example.coffetech.common.LogoImage
+import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableTextField
 import retrofit2.Call
 import retrofit2.Callback
 
@@ -60,22 +62,44 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(5.dp),
+    Box( modifier = modifier
+        .fillMaxSize()
+        .padding(5.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(top = 25.dp),
+            // Hacer la columna scrolleable
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LoginLogoImage()
-            LoginTitle()
-            WelcomeText()
-            LoginEmailField(email = email, onEmailChange = { email = it })
-            LoginPasswordField(password = password, onPasswordChange = { password = it })
+            LogoImage()
+            LargeText(text = "!Bienvenido!", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+
+            ReusableDescriptionText(text = "Por favor inicia sesión para continuar")
+
+            ReusableTextField(
+                value = email,
+                onValueChange = { email = it },
+                placeholder = "Correo Electrónico"
+            )
+
+            ReusableTextField(
+                value = password,
+                onValueChange = { password = it },
+                placeholder = "Contraseña",
+                isPassword = true
+            )
+            // Mostrar mensaje de error si existe
+            if (errorMessage.isNotEmpty()) {
+                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+            }
+
             ForgotPasswordButton(navController = navController)
             LoginButton(
                 email = email,
@@ -86,119 +110,12 @@ fun LoginScreen(modifier: Modifier = Modifier, navController: NavController) {
                 },
                 onLoginError = { errorMessage = it } // Mostrar mensaje de error en caso de fallo
             )
-            if (errorMessage.isNotEmpty()) {
-                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-            }
+
             LoginToRegisterButton(navController = navController)
         }
     }
 }
 
-
-@Composable
-fun LoginLogoImage() {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(width = 205.dp, height = 212.dp)
-    ) {
-        // Sombra
-        Box(
-            modifier = Modifier
-                .size(width = 205.dp, height = 212.dp)
-                .offset(y = 5.dp) // Sombra hacia abajo
-                .graphicsLayer {
-                    shadowElevation = 10.dp.toPx()
-                    shape = CircleShape
-                    clip = true // Para recortar la sombra segun su forma
-                    alpha = 3f // Opacidad
-                }
-                .background(Color.Transparent)
-        )
-
-        // Logo sin sombra
-        Image(
-            painter = painterResource(R.drawable.logo),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .size(width = 205.dp, height = 212.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-        )
-    }
-}
-
-@Composable
-fun LoginTitle() {
-    Text(
-        text = "!Bienvenido!",
-        style = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontSize = 40.sp,
-            fontWeight = FontWeight.W800),
-        color = Color(0xFF31373E),
-        modifier = Modifier.padding(top = 60.dp)
-    )
-}
-
-@Composable
-fun WelcomeText() {
-    Text(
-        text = "Por favor inicia sesión para continuar",
-        style = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontSize = 17.sp,
-            fontWeight = FontWeight.W300),
-        modifier = Modifier.padding(bottom = 50.dp, top = 16.dp)
-    )
-}
-
-@Composable
-fun LoginEmailField(email: String, onEmailChange: (String) -> Unit) {
-
-    TextField(
-
-        value = email,
-        onValueChange = onEmailChange,
-        placeholder = { Text("Correo Electrónico") },
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-
-        ),modifier = Modifier
-            .padding(bottom = 1.dp)
-            .border(2.dp, Color.Gray, RoundedCornerShape(4.dp))
-
-
-    )
-}
-
-
-@Composable
-fun LoginPasswordField(password: String, onPasswordChange: (String) -> Unit) {
-    TextField(
-        value = password,
-        onValueChange = onPasswordChange,
-        placeholder = { Text("Contraseña") },
-        visualTransformation = PasswordVisualTransformation(),
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = Color.Gray,
-            unfocusedPlaceholderColor = Color.Gray,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent, // Para quitar la linea del textfield
-            unfocusedIndicatorColor = Color.Transparent // Para quitar la linea del textfield
-
-        ), modifier = Modifier
-            .padding(top = 5.dp)
-            .border(2.dp, Color.Gray, RoundedCornerShape(4.dp))
-    )
-}
 
 @Composable
 fun ForgotPasswordButton(navController: NavController) {

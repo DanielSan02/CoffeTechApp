@@ -1,4 +1,4 @@
-package com.example.coffetech
+package com.example.coffetech.viewAuth
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -31,10 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.LargeText
+import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
 
 val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
-
 @Composable
 fun ForgotPassword(modifier: Modifier = Modifier, navController: NavController) {
     var email by remember { mutableStateOf("") }
@@ -50,16 +52,24 @@ fun ForgotPassword(modifier: Modifier = Modifier, navController: NavController) 
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ForgotTitle()
-            ForgotText()
-            ForgotEmailField(
-                email = email,
-                onEmailChange = {
+            LargeText(
+                text = "Restablecer contraseña",
+                modifier = Modifier.padding(top = 30.dp, bottom = 30.dp)
+            )
+
+            ReusableDescriptionText(text = "Te enviaremos un email con las instrucciones para restablecer tu contraseña")
+
+            ReusableTextField(
+                value = email,
+                onValueChange = {
                     email = it
                     isEmailValid = isValidEmail(it) // Validar correo cada vez que cambie
                 },
-                isEmailValid = isEmailValid
+                placeholder = "Correo Electrónico", // Cambiado a "Correo Electrónico" para la validación
+                isValid = isEmailValid,
+                errorMessage = if (isEmailValid) "" else "Correo electrónico no válido"
             )
+
             ForgotButton(isEmailValid)
             ForgotBack(navController = navController)
         }

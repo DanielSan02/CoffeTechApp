@@ -20,8 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffetech.R
-
-
+import com.example.coffetech.common.LogoImage
+import com.example.coffetech.common.ReusableDescriptionText
 
 
 @Composable
@@ -37,38 +37,15 @@ fun AlertSend() {
             modifier = Modifier.fillMaxSize()
         ) {
             LogoImage()
-            Spacer(modifier = Modifier.height(24.dp))
-            MessageText()
+            Spacer(modifier = Modifier.height(54.dp))
+            ReusableDescriptionText(text = "Hemos enviado un correo electrónico para restablecer tu contraseña", fontSize = 20)
             Spacer(modifier = Modifier.height(16.dp))
             GoToEmailButton()
         }
     }
 }
 
-@Composable
-fun LogoImage() {
-    Image(
-        painter = painterResource(id = R.drawable.logo), //
-        contentDescription = "Logo",
-        modifier = Modifier
-            .size(200.dp)
-            .clip(CircleShape)
-            .background(Color.White), // Fondo blanco para la imagen
-        contentScale = ContentScale.Crop
-    )
-}
 
-@Composable
-fun MessageText() {
-    Text(
-        text = "Hemos enviado un correo\n electrónico para restablecer\n tu contraseña",
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Normal,
-        color = Color(0xFF4A4A4A), // Color del texto en gris oscuro
-        textAlign = TextAlign.Center,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
-}
 
 @Composable
 fun GoToEmailButton() {

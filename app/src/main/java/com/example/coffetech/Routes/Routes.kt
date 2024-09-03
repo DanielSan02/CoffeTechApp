@@ -5,4 +5,5 @@ object Routes {
     var RegisterScreen = "registerScreen"
     var ForgotScreen = "forgotPassword"
     var VerifyAccount = "verifyAccount"
+    var AlertSend = "alertSend"
 }

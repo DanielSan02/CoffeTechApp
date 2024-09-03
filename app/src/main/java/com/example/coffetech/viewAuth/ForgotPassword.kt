@@ -1,5 +1,6 @@
 package com.example.coffetech.viewAuth
 
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,12 +36,20 @@ import com.example.coffetech.common.LargeText
 import com.example.coffetech.common.ReusableDescriptionText
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import com.example.coffetech.data.ForgotPasswordRequest
+import com.example.coffetech.data.ForgotPasswordResponse
+import com.example.coffetech.data.RetrofitInstance
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
 @Composable
 fun ForgotPassword(modifier: Modifier = Modifier, navController: NavController) {
     var email by remember { mutableStateOf("") }
     var isEmailValid by remember { mutableStateOf(true) } // Estado para rastrear la validez del correo
+    var errorMessage by remember { mutableStateOf("") }
+
 
     Box(
         modifier = modifier
@@ -70,7 +79,12 @@ fun ForgotPassword(modifier: Modifier = Modifier, navController: NavController) 
                 errorMessage = if (isEmailValid) "" else "Correo electrónico no válido"
             )
 
-            ForgotButton(isEmailValid)
+            ForgotButton(
+                isEmailValid = isEmailValid,
+                email = email,
+                navController = navController,
+                onValidationError = { errorMessage = it }
+            )
             ForgotBack(navController = navController)
         }
     }
@@ -135,13 +149,40 @@ fun ForgotEmailField(email: String, onEmailChange: (String) -> Unit, isEmailVali
 }
 
 @Composable
-fun ForgotButton(isEmailValid: Boolean) {
+fun ForgotButton(
+    isEmailValid: Boolean,
+    email: String,
+    navController: NavController,
+    onValidationError: (String) -> Unit
+){
+    val context = LocalContext.current
+
     Button(
         onClick = {
             if (isEmailValid) {
-                // manejar envío de correo
+                // Crear la solicitud de restablecimiento de contraseña
+                val forgotPasswordRequest = ForgotPasswordRequest(email)
+
+                // Enviar la solicitud al servidor
+                RetrofitInstance.api.forgotPassword(forgotPasswordRequest).enqueue(object : Callback<ForgotPasswordResponse> {
+                    override fun onResponse(call: Call<ForgotPasswordResponse>, response: Response<ForgotPasswordResponse>) {
+                        if (response.isSuccessful) {
+                            // Manejar respuesta exitosa
+                            Toast.makeText(context, "Correo enviado con éxito", Toast.LENGTH_LONG).show()
+                            navController.navigate(Routes.AlertSend)
+                        } else {
+                            // Manejar error en la respuesta
+                            onValidationError("Error al enviar correo: ${response.message()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<ForgotPasswordResponse>, t: Throwable) {
+                        // Manejar fallo en la solicitud
+                        onValidationError("Error de red: ${t.localizedMessage}")
+                    }
+                })
             } else {
-                // mostrar mensaje de error o deshabilitar el botón
+                onValidationError("Correo electrónico no válido")
             }
         },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),

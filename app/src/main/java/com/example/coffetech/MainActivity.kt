@@ -12,6 +12,8 @@ import com.example.coffetech.viewAuth.ForgotPassword
 import com.example.coffetech.viewAuth.LoginScreen
 import com.example.coffetech.viewAuth.RegisterScreen
 import com.example.coffetech.viewAuth.VerifyAccount
+import com.example.coffetech.viewAuth.AlertSend
+
 
 class MainActivity : ComponentActivity() {
 
@@ -35,6 +37,10 @@ class MainActivity : ComponentActivity() {
 
                 composable(Routes.VerifyAccount){
                     VerifyAccount(navController = navController)
+                }
+
+                composable(Routes.AlertSend){
+                    AlertSend(navController = navController)
                 }
 
 

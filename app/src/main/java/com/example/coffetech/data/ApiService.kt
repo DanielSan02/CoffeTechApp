@@ -31,6 +31,14 @@ data class VerifyResponse(
     val message: String // Ajusta esto de acuerdo a la respuesta que tu servidor devuelve
 )
 
+data class ForgotPasswordRequest(
+    val email: String
+)
+
+data class ForgotPasswordResponse(
+    val success: Boolean,
+    val message: String
+)
 
 
 interface ApiService {
@@ -43,5 +51,7 @@ interface ApiService {
     @POST("/verify")
     fun verifyUser(@Body request: VerifyRequest): Call<VerifyResponse>
 
+    @POST("/forgot-password")
+    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<ForgotPasswordResponse>
 
 }

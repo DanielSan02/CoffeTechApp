@@ -1,4 +1,4 @@
-package com.example.coffetech.viewAuth
+package com.example.coffetech.view.Auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 
 
 @Composable
-fun AlertSend(navController: NavController) {
+fun AlertSendView(navController: NavController) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +61,7 @@ fun GoToEmailButton() {
 @Composable
 fun AlertSendPreview() {
     CoffeTechTheme {
-        AlertSend(navController = NavController(LocalContext.current))
+        AlertSendView(navController = NavController(LocalContext.current))
     }
 }
 

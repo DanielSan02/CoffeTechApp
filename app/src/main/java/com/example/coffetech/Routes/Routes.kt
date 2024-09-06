@@ -6,4 +6,5 @@ object Routes {
     var ForgotScreen = "forgotPassword"
     var VerifyAccount = "verifyAccount"
     var AlertSend = "alertSend"
+    var FincaScreen = "fincaScreen"
 }

@@ -3,11 +3,17 @@ package com.example.coffetech.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -17,13 +23,22 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -34,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.example.coffetech.R
 
 @Composable
@@ -142,6 +158,230 @@ fun ReusableDescriptionText(
         modifier = modifier.padding(paddingValues)
     )
 }
+
+@Composable
+fun TopBarWithHamburger(
+    onHamburgerClick: () -> Unit,
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(90.dp)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        IconButton(onClick = onHamburgerClick) {
+            Icon(
+                painter = painterResource(R.drawable.menu_icon),
+                contentDescription = "Menu",
+                tint = Color(0xFF2B2B2B)
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f)) // Espacio flexible para empujar el título al centro
+        LargeText(text = title, fontSize = 20, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun HamburgerMenu(
+    profileImage: Painter,
+    profileName: String,
+    onProfileClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onHelpClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .background(Color.White)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            .padding(16.dp)
+            .zIndex(1f)
+    ) {
+        Row(
+            modifier = Modifier.padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = profileImage,
+                contentDescription = "Profile Image",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Gray)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = profileName, style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold))
+        }
+        TextButton(onClick = onProfileClick) {
+            Text("Perfil")
+        }
+        TextButton(onClick = onNotificationsClick) {
+            Text("Notificaciones")
+        }
+        TextButton(onClick = onHelpClick) {
+            Text("Ayuda")
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = onLogoutClick, colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
+            Text("Cerrar sesión", color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun BottomNavigationBar(
+    onHomeClick: () -> Unit,
+    onFincasClick: () -> Unit,
+    onCentralButtonClick: () -> Unit,
+    onReportsClick: () -> Unit,
+    onCostsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BottomAppBar(
+        modifier = modifier,
+        containerColor = Color.White,
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        IconButton(
+            onClick = onHomeClick,
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 9.dp)
+                .size(70.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .fillMaxSize()
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.home_icon),
+                    contentDescription = "Inicio",
+                    tint = Color(0xFF9A9A9A),
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Inicio",
+                    color = Color(0xFF9A9A9A),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W400
+                )
+            }
+        }
+
+        IconButton(
+            onClick = onFincasClick,
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp)
+                .size(70.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.fincas_icon),
+                    contentDescription = "Fincas",
+                    tint = Color(0xFF9A9A9A),
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Fincas",
+                    color = Color(0xFF9A9A9A),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W400
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(0.5f))
+
+        Box(
+            modifier = Modifier
+                .offset(y = -8.dp)
+                .clip(CircleShape)
+                .size(56.dp)
+                .background(Color(0xFFB31D34))
+                .clickable(onClick = onCentralButtonClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.central_icon),
+                contentDescription = "Central Button",
+                modifier = Modifier.size(24.dp),
+                tint = Color.White
+            )
+        }
+
+
+        Spacer(modifier = Modifier.weight(0.5f))
+
+        IconButton(
+            onClick = onReportsClick,
+            modifier = Modifier
+                .weight(1f)
+                .size(70.dp)
+                .padding(vertical = 8.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.reports_icon),
+                    contentDescription = "Reportes",
+                    tint = Color(0xFF9A9A9A),
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Reportes",
+                    color = Color(0xFF9A9A9A),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W400
+                )
+            }
+        }
+
+        IconButton(
+            onClick = onCostsClick,
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp)
+                .size(70.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.cost_icon),
+                    contentDescription = "Costos",
+                    tint = Color(0xFF9A9A9A),
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Costos",
+                    color = Color(0xFF9A9A9A),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W400
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun LogoImage() {

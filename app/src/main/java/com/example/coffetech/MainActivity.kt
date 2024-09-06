@@ -13,6 +13,7 @@ import com.example.coffetech.viewAuth.LoginScreen
 import com.example.coffetech.viewAuth.RegisterScreen
 import com.example.coffetech.viewAuth.VerifyAccount
 import com.example.coffetech.viewAuth.AlertSend
+import com.example.coffetech.viewFinca.FincaScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            NavHost(navController = navController, startDestination = Routes.LoginScreen) {
+            NavHost(navController = navController, startDestination = Routes.FincaScreen) {
                 composable(Routes.LoginScreen){
                    LoginScreen(navController =  navController)
                 }
@@ -43,6 +44,9 @@ class MainActivity : ComponentActivity() {
                     AlertSend(navController = navController)
                 }
 
+                composable(Routes.FincaScreen){
+                    FincaScreen(navController = navController)
+                }
 
 
             }

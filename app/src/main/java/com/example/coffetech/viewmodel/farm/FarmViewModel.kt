@@ -12,4 +12,6 @@ import androidx.lifecycle.ViewModel
 import com.example.coffetech.R
 
 class FarmViewModel : ViewModel() {
+    var isMenuVisible = { mutableStateOf(false) }
+    private set
 }

@@ -5,37 +5,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
@@ -45,6 +30,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -292,12 +278,12 @@ fun BottomNavigationBar(
                 Icon(
                     painter = painterResource(R.drawable.fincas_icon),
                     contentDescription = "Fincas",
-                    tint = Color(0xFF9A9A9A),
+                    tint = Color(0xFFB31D34),
                     modifier = Modifier.size(24.dp)
                 )
                 Text(
                     text = "Fincas",
-                    color = Color(0xFF9A9A9A),
+                    color = Color(0xFFB31D34),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.W400
                 )
@@ -377,6 +363,158 @@ fun BottomNavigationBar(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.W400
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchBar(
+    query: TextFieldValue,
+    onQueryChanged: (TextFieldValue) -> Unit
+) {
+    val cornerRadius = 28.dp
+
+    Box(
+        modifier = Modifier
+            .size(width = 360.dp, height = 56.dp)
+            .border(width = 1.dp, color = Color.White, shape = RoundedCornerShape(cornerRadius))
+            .background(Color.Transparent, shape = RoundedCornerShape(cornerRadius)) // Background transparent to fit border
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White, shape = RoundedCornerShape(cornerRadius)) // White background inside the border
+                .padding(horizontal = 16.dp) // Padding to prevent text from touching the border
+        ) {
+            BasicTextField(
+                value = query,
+                onValueChange = onQueryChanged,
+                decorationBox = { innerTextField ->
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        if (query.text.isEmpty()) {
+                            Text(
+                                text = "Search by farm name",
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        innerTextField()
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+
+@Composable
+fun FloatingActionButtonGroup(
+    onMainButtonClick: () -> Unit,
+    onSubButton1Click: () -> Unit,
+    onSubButton2Click: () -> Unit,
+    subButton1Icon: Painter,
+    subButton2Icon: Painter,
+    mainButtonIcon: Painter,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            if (expanded) {
+                // Botón secundario 2
+                Box(
+                    modifier = Modifier
+                        .offset(-5.dp)
+                        .clip(shape = CircleShape)
+                        .border(width = 2.dp, color = Color(0xFFE9E9F2), shape = RoundedCornerShape(28.dp))
+                        .size(44.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            expanded = false
+                            onSubButton2Click()
+                        },
+                        shape = CircleShape,
+                        containerColor = Color.White, // Ajusta el color si es necesario
+                    ) {
+                        Icon(
+                            painter = subButton2Icon,
+                            contentDescription = "Sub Button 2",
+                            modifier = Modifier
+                                .size(17.dp) // Tamaño del ícono dentro del botón
+                        )
+                    }
+                }
+
+                // Botón secundario 1
+                Box(
+                    modifier = Modifier
+                        .offset(x = 10.dp)
+                        .padding(15.dp)
+                        .clip(shape = CircleShape)
+                        .border(width = 2.dp, color = Color(0xFFE9E9F2), shape = RoundedCornerShape(28.dp))
+                        .size(44.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            expanded = false
+                            onSubButton1Click()
+                        },
+                        shape = CircleShape,
+                        containerColor = Color.White,
+                    ) {
+                        Icon(
+                            painter = subButton1Icon,
+                            contentDescription = "Sub Button 1",
+                            modifier = Modifier
+                                .size(17.dp), // Tamaño del ícono dentro del botón
+                        )
+                    }
+                }
+            }
+
+            // Botón principal
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(shape = CircleShape),// Tamaño del contenedor para asegurar la forma circular
+                contentAlignment = Alignment.Center
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        expanded = !expanded
+                        onMainButtonClick()
+                    },
+                    containerColor = Color(0xFFB31D34), // Ajusta el color si es necesario
+                    shape = CircleShape,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 8.dp
+                    )
+                ) {
+                    Icon(
+                        painter = mainButtonIcon,
+                        contentDescription = "Main Button",
+                        modifier = Modifier.size(20.dp), // Tamaño del ícono dentro del botón
+                        tint = Color.White,
+                    )
+                }
             }
         }
     }

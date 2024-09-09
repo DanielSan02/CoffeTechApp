@@ -19,36 +19,35 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BottomNavigationBar
+import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.HamburgerMenu
 import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.SearchBar
 import com.example.coffetech.common.TopBarWithHamburger
 import com.example.coffetech.viewmodel.farm.FarmViewModel
 import com.example.coffetech.ui.theme.CoffeTechTheme
 
 @Composable
 fun FarmView(
-
-    modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: FarmViewModel = viewModel() // Inyecta el ViewModel aquí
 ) {
     var isMenuVisible by remember { mutableStateOf(false) }
     val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
     val profileName = "Usuario"
+    var query by remember { mutableStateOf(TextFieldValue("")) }
 
 
     Scaffold(
@@ -64,7 +63,7 @@ fun FarmView(
                 onFincasClick = { /* Actual screen */ },
                 onCentralButtonClick = { /* Action for central button */ },
                 onReportsClick = { navController.navigate("ruta de reportes") },
-                onCostsClick = { navController.navigate("ruta de costos") }
+                onCostsClick = { navController.navigate(  "ruta de costos") }
             )
         }
     ) { paddingValues ->
@@ -90,6 +89,13 @@ fun FarmView(
                     .background(Color(0xFFEFEFEF))
                     .padding(16.dp)
             ) {
+                SearchBar(
+                    query = query,
+                    onQueryChanged = { query = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 // Espacio para las fincas
                 Text(
                     text = "Aquí van las fincas",
@@ -103,10 +109,20 @@ fun FarmView(
                         ReusableButton(
                             text = finca,
                             onClick = { /* Handle finca item click */ },
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
                         )
                     }
                 }
+                FloatingActionButtonGroup(
+                    onMainButtonClick = { /* Handle main button click */ },
+                    onSubButton1Click = { /* Handle sub button 1 click */ },
+                    onSubButton2Click = { /* Handle sub button 2 click */ },
+                    subButton1Icon = painterResource(id = R.drawable.edit_icon), // Reemplaza con icono adecuado
+                    subButton2Icon = painterResource(id = R.drawable.plus_icon), // Reemplaza con icono adecuado
+                    mainButtonIcon = painterResource(id = R.drawable.plus_icon) // Reemplaza con icono adecuado
+                )
             }
         }
     }

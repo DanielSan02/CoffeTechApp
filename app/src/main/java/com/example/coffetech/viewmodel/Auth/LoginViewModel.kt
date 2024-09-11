@@ -12,6 +12,7 @@ import com.example.coffetech.Routes.Routes
 import com.example.coffetech.model.LoginRequest
 import com.example.coffetech.model.LoginResponse
 import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -88,16 +89,23 @@ class LoginViewModel() : ViewModel(), Parcelable {
                         if (it.status == "success") {
                             // Obtener el token de la respuesta
                             val token = it.data?.session_token
-                            token?.let {
-                                // Guardar el token en SharedPreferences
-                                val sharedPref = context.getSharedPreferences("myAppPreferences", Context.MODE_PRIVATE)
-                                sharedPref.edit().putString("session_token", token).apply()
+                            val name = it.data?.name ?: "Usuario"
+                            val email = email.value
 
-                                Log.d("LoginViewModel", "Token guardado correctamente: $token")
+                            token?.let {
+                                // Guardar el token, nombre y correo en SharedPreferences
+                                val sharedPreferencesHelper = SharedPreferencesHelper(context)
+                                sharedPreferencesHelper.saveSessionData(token, name, email)
+
+
+                                Log.d("LoginViewModel", "Datos guardados correctamente: token=$token, name=$name")
 
                                 // Notificar inicio de sesión exitoso
                                 Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_LONG).show()
-                                navController.navigate(Routes.StartView)
+                                navController.navigate(Routes.StartView) {
+                                    popUpTo(Routes.LoginView) { inclusive = true } // Elimina LoginView de la pila de navegación
+                                }
+
                             } ?: run {
                                 Log.e("LoginViewModel", "El token no fue recibido en la respuesta")
                                 Toast.makeText(context, "No se recibió el token de sesión", Toast.LENGTH_LONG).show()

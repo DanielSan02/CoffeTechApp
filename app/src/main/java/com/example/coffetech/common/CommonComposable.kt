@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.google.protobuf.Internal.BooleanList
 
 @Composable
 fun ReusableButton(
@@ -57,24 +58,64 @@ fun ReusableButton(
         Text(text)
     }
 }
+
+
+@Composable
+fun TopBarWithBackArrow(
+    onBackClick: () -> Unit,
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(90.dp)
+            .height(56.dp)
+            .padding( 16.dp),
+
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                painter = painterResource(R.drawable.back_arrow),
+                contentDescription = "Back",
+                tint = Color(0xFF2B2B2B),
+                modifier = Modifier.size(24.dp)
+
+            )
+
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = title,
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.W800),
+            color = Color(0xFF2B2B2B)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+    }
+
+}
+
 @Composable
 fun ReusableTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     isPassword: Boolean = false,
     isValid: Boolean = true,
-    maxWidth: Dp = 300.dp, // Ancho máximo predeterminado
+    maxWidth: Dp = 300.dp,
     maxHeight: Dp = 80.dp,
-    margin: Dp = 8.dp, // Margen predeterminado
-    errorMessage: String = "" // Añadido para el mensaje de error
+    margin: Dp = 8.dp,
+    errorMessage: String = ""
 ) {
     Column {
         TextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
+            enabled = enabled,
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             colors = TextFieldDefaults.colors(
                 focusedPlaceholderColor = Color.Gray,
@@ -83,16 +124,27 @@ fun ReusableTextField(
                 unfocusedContainerColor = Color.White,
                 disabledContainerColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                disabledTextColor = Color.Gray.copy(alpha = 0.6f), // Texto más claro cuando está deshabilitado
+                disabledPlaceholderColor = Color.Gray.copy(alpha = 0.6f) // Placeholder más claro cuando está deshabilitado
             ),
-            maxLines = 1, // Limitar a una sola línea
+            maxLines = 1,
             modifier = modifier
-                .padding(margin) // Aplicar margen alrededor del TextField
-                .border(1.dp, if (isValid) Color.Gray else Color.Red, RoundedCornerShape(4.dp))
-                .widthIn(max = maxWidth) // Limitar el ancho máximo del TextField
+                .padding(margin)
+                .border(
+                    1.dp,
+                    when {
+                        !enabled -> Color.Gray.copy(alpha = 0.3f) // Borde más claro cuando está deshabilitado
+                        !isValid -> Color.Red
+                        else -> Color.Gray
+                    },
+                    RoundedCornerShape(4.dp)
+                )
+                .widthIn(max = maxWidth)
                 .width(maxWidth)
                 .heightIn(max = maxHeight)
-                .horizontalScroll(rememberScrollState()) // Habilitar desplazamiento horizontal
+                .horizontalScroll(rememberScrollState())
         )
         if (!isValid && errorMessage.isNotEmpty()) {
             Text(
@@ -620,3 +672,20 @@ fun LogoImage() {
         )
     }
 }
+@Composable
+fun ReusableFieldLabel(
+    text: String,
+    modifier: Modifier = Modifier // Permitir pasar un modificador opcional
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyLarge,
+        color = Color.Black,
+        fontSize = 16.sp,
+        modifier = modifier
+            .fillMaxWidth() // Asegurarse de que la etiqueta ocupe todo el ancho disponible
+            .padding(bottom = 8.dp) // Ajustar el padding inferior (puedes ajustarlo según sea necesario)
+    )
+}
+
+

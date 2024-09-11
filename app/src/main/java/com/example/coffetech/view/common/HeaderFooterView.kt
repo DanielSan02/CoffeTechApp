@@ -29,6 +29,8 @@ import com.example.coffetech.R
 import com.example.coffetech.common.LargeText
 import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.coffetech.utils.SharedPreferencesHelper
+
 
 
 @Composable
@@ -43,6 +45,9 @@ fun HeaderFooterView(
     val headerFooterViewModel: HeaderFooterViewModel = viewModel()
     val isMenuVisible by headerFooterViewModel.isMenuVisible.collectAsState()
     val context = LocalContext.current
+    val sharedPreferencesHelper = SharedPreferencesHelper(context)
+    val userName = sharedPreferencesHelper.getUserName()
+// Obtener el nombre desde SharedPreferences
 
     Scaffold(
         topBar = {
@@ -73,8 +78,8 @@ fun HeaderFooterView(
             if (isMenuVisible) {
                 HamburgerMenu(
                     profileImage = painterResource(id = R.drawable.menu_icon),
-                    profileName = "Usuario",
-                    onProfileClick = headerFooterViewModel::onProfileClick,
+                    profileName = userName,
+                    onProfileClick = { headerFooterViewModel.onProfileClick(navController) },
                     onNotificationsClick = headerFooterViewModel::onNotificationsClick,
                     onHelpClick = headerFooterViewModel::onHelpClick,
                     onLogoutClick = { headerFooterViewModel.onLogoutClick(context, navController) },
@@ -132,7 +137,8 @@ fun TopBarWithHamburger(
                 Icon(
                     painter = painterResource(R.drawable.menu_icon),
                     contentDescription = "Menu",
-                    tint = Color(0xFF2B2B2B)
+                    tint = Color(0xFF2B2B2B) ,
+                            modifier = Modifier.size(30.dp)
                 )
             }
         }
@@ -151,6 +157,7 @@ fun HamburgerMenu(
     onLogoutClick: () -> Unit,
     onCloseClick: () -> Unit,
     modifier: Modifier = Modifier
+
 ) {
     Box(
         modifier = modifier
@@ -249,7 +256,8 @@ private fun MenuOption(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

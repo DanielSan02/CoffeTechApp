@@ -3,6 +3,8 @@ package com.example.coffetech.model
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Query
 
 
 // Data class para la solicitud de registro
@@ -34,8 +36,10 @@ data class LoginResponse(
 )
 
 data class TokenData(
-    val session_token: String
+    val session_token: String,
+    val name: String // Añadir el nombre del usuario que devuelve el backend
 )
+
 
 // Data class para la solicitud de verificación
 data class VerifyRequest(
@@ -84,6 +88,29 @@ data class LogoutResponse(
     val data: Any? = null
 )
 
+data class UpdateProfileRequest(
+    val new_name: String
+)
+
+// Data class para la respuesta de actualización de perfil
+data class UpdateProfileResponse(
+    val status: String,
+    val message: String
+)
+
+// Data class para la solicitud de cambio de contraseña
+data class ChangePasswordRequest(
+    val current_password: String,
+    val new_password: String
+)
+
+// Data class para la respuesta del cambio de contraseña
+data class ChangePasswordResponse(
+    val status: String,
+    val message: String
+)
+
+
 // Interfaz del servicio API
 interface ApiService {
     @POST("/auth/register")
@@ -106,6 +133,13 @@ interface ApiService {
 
     @POST("/auth/logout")
     fun logoutUser(@Body request: LogoutRequest): Call<LogoutResponse>
+
+    @POST("/auth/update-profile")
+    fun updateProfile(@Body request: UpdateProfileRequest, @retrofit2.http.Query("session_token") sessionToken: String): Call<UpdateProfileResponse>
+
+    @PUT("/auth/change-password")
+        fun changePassword(@Body request: ChangePasswordRequest,@Query("session_token") sessionToken: String): Call<ChangePasswordResponse>
+
 
 
 }

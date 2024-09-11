@@ -15,6 +15,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.utils.SharedPreferencesHelper
 
 class HeaderFooterViewModel : ViewModel() {
     private val _isMenuVisible = MutableStateFlow(false)
@@ -25,12 +26,18 @@ class HeaderFooterViewModel : ViewModel() {
     }
 
     //Hamburger Functions
-    fun onProfileClick() {}
+    fun onProfileClick(navController: NavController) {
+        navController.navigate(Routes.ProfileView)
+        toggleMenu() // Cierra el menú después de navegar
+    }
+
     fun onNotificationsClick() {}
     fun onHelpClick() {}
+
     fun onLogoutClick(context: Context, navController: NavController) {
-        val sharedPref = context.getSharedPreferences("myAppPreferences", Context.MODE_PRIVATE)
-        val sessionToken = sharedPref.getString("session_token", null)
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val sessionToken = sharedPreferencesHelper.getSessionToken()
+
         if (sessionToken == null) {
             Log.e("HeaderFooterViewModel", "No se encontró token de sesión")
             Toast.makeText(context, "Error: No se encontró sesión activa", Toast.LENGTH_LONG).show()
@@ -43,7 +50,7 @@ class HeaderFooterViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val logoutResponse = response.body()
                     if (logoutResponse?.status == "success") {
-                        sharedPref.edit().remove("session_token").apply()
+                        sharedPreferencesHelper.clearSession()
                         Log.d("HeaderFooterViewModel", "Logout exitoso")
                         Toast.makeText(context, "Sesión cerrada exitosamente", Toast.LENGTH_LONG).show()
                         navController.navigate(Routes.LoginView) {

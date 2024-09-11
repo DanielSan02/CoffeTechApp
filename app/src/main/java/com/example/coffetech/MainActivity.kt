@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CoffeTechTheme {
-                AppNavHost() // Inicializa la navegación de la aplicación aquí
+                AppNavHost(context = this) // Inicializa la navegación de la aplicación aquí
             }
         }
     }

@@ -53,13 +53,13 @@ fun ChangePasswordView(
         ) {
 
             Spacer(modifier = Modifier.height(16.dp))
-            ReusableFieldLabel(text = "Contraseña anterior",
+            ReusableFieldLabel(text = "Contraseña actual",
                 modifier = Modifier.padding(start = 25.dp))
 
             ReusableTextField(
                 value = currentPassword,
                 onValueChange = { viewModel.onCurrentPasswordChange(it) },
-                placeholder = "Contraseña anterior",
+                placeholder = "Contraseña actual",
                 margin=0.dp,
                 isPassword = true,
 
@@ -102,7 +102,9 @@ fun ChangePasswordView(
                         viewModel.changePassword(context)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF49602D),
+                    contentColor = Color.White)
             ) {
                 Text("Guardar")
             }

@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.coffetech.R
-import com.google.protobuf.Internal.BooleanList
 
 @Composable
 fun ReusableButton(
@@ -110,14 +109,18 @@ fun ReusableTextField(
     margin: Dp = 8.dp,
     errorMessage: String = ""
 ) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Column {
         TextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
             enabled = enabled,
-            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
                 focusedPlaceholderColor = Color.Gray,
                 unfocusedPlaceholderColor = Color.Gray,
                 focusedContainerColor = Color.White,
@@ -129,6 +132,19 @@ fun ReusableTextField(
                 disabledTextColor = Color.Gray.copy(alpha = 0.6f), // Texto más claro cuando está deshabilitado
                 disabledPlaceholderColor = Color.Gray.copy(alpha = 0.6f) // Placeholder más claro cuando está deshabilitado
             ),
+
+            trailingIcon = {
+                if (isPassword) {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                if (passwordVisible) R.drawable.visibility_off else R.drawable.visibility
+                            ),
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
+            },
             maxLines = 1,
             modifier = modifier
                 .padding(margin)
@@ -210,7 +226,9 @@ fun TopBarWithHamburger(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .size(90.dp)
+            .background(Color.White)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start

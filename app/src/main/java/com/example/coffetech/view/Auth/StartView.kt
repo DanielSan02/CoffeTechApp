@@ -1,6 +1,7 @@
 package com.example.coffetech.view.Auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,16 +46,32 @@ fun StartView(
     // Aquí declaramos profileImage correctamente dentro de una función @Composable
     val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
 
-    // Llamamos a BaseScreen que contiene la lógica del top bar y bottom bar
-    HeaderFooterView(
-        title = "CoffeeTech",
-        currentView = "Inicio",
-        navController = navController
 
-    ) {
 
+        // Llamamos a BaseScreen que contiene la lógica del top bar y bottom bar
+        HeaderFooterView(
+            title = "CoffeeTech",
+            currentView = "Inicio",
+            navController = navController
+
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF2F2F2)) // Aplica el fondo rojo al contenido central
+                    .padding(16.dp) // Agrega padding si es necesario
+            ) {
+                // Contenido central
+                // Agregar aqui composables
+                Text(
+                    text = "Contenido central",
+                    color = Color.Black,
+                    modifier = Modifier.padding(16.dp)
+                )
+                }
+        }
     }
-}
+
 
 // Aquí usamos @Preview para previsualizar FarmView
 @Preview(showBackground = true)

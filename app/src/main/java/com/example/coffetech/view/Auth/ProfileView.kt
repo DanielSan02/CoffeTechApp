@@ -113,7 +113,10 @@ fun ProfileView(
                     }
                 },
                 enabled = isProfileUpdated, // Habilitar solo si el nombre ha cambiado
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isProfileUpdated) Color(0xFF49602D) else Color(0xFF49602D).copy(alpha = 0.5f),
+                    contentColor = Color.White
+                ),
                 modifier = Modifier
                     .width(200.dp)
                     .padding(vertical = 16.dp)

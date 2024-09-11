@@ -51,7 +51,8 @@ fun ForgotPasswordView(
         ) {
             LargeText(
                 text = "Restablecer contraseña",
-                modifier = Modifier.padding(top = 30.dp, bottom = 30.dp)
+                modifier = Modifier
+                    .padding(top = 30.dp, bottom = 30.dp)
             )
 
             ReusableDescriptionText(text = "Te enviaremos un email con las instrucciones para restablecer tu contraseña")
@@ -83,8 +84,12 @@ fun ForgotButton(
 ) {
     Button(
         onClick = { onSendRequest() },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
-        modifier = Modifier.padding(bottom = 16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF49602D),
+            contentColor = Color.White
+        ),
+        modifier = Modifier
+            .padding(bottom = 16.dp),
         enabled = isEmailValid // Desactivar botón si el correo no es válido
     ) {
         Text("Enviar correo")

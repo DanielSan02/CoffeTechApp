@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -53,7 +52,8 @@ fun HeaderFooterView(
         topBar = {
             TopBarWithHamburger(
                 onHamburgerClick = headerFooterViewModel::toggleMenu,
-                title = title
+                title = title,
+                backgroundColor = Color.White
             )
         },
         bottomBar = {
@@ -111,27 +111,31 @@ fun HeaderFooterViewPreview() {
 fun TopBarWithHamburger(
     onHamburgerClick: () -> Unit,
     title: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .size(90.dp)
-            .padding(16.dp)
+            .size(width = 360.dp, height = 74.dp)
+            .background(Color.White)
+            .padding(10.dp)
+
     ) {
         // El texto centrado
         LargeText(
             text = title,
             fontSize = 20,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
 
         // El ícono alineado a la izquierda
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.align(Alignment.CenterStart)
+            modifier = Modifier
+                .align(Alignment.BottomStart)
         ) {
             IconButton(onClick = onHamburgerClick) {
                 Icon(
@@ -233,12 +237,16 @@ fun HamburgerMenu(
             // Botón de cerrar sesión
             Button(
                 onClick = onLogoutClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB31D34)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFB31D34),
+                    contentColor = Color.White
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
                     painter = painterResource(R.drawable.logout),
-                    contentDescription = "Cerrar sesión"
+                    contentDescription = "Cerrar sesión",
+                    tint = Color.White
 
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -438,7 +446,8 @@ fun BottomNavigationBar(
 fun TopBarWithHamburgerPreview() {
     TopBarWithHamburger(
         onHamburgerClick = {},
-        title = "Mi App"
+        title = "Mi App",
+        backgroundColor = Color.White
     )
 }
 

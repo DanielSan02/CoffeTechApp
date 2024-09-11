@@ -97,7 +97,6 @@ class LoginViewModel() : ViewModel(), Parcelable {
                                 val sharedPreferencesHelper = SharedPreferencesHelper(context)
                                 sharedPreferencesHelper.saveSessionData(token, name, email)
 
-
                                 Log.d("LoginViewModel", "Datos guardados correctamente: token=$token, name=$name")
 
                                 // Notificar inicio de sesión exitoso

@@ -47,4 +47,18 @@ class SharedPreferencesHelper(context: Context) {
             apply()
         }
     }
+
+    fun setVerificationStatus(isVerified: Boolean) {
+        with(sharedPref.edit()) {
+            putBoolean("is_verified", isVerified)
+            apply()
+        }
+    }
+
+    fun isVerified(): Boolean {
+        return sharedPref.getBoolean("is_verified", false)
+    }
+
+
+
 }

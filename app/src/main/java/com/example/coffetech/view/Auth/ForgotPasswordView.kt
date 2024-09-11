@@ -2,6 +2,7 @@
 
 package com.example.coffetech.view.Auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ fun ForgotPasswordView(
     navController: NavController,
     viewModel: ForgotPasswordViewModel = viewModel()
 ) {
+
     val email by viewModel.email
     val isEmailValid by viewModel.isEmailValid
     val errorMessage by viewModel.errorMessage

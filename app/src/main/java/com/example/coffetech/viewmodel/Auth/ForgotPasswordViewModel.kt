@@ -59,6 +59,7 @@ class ForgotPasswordViewModel : ViewModel() {
                     responseBody?.let {
                         if (it.status == "success") {
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+
                             navController.navigate(Routes.ConfirmTokenForgotPasswordView)
                         } else {
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()

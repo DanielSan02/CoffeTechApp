@@ -3,6 +3,7 @@
 package com.example.coffetech.navigation
 
 import android.content.Context // Importar el Context correcto
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,6 +33,9 @@ fun AppNavHost(context: Context) {
     // Verificar si el usuario está logueado
     val isLoggedIn = sharedPreferencesHelper.isLoggedIn()
 
+    BackHandler {
+        // Si no haces nada, el gesto queda bloqueado
+    }
     // Navegar a la pantalla correcta dependiendo de si el usuario está logueado o no
     NavHost(
         navController = navController,
@@ -40,26 +44,44 @@ fun AppNavHost(context: Context) {
 
         composable(Routes.LoginView) {
             LoginView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.RegisterView) {
             RegisterView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.ForgotPasswordView) {
             ForgotPasswordView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.ConfirmTokenForgotPasswordView) {
             ConfirmTokenForgotPasswordView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.VerifyAccountView) {
             VerifyAccountView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.AlertSendView) {
             AlertSendView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(
@@ -71,22 +93,37 @@ fun AppNavHost(context: Context) {
 
             // Llamar a la vista NewPasswordView con el token obtenido
             NewPasswordView(navController = navController, token = token)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.FarmView) {
             FarmView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.StartView) {
             StartView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.ProfileView) {
             ProfileView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
 
         composable(Routes.ChangePasswordView) {
             ChangePasswordView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
         }
     }
 }

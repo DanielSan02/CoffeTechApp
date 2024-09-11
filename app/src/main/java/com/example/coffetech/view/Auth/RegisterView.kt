@@ -2,6 +2,7 @@
 
 package com.example.coffetech.view.Auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,8 @@ fun RegisterView(
     navController: NavController,
     viewModel: RegisterViewModel = viewModel() // Usa la función de Compose para obtener el ViewModel
 ) {
+
+
     val name by viewModel.name
     val email by viewModel.email
     val password by viewModel.password

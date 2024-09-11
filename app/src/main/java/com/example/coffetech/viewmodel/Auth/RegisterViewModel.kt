@@ -11,6 +11,7 @@ import com.example.coffetech.Routes.Routes
 import com.example.coffetech.model.RegisterRequest
 import com.example.coffetech.model.RegisterResponse
 import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -74,7 +75,11 @@ class RegisterViewModel : ViewModel() {
                         responseBody?.let {
                             if (it.status == "success") {
                                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
-                                navController.navigate(Routes.VerifyAccountView)
+
+                                navController.navigate(Routes.VerifyAccountView) {
+                                    popUpTo(Routes.RegisterView) { inclusive = true }
+                                }
+
                             } else {
                                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                             }

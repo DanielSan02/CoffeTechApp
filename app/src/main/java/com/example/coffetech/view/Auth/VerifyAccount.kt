@@ -2,6 +2,7 @@
 
 package com.example.coffetech.view.Auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ fun VerifyAccountView(
     navController: NavController,
     viewModel: VerifyAccountViewModel = viewModel() // Usando ViewModel aquí
 ) {
+
     val token by viewModel.token
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current
@@ -48,12 +50,12 @@ fun VerifyAccountView(
         ) {
             LargeText(text = "Verifica tu cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
-            ReusableDescriptionText(text = "Por favor, introduce el token para verificar tu email")
+            ReusableDescriptionText(text = "Por favor, introduce el código para verificar tu email")
 
             ReusableTextField(
                 value = token,
                 onValueChange = { viewModel.onTokenChange(it) },
-                placeholder = "Token"
+                placeholder = "Código"
             )
 
             VerifyButton(

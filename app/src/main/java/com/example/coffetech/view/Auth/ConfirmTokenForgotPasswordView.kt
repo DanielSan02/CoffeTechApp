@@ -2,6 +2,7 @@
 
 package com.example.coffetech.view.Auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,6 +34,8 @@ fun ConfirmTokenForgotPasswordView(
     navController: NavController,
     viewModel: ConfirmTokenForgotPasswordViewModel = viewModel()
 ) {
+
+
     val token by viewModel.token
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current // Obtener el contexto aquí
@@ -85,6 +89,8 @@ fun ConfirmButton(
     ) {
         Text("Confirmar Token")
     }
+
+
 }
 
 @Preview(showBackground = true)

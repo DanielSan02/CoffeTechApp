@@ -4,6 +4,7 @@ package com.example.coffetech.view.Auth
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ fun NewPasswordView(
     viewModel: NewPasswordViewModel = viewModel(),
     token: String // Asegúrate de recibir el token aquí
 ) {
+
     val password by viewModel.password
     val confirmPassword by viewModel.confirmPassword
     val errorMessage by viewModel.errorMessage

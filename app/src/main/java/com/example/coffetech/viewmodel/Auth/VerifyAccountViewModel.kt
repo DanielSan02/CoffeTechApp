@@ -11,6 +11,7 @@ import com.example.coffetech.Routes.Routes
 import com.example.coffetech.model.RetrofitInstance
 import com.example.coffetech.model.VerifyRequest
 import com.example.coffetech.model.VerifyResponse
+import com.example.coffetech.utils.SharedPreferencesHelper
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -46,7 +47,12 @@ class VerifyAccountViewModel : ViewModel() {
                     responseBody?.let {
                         if (it.status == "success") {
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
-                            navController.navigate(Routes.LoginView)
+
+                            navController.navigate(Routes.LoginView) {
+                                popUpTo(Routes.VerifyAccountView) { inclusive = true }
+                            }
+
+
                         } else {
                             errorMessage.value = it.message ?: "Error desconocido del servidor"
                         }

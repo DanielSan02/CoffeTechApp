@@ -1,5 +1,6 @@
 package com.example.coffetech.view.Auth
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import com.example.coffetech.view.common.HeaderFooterView
 
 import com.example.coffetech.viewmodel.Auth.StartViewModel
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun StartView(
     navController: NavController,
@@ -45,8 +47,6 @@ fun StartView(
 
     // Aquí declaramos profileImage correctamente dentro de una función @Composable
     val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
-
-
 
         // Llamamos a BaseScreen que contiene la lógica del top bar y bottom bar
         HeaderFooterView(

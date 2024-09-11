@@ -9,14 +9,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.Routes.Routes.FarmView
 import com.example.coffetech.view.Auth.LoginView
 import com.example.coffetech.view.Auth.RegisterView
 import com.example.coffetech.view.Auth.ForgotPasswordView
 import com.example.coffetech.view.Auth.ConfirmTokenForgotPasswordView
 import com.example.coffetech.view.Auth.VerifyAccountView
 import com.example.coffetech.view.Auth.AlertSendView
-import com.example.coffetech.view.Auth.FarmView
 import com.example.coffetech.view.Auth.NewPasswordView
+import com.example.coffetech.view.Auth.StartView
+import com.example.coffetech.view.farm.FarmView
 
 @Composable
 fun AppNavHost() {
@@ -62,5 +64,9 @@ fun AppNavHost() {
         composable(Routes.FarmView) {
             FarmView(navController = navController)
         }
+        composable(Routes.StartView) {
+            StartView(navController = navController)
+        }
+
     }
 }

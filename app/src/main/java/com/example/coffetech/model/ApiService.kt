@@ -30,7 +30,11 @@ data class LoginRequest(
 data class LoginResponse(
     val status: String,
     val message: String,
-    val data: Any? = null
+    val data: TokenData? = null
+)
+
+data class TokenData(
+    val session_token: String
 )
 
 // Data class para la solicitud de verificación
@@ -70,6 +74,16 @@ data class ResetPasswordResponse(
     val data: Any? = null
 )
 
+data class LogoutRequest(
+    val session_token: String
+)
+
+data class LogoutResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
+)
+
 // Interfaz del servicio API
 interface ApiService {
     @POST("/auth/register")
@@ -89,4 +103,9 @@ interface ApiService {
 
     @POST("/auth/reset-password")
     fun resetPassword(@Body request: ResetPasswordRequest) : Call <ResetPasswordResponse>
+
+    @POST("/auth/logout")
+    fun logoutUser(@Body request: LogoutRequest): Call<LogoutResponse>
+
+
 }

@@ -1,18 +1,11 @@
 // FarmView.kt
 
-package com.example.coffetech.view.Auth
+package com.example.coffetech.view.farm
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.common.BaseScreen
 import com.example.coffetech.common.BottomNavigationBar
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.HamburgerMenu
@@ -38,96 +32,73 @@ import com.example.coffetech.common.SearchBar
 import com.example.coffetech.common.TopBarWithHamburger
 import com.example.coffetech.viewmodel.farm.FarmViewModel
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import com.example.coffetech.view.common.HeaderFooterView
 
+// FarmView Function
 @Composable
 fun FarmView(
     navController: NavController,
     viewModel: FarmViewModel = viewModel() // Inyecta el ViewModel aquí
 ) {
     var isMenuVisible by remember { mutableStateOf(false) }
-    val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
-    val profileName = "Usuario"
     var query by remember { mutableStateOf(TextFieldValue("")) }
 
+    // Aquí declaramos profileImage correctamente dentro de una función @Composable
+    val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
 
-    Scaffold(
-        topBar = {
-            TopBarWithHamburger(
-                onHamburgerClick = { isMenuVisible = !isMenuVisible },
-                title = "Mis Fincas"
-            )
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                onHomeClick = { navController.navigate("ruta de inicio") },
-                onFincasClick = { /* Actual screen */ },
-                onCentralButtonClick = { /* Action for central button */ },
-                onReportsClick = { navController.navigate("ruta de reportes") },
-                onCostsClick = { navController.navigate(  "ruta de costos") }
-            )
-        }
-    ) { paddingValues ->
-        Box(
+    // Llamamos a BaseScreen que contiene la lógica del top bar y bottom bar
+    HeaderFooterView(
+        title = "Mis Fincas",
+        currentView = "Fincas",
+        navController = navController
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)) {
-            if (isMenuVisible) {
+                .background(Color(0xFFEFEFEF))
+                .padding(16.dp)
+        ) {
+            SearchBar(
+                query = query,
+                onQueryChanged = { query = it }
+            )
 
-                HamburgerMenu(
-                    profileImage = profileImage,
-                    profileName = profileName,
-                    onProfileClick = { /* Navigate to profile screen */ },
-                    onNotificationsClick = { /* Navigate to notifications screen */ },
-                    onHelpClick = { /* Navigate to help screen */ },
-                    onLogoutClick = { /* Handle logout */ }
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFEFEFEF))
-                    .padding(16.dp)
-            ) {
-                SearchBar(
-                    query = query,
-                    onQueryChanged = { query = it }
-                )
+            // Espacio para las fincas
+            Text(
+                text = "Aquí van las fincas",
+                color = Color.Black
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
-                Spacer(modifier = Modifier.height(16.dp))
-                // Espacio para las fincas
-                Text(
-                    text = "Aquí van las fincas",
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Ejemplo de fincas
-                LazyColumn {
-                    items(listOf("Finca 1", "Finca 2", "Finca 3")) { finca ->
-                        ReusableButton(
-                            text = finca,
-                            onClick = { /* Handle finca item click */ },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                        )
-                    }
+            // Ejemplo de fincas
+            LazyColumn {
+                items(listOf("Finca 1", "Finca 2", "Finca 3")) { finca ->
+                    ReusableButton(
+                        text = finca,
+                        onClick = { /* Handle finca item click */ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
                 }
-                FloatingActionButtonGroup(
-                    onMainButtonClick = { /* Handle main button click */ },
-                    onSubButton1Click = { /* Handle sub button 1 click */ },
-                    onSubButton2Click = { /* Handle sub button 2 click */ },
-                    subButton1Icon = painterResource(id = R.drawable.edit_icon), // Reemplaza con icono adecuado
-                    subButton2Icon = painterResource(id = R.drawable.plus_icon), // Reemplaza con icono adecuado
-                    mainButtonIcon = painterResource(id = R.drawable.plus_icon) // Reemplaza con icono adecuado
-                )
             }
+
+            FloatingActionButtonGroup(
+                onMainButtonClick = { /* Handle main button click */ },
+                onSubButton1Click = { /* Handle sub button 1 click */ },
+                onSubButton2Click = { /* Handle sub button 2 click */ },
+                subButton1Icon = painterResource(id = R.drawable.edit_icon), // Reemplaza con icono adecuado
+                subButton2Icon = painterResource(id = R.drawable.plus_icon), // Reemplaza con icono adecuado
+                mainButtonIcon = painterResource(id = R.drawable.plus_icon) // Reemplaza con icono adecuado
+            )
         }
     }
 }
 
+// Aquí usamos @Preview para previsualizar FarmView
 @Preview(showBackground = true)
 @Composable
 fun FarmViewPreview() {

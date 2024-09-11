@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
 import com.example.coffetech.R
 
 @Composable
@@ -144,6 +145,9 @@ fun ReusableDescriptionText(
         modifier = modifier.padding(paddingValues)
     )
 }
+
+// Vista base de topbar y bottombar
+
 
 @Composable
 fun TopBarWithHamburger(
@@ -367,6 +371,69 @@ fun BottomNavigationBar(
         }
     }
 }
+
+@Composable
+fun BaseScreen(
+    modifier: Modifier = Modifier,
+    title: String,
+    navController: NavController,
+    isMenuVisible: Boolean = false,
+    onHamburgerClick: () -> Unit = {},
+    onHomeClick: () -> Unit = { navController.navigate("ruta_de_inicio") },
+    onFincasClick: () -> Unit = { navController.navigate("ruta_de_fincas") },
+    onCentralButtonClick: () -> Unit = { /* Acción por defecto para el botón central */ },
+    onReportsClick: () -> Unit = { navController.navigate("ruta_de_reportes") },
+    onCostsClick: () -> Unit = { navController.navigate("ruta_de_costos") },
+    onProfileClick: () -> Unit = { navController.navigate("ruta_de_perfil") },
+    onNotificationsClick: () -> Unit = { navController.navigate("ruta_de_notificaciones") },
+    onHelpClick: () -> Unit = { navController.navigate("ruta_de_ayuda") },
+    onLogoutClick: () -> Unit = { navController.navigate("ruta_de_login") },
+    content: @Composable () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopBarWithHamburger(
+                onHamburgerClick = onHamburgerClick,
+                title = title
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                onHomeClick = onHomeClick,
+                onFincasClick = onFincasClick,
+                onCentralButtonClick = onCentralButtonClick,
+                onReportsClick = onReportsClick,
+                onCostsClick = onCostsClick
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            content()
+            // Mostrar menú hamburguesa si está visible
+                if (isMenuVisible) {
+                    HamburgerMenu(
+                        profileImage = painterResource(id = R.drawable.menu_icon), // Esto es una función Composable
+                        profileName = "Usuario",
+                        onProfileClick = onProfileClick,
+                        onNotificationsClick = onNotificationsClick,
+                        onHelpClick = onHelpClick,
+                        onLogoutClick = onLogoutClick  // Este ya no es Composable
+                    )
+                }
+            }
+        }
+    }
+
+
+
+
+// end
+
+
 
 @Composable
 fun SearchBar(

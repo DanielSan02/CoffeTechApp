@@ -105,7 +105,10 @@ fun RegisterView(
 fun RegisterButton(onRegisterClick: () -> Unit) {
     Button(
         onClick = { onRegisterClick() },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF49602D),
+            contentColor = Color.White
+        ),
         modifier = Modifier.padding(bottom = 5.dp, top = 18.dp)
     ) {
         Text("Registrarse")

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
 import com.example.coffetech.R
 
 @Composable
@@ -56,42 +57,110 @@ fun ReusableButton(
         Text(text)
     }
 }
+
+
+@Composable
+fun TopBarWithBackArrow(
+    onBackClick: () -> Unit,
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(90.dp)
+            .height(56.dp)
+            .padding( 16.dp),
+
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                painter = painterResource(R.drawable.back_arrow),
+                contentDescription = "Back",
+                tint = Color(0xFF2B2B2B),
+                modifier = Modifier.size(24.dp)
+
+            )
+
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = title,
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.W800),
+            color = Color(0xFF2B2B2B)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+    }
+
+}
+
 @Composable
 fun ReusableTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     isPassword: Boolean = false,
     isValid: Boolean = true,
-    maxWidth: Dp = 300.dp, // Ancho máximo predeterminado
+    maxWidth: Dp = 300.dp,
     maxHeight: Dp = 80.dp,
-    margin: Dp = 8.dp, // Margen predeterminado
-    errorMessage: String = "" // Añadido para el mensaje de error
+    margin: Dp = 8.dp,
+    errorMessage: String = ""
 ) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Column {
         TextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
-            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            enabled = enabled,
+            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
                 focusedPlaceholderColor = Color.Gray,
                 unfocusedPlaceholderColor = Color.Gray,
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 disabledContainerColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                disabledTextColor = Color.Gray.copy(alpha = 0.6f), // Texto más claro cuando está deshabilitado
+                disabledPlaceholderColor = Color.Gray.copy(alpha = 0.6f) // Placeholder más claro cuando está deshabilitado
             ),
-            maxLines = 1, // Limitar a una sola línea
+
+            trailingIcon = {
+                if (isPassword) {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                if (passwordVisible) R.drawable.visibility_off else R.drawable.visibility
+                            ),
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
+            },
+            maxLines = 1,
             modifier = modifier
-                .padding(margin) // Aplicar margen alrededor del TextField
-                .border(1.dp, if (isValid) Color.Gray else Color.Red, RoundedCornerShape(4.dp))
-                .widthIn(max = maxWidth) // Limitar el ancho máximo del TextField
+                .padding(margin)
+                .border(
+                    1.dp,
+                    when {
+                        !enabled -> Color.Gray.copy(alpha = 0.3f) // Borde más claro cuando está deshabilitado
+                        !isValid -> Color.Red
+                        else -> Color.Gray
+                    },
+                    RoundedCornerShape(4.dp)
+                )
+                .widthIn(max = maxWidth)
                 .width(maxWidth)
                 .heightIn(max = maxHeight)
-                .horizontalScroll(rememberScrollState()) // Habilitar desplazamiento horizontal
+                .horizontalScroll(rememberScrollState())
         )
         if (!isValid && errorMessage.isNotEmpty()) {
             Text(
@@ -145,6 +214,9 @@ fun ReusableDescriptionText(
     )
 }
 
+// Vista base de topbar y bottombar
+
+
 @Composable
 fun TopBarWithHamburger(
     onHamburgerClick: () -> Unit,
@@ -154,7 +226,9 @@ fun TopBarWithHamburger(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .size(90.dp)
+            .background(Color.White)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
@@ -369,6 +443,69 @@ fun BottomNavigationBar(
 }
 
 @Composable
+fun BaseScreen(
+    modifier: Modifier = Modifier,
+    title: String,
+    navController: NavController,
+    isMenuVisible: Boolean = false,
+    onHamburgerClick: () -> Unit = {},
+    onHomeClick: () -> Unit = { navController.navigate("ruta_de_inicio") },
+    onFincasClick: () -> Unit = { navController.navigate("ruta_de_fincas") },
+    onCentralButtonClick: () -> Unit = { /* Acción por defecto para el botón central */ },
+    onReportsClick: () -> Unit = { navController.navigate("ruta_de_reportes") },
+    onCostsClick: () -> Unit = { navController.navigate("ruta_de_costos") },
+    onProfileClick: () -> Unit = { navController.navigate("ruta_de_perfil") },
+    onNotificationsClick: () -> Unit = { navController.navigate("ruta_de_notificaciones") },
+    onHelpClick: () -> Unit = { navController.navigate("ruta_de_ayuda") },
+    onLogoutClick: () -> Unit = { navController.navigate("ruta_de_login") },
+    content: @Composable () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopBarWithHamburger(
+                onHamburgerClick = onHamburgerClick,
+                title = title
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                onHomeClick = onHomeClick,
+                onFincasClick = onFincasClick,
+                onCentralButtonClick = onCentralButtonClick,
+                onReportsClick = onReportsClick,
+                onCostsClick = onCostsClick
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            content()
+            // Mostrar menú hamburguesa si está visible
+                if (isMenuVisible) {
+                    HamburgerMenu(
+                        profileImage = painterResource(id = R.drawable.menu_icon), // Esto es una función Composable
+                        profileName = "Usuario",
+                        onProfileClick = onProfileClick,
+                        onNotificationsClick = onNotificationsClick,
+                        onHelpClick = onHelpClick,
+                        onLogoutClick = onLogoutClick  // Este ya no es Composable
+                    )
+                }
+            }
+        }
+    }
+
+
+
+
+// end
+
+
+
+@Composable
 fun SearchBar(
     query: TextFieldValue,
     onQueryChanged: (TextFieldValue) -> Unit
@@ -553,3 +690,20 @@ fun LogoImage() {
         )
     }
 }
+@Composable
+fun ReusableFieldLabel(
+    text: String,
+    modifier: Modifier = Modifier // Permitir pasar un modificador opcional
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyLarge,
+        color = Color.Black,
+        fontSize = 16.sp,
+        modifier = modifier
+            .fillMaxWidth() // Asegurarse de que la etiqueta ocupe todo el ancho disponible
+            .padding(bottom = 8.dp) // Ajustar el padding inferior (puedes ajustarlo según sea necesario)
+    )
+}
+
+

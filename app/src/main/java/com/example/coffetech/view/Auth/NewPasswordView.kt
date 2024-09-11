@@ -115,7 +115,10 @@ fun ResetPasswordButton(
 ) {
     Button(
         onClick = { onResetClick() },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF49602D),
+            contentColor = Color.White
+        ),
         modifier = Modifier.padding(bottom = 16.dp)
     ) {
         Text("Restablecer")

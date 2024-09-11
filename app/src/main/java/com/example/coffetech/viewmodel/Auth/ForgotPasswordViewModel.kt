@@ -27,6 +27,9 @@ class ForgotPasswordViewModel : ViewModel() {
     var errorMessage = mutableStateOf("")
         private set
 
+    var isLoading = mutableStateOf(false) // Nuevo estado para manejar carga
+        private set
+
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
         isEmailValid.value = isValidEmail(newEmail)
@@ -43,10 +46,14 @@ class ForgotPasswordViewModel : ViewModel() {
             return
         }
 
+        isLoading.value = true // Iniciar carga
+
         val forgotPasswordRequest = ForgotPasswordRequest(email.value)
 
         RetrofitInstance.api.forgotPassword(forgotPasswordRequest).enqueue(object : Callback<ForgotPasswordResponse> {
             override fun onResponse(call: Call<ForgotPasswordResponse>, response: Response<ForgotPasswordResponse>) {
+                isLoading.value = false // Terminar carga
+
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     responseBody?.let {
@@ -79,6 +86,7 @@ class ForgotPasswordViewModel : ViewModel() {
             }
 
             override fun onFailure(call: Call<ForgotPasswordResponse>, t: Throwable) {
+                isLoading.value = false // Terminar carga
                 errorMessage.value = "Error de red: ${t.localizedMessage}"
                 Toast.makeText(context, errorMessage.value, Toast.LENGTH_LONG).show()
             }

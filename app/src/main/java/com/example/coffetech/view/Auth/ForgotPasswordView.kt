@@ -37,6 +37,7 @@ fun ForgotPasswordView(
     val email by viewModel.email
     val isEmailValid by viewModel.isEmailValid
     val errorMessage by viewModel.errorMessage
+    val isLoading by viewModel.isLoading
     val context = LocalContext.current // Obtener el contexto aquí
 
     Box(
@@ -69,6 +70,7 @@ fun ForgotPasswordView(
 
             ForgotButton(
                 isEmailValid = isEmailValid,
+                isLoading = isLoading,
                 onSendRequest = { viewModel.sendForgotPasswordRequest(navController, context) } // Pasar el contexto aquí
             )
 
@@ -77,24 +79,28 @@ fun ForgotPasswordView(
     }
 }
 
+
 @Composable
 fun ForgotButton(
     isEmailValid: Boolean,
+    isLoading: Boolean,
     onSendRequest: () -> Unit
 ) {
     Button(
-        onClick = { onSendRequest() },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF49602D),
-            contentColor = Color.White
-        ),
-        modifier = Modifier
-            .padding(bottom = 16.dp),
-        enabled = isEmailValid // Desactivar botón si el correo no es válido
+        onClick = { if (!isLoading) onSendRequest() }, // Solo ejecutar si no está cargando
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+        modifier = Modifier.padding(bottom = 16.dp),
+        enabled = isEmailValid && !isLoading // Desactivar si está cargando
+
     ) {
-        Text("Enviar correo")
+        if (isLoading) {
+            Text("Enviando...") // Mostrar texto de carga
+        } else {
+            Text("Enviar correo")
+        }
     }
 }
+
 
 @Composable
 fun ForgotBack(navController: NavController) {

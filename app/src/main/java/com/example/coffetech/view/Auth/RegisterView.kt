@@ -120,7 +120,7 @@ fun RegisterButton(
         modifier = Modifier.padding(bottom = 16.dp, top=16.dp),
         enabled = !isLoading // Deshabilita el botón si está cargando
     ) {
-        Text("Registrarse")
+
         if (isLoading) {
             Text("Registrandose...") // Texto mientras está cargando
         } else {

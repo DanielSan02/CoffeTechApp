@@ -40,16 +40,16 @@ fun ProfileView(
     val email by viewModel.email
     val errorMessage by viewModel.errorMessage
     val isProfileUpdated by viewModel.isProfileUpdated
+    val isLoading by viewModel.isLoading
     val scrollState = rememberScrollState()
-
-    // Cargar los datos del usuario al iniciar la vista
+    val ErrorMessage by viewModel.nameErrorMessage
     LaunchedEffect(Unit) {
         viewModel.loadUserData(context)
     }
 
     Column(modifier = modifier.fillMaxSize()) {
         TopBarWithBackArrow(
-            onBackClick = { navController.popBackStack() },
+            onBackClick = { navController.navigate(Routes.StartView)},
             title = "Editar Perfil"
         )
 
@@ -76,7 +76,7 @@ fun ProfileView(
             ) {
                 ReusableFieldLabel(text = "Nombre")
                 ReusableTextField(
-                    value = name, // El nombre ya se cargará desde el ViewModel
+                    value = name,
                     onValueChange = { viewModel.onNameChange(it) },
                     placeholder = "Nombre",
                     margin = 0.dp
@@ -85,10 +85,10 @@ fun ProfileView(
 
                 ReusableFieldLabel(text = "Correo")
                 ReusableTextField(
-                    value = email, // El correo ya se cargará desde el ViewModel
+                    value = email,
                     onValueChange = { },
                     placeholder = "Correo",
-                    enabled = false, // Deshabilitado ya que el correo no debe ser editable
+                    enabled = false,
                     margin = 0.dp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -105,31 +105,44 @@ fun ProfileView(
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
             }
-
-            // Botón Guardar
-            Button(
-                onClick = {
-                    viewModel.saveProfile(context) {
-                    }
-                },
-                enabled = isProfileUpdated, // Habilitar solo si el nombre ha cambiado
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isProfileUpdated) Color(0xFF49602D) else Color(0xFF49602D).copy(alpha = 0.5f),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .width(200.dp)
-                    .padding(vertical = 16.dp)
-            ) {
-                Text("Guardar")
+            if (ErrorMessage.isNotEmpty()) {
+                Text(text = ErrorMessage, color = Color.Red, modifier = Modifier.padding(top = 4.dp))
             }
 
-            TextButton(
-                onClick = { /*viewModel.deleteAccount { navController.navigate("login") }*/ },
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                Text("Eliminar cuenta", color = Color.Red)
-            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SaveButton(
+                isLoading = isLoading,
+                isProfileUpdated = isProfileUpdated,
+                name = name,
+                onSaveClick = { viewModel.saveProfile(context) { /* Success action */ } }
+            )
+        }
+    }
+}
+
+@Composable
+fun SaveButton(
+    isLoading: Boolean,
+    isProfileUpdated: Boolean,
+    name: String,
+    onSaveClick: () -> Unit
+) {
+    Button(
+        onClick = { if (!isLoading) onSaveClick() }, // Desactiva el click si está cargando
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isProfileUpdated && name.isNotBlank()) Color(0xFF49602D) else Color(0xFF49602D).copy(alpha = 0.5f),
+            contentColor = Color.White
+        ),
+        modifier = Modifier
+            .width(200.dp)
+            .padding(vertical = 16.dp),
+        enabled = isProfileUpdated && name.isNotBlank() && !isLoading // Deshabilitar si no está actualizado, el nombre está vacío o está cargando
+    ) {
+        if (isLoading) {
+            Text("Guardando...") // Texto mientras está cargando
+        } else {
+            Text("Guardar") // Texto normal
         }
     }
 }

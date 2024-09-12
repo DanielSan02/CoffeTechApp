@@ -48,6 +48,7 @@ fun RegisterView(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isLoading by viewModel.isLoading
 
     Box(
         modifier = modifier
@@ -96,6 +97,7 @@ fun RegisterView(
             }
 
             RegisterButton(
+                isLoading = isLoading, // Pasar el estado de carga
                 onRegisterClick = { viewModel.registerUser(navController, context) }
             )
 
@@ -105,18 +107,28 @@ fun RegisterView(
 }
 
 @Composable
-fun RegisterButton(onRegisterClick: () -> Unit) {
+fun RegisterButton(
+    isLoading: Boolean,
+    onRegisterClick: () -> Unit
+) {
     Button(
-        onClick = { onRegisterClick() },
+        onClick = { if (!isLoading) onRegisterClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
-        modifier = Modifier.padding(bottom = 5.dp, top = 18.dp)
+        modifier = Modifier.padding(bottom = 16.dp, top=16.dp),
+        enabled = !isLoading // Deshabilita el botón si está cargando
     ) {
         Text("Registrarse")
+        if (isLoading) {
+            Text("Registrandose...") // Texto mientras está cargando
+        } else {
+            Text("Registrarse") // Texto normal
+        }
     }
 }
+
 
 @Composable
 fun ToLoginButton(navController: NavController) {

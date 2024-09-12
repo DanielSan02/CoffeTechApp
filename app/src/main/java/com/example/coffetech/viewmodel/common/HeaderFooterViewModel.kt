@@ -20,7 +20,7 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 class HeaderFooterViewModel : ViewModel() {
     private val _isMenuVisible = MutableStateFlow(false)
     val isMenuVisible: StateFlow<Boolean> = _isMenuVisible.asStateFlow()
-
+    var isLoading = MutableStateFlow(false)
     fun toggleMenu() {
         _isMenuVisible.value = !_isMenuVisible.value
     }
@@ -44,11 +44,14 @@ class HeaderFooterViewModel : ViewModel() {
             return
         }
 
+        isLoading.value = true // Activar estado de carga
+
         val logoutRequest = LogoutRequest(session_token = sessionToken)
         RetrofitInstance.api.logoutUser(logoutRequest).enqueue(object : Callback<LogoutResponse> {
             override fun onResponse(call: Call<LogoutResponse>, response: Response<LogoutResponse>) {
                 if (response.isSuccessful) {
                     val logoutResponse = response.body()
+                    isLoading.value = false // Desactivar estado de carga
                     if (logoutResponse?.status == "success") {
                         sharedPreferencesHelper.clearSession()
                         Log.d("HeaderFooterViewModel", "Logout exitoso")

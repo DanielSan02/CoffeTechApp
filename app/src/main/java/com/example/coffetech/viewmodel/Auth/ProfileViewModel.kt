@@ -29,6 +29,11 @@ class ProfileViewModel : ViewModel() {
     var isProfileUpdated = mutableStateOf(false)
         private set
 
+    var isLoading = mutableStateOf(false)
+        private set
+
+    var nameErrorMessage = mutableStateOf("") // Nueva variable para manejar el error del campo "Nombre"
+
     // Cargar los datos del usuario desde SharedPreferences
     fun loadUserData(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
@@ -39,7 +44,12 @@ class ProfileViewModel : ViewModel() {
     // Método para manejar los cambios en el nombre
     fun onNameChange(newName: String) {
         name.value = newName
-        isProfileUpdated.value = true // Habilita el botón Guardar cuando el nombre cambie
+        isProfileUpdated.value = true
+
+        // Limpiar el error si el nombre no está vacío
+        if (newName.isNotBlank()) {
+            nameErrorMessage.value = ""
+        }
     }
 
     // Función para actualizar el perfil en el backend
@@ -47,6 +57,10 @@ class ProfileViewModel : ViewModel() {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val sessionToken = sharedPreferencesHelper.getSessionToken()
 
+        if (name.value.isBlank()) {
+            nameErrorMessage.value = "El nombre no puede estar vacío"
+            return
+        }
         if (sessionToken == null) {
             errorMessage.value = "No se encontró el token de sesión."
             Toast.makeText(context, "Error: No se encontró el token de sesión. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
@@ -54,9 +68,12 @@ class ProfileViewModel : ViewModel() {
         }
 
         val updateRequest = UpdateProfileRequest(new_name = name.value)
+        isLoading.value = true
 
         RetrofitInstance.api.updateProfile(updateRequest, sessionToken).enqueue(object : Callback<UpdateProfileResponse> {
             override fun onResponse(call: Call<UpdateProfileResponse>, response: Response<UpdateProfileResponse>) {
+                isLoading.value = false // Desactivar el estado de carga
+
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody?.status == "success") {

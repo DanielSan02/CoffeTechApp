@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ReusableCancelButton
 import com.example.coffetech.common.ReusableFieldLabel
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.TopBarWithBackArrow
@@ -32,6 +34,7 @@ fun ChangePasswordView(
     val errorMessage by viewModel.errorMessage
     val isPasswordChanged by viewModel.isPasswordChanged
     val context = LocalContext.current // Obtener el contexto aquí
+    val isLoading by viewModel.isLoading
 
     LaunchedEffect(isPasswordChanged) {
         if (isPasswordChanged) {
@@ -41,7 +44,7 @@ fun ChangePasswordView(
 
     Column(modifier = modifier.fillMaxSize()) {
         TopBarWithBackArrow(
-            onBackClick = { navController.popBackStack() },
+            onBackClick = { navController.navigate(Routes.ProfileView)},
             title = "Actualizar contraseña"
         )
 
@@ -95,33 +98,46 @@ fun ChangePasswordView(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                onClick = {
-                    // Validar si las contraseñas son seguras antes de intentar cambiarlas
+            SavePasswordButton(
+                isLoading = isLoading,
+                onSaveClick = {
                     if (viewModel.validatePasswordRequirements()) {
                         viewModel.changePassword(context)
                     }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF49602D),
-                    contentColor = Color.White)
-            ) {
-                Text("Guardar")
-            }
+                }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(
-                onClick = {
-                    navController.popBackStack()
-                }
-            ) {
-                Text("Cancelar", color = Color(0xFF49602D))
-            }
+            ReusableCancelButton(
+                navController = navController,
+                destination = Routes.ProfileView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
+            )
         }
     }
 }
 
+@Composable
+fun SavePasswordButton(
+    isLoading: Boolean,
+    onSaveClick: () -> Unit
+) {
+    Button(
+        onClick = { if (!isLoading) onSaveClick() },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF49602D),
+            contentColor = Color.White
+        ),
+        modifier = Modifier.padding(bottom = 16.dp),
+        enabled = !isLoading // Deshabilita el botón si está en estado de carga
+    ) {
+        if (isLoading) {
+            Text("Guardando...") // Texto cuando está guardando
+        } else {
+            Text("Guardar") // Texto normal
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

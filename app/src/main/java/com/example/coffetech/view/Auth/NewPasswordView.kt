@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.LogoImage
+import com.example.coffetech.common.ReusableCancelButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.ReusableDescriptionText
 import com.example.coffetech.ui.theme.CoffeTechTheme
@@ -49,6 +50,7 @@ fun NewPasswordView(
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val isLoading by viewModel.isLoading
 
     // Verifica si el token es válido y haz un registro del mismo
     if (token.isBlank()) {
@@ -102,10 +104,14 @@ fun NewPasswordView(
             Spacer(modifier = Modifier.height(16.dp))
 
             ResetPasswordButton(
+                isLoading = isLoading,
                 onResetClick = { viewModel.resetPassword(navController, context, token) }
             )
 
-            CancelButton(navController = navController)
+            ReusableCancelButton(
+                navController = navController,
+                destination = Routes.LoginView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
+            )
         }
     }
 }
@@ -113,31 +119,27 @@ fun NewPasswordView(
 
 @Composable
 fun ResetPasswordButton(
+    isLoading: Boolean,
     onResetClick: () -> Unit
 ) {
     Button(
-        onClick = { onResetClick() },
+        onClick = { if (!isLoading) onResetClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = 16.dp, top=10.dp),
+        enabled = !isLoading // Deshabilita el botón si está cargando
+
     ) {
-        Text("Restablecer")
+        if (isLoading) {
+            Text("Restableciendo...") // Texto mientras está cargando
+        } else {
+            Text("Restablecer") // Texto normal
+        }
     }
 }
 
-@Composable
-fun CancelButton(navController: NavController) {
-    TextButton(
-        onClick = {
-            navController.navigate(Routes.LoginView)
-        },
-        modifier = Modifier.padding(bottom = 16.dp)
-    ) {
-        Text("Cancelar", color = Color(0xFF49602D))
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

@@ -22,7 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.LargeText
+import com.example.coffetech.common.ReusableCancelButton
 import com.example.coffetech.common.ReusableDescriptionText
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
@@ -39,6 +41,7 @@ fun ConfirmTokenForgotPasswordView(
     val token by viewModel.token
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current // Obtener el contexto aquí
+    val isLoading by viewModel.isLoading
 
     Box(
         modifier = modifier
@@ -52,7 +55,7 @@ fun ConfirmTokenForgotPasswordView(
         ) {
             LargeText(text = "Restablecer Contraseña", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
-            ReusableDescriptionText(text = "Por favor, introduce el token para restablecer tu contraseña")
+            ReusableDescriptionText(text = "Por favor, introduce el código para restablecer tu contraseña")
 
             ReusableTextField(
                 value = token,
@@ -63,6 +66,7 @@ fun ConfirmTokenForgotPasswordView(
             )
 
             ConfirmButton(
+                isLoading = isLoading,
                 token = token,
                 onConfirmClick = { viewModel.confirmToken(navController, context) }
             )
@@ -70,28 +74,41 @@ fun ConfirmTokenForgotPasswordView(
             if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
             }
+
+            ReusableCancelButton(
+                navController = navController,
+                destination = Routes.LoginView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
+            )
         }
     }
 }
 
 @Composable
 fun ConfirmButton(
+    isLoading: Boolean,
     token: String,
     onConfirmClick: () -> Unit
 ) {
     Button(
-        onClick = { onConfirmClick() },
+        onClick = {if (!isLoading) onConfirmClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
-        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
+        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
+        enabled = !isLoading // Deshabilita el botón si está cargando
+
     ) {
-        Text("Confirmar Token")
+        if (isLoading) {
+            Text("Confirmando...") // Texto mientras está cargando
+        } else {
+            Text("Confirmar código") // Texto normal
+        }
     }
 
 
 }
+
 
 @Preview(showBackground = true)
 @Composable

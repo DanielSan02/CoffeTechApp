@@ -58,7 +58,7 @@ fun ForgotPasswordView(
                     .padding(top = 30.dp, bottom = 30.dp)
             )
 
-            ReusableDescriptionText(text = "Te enviaremos un email con las instrucciones para restablecer tu contraseña")
+            ReusableDescriptionText(text = "Te enviaremos un correo con las instrucciones para restablecer tu contraseña")
 
             ReusableTextField(
                 value = email,
@@ -91,7 +91,7 @@ fun ForgotButton(
     Button(
         onClick = { if (!isLoading) onSendRequest() }, // Solo ejecutar si no está cargando
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
-        modifier = Modifier.padding(bottom = 16.dp),
+        modifier = Modifier.padding(bottom = 16.dp, top=16.dp),
         enabled = isEmailValid && !isLoading // Desactivar si está cargando
 
     ) {

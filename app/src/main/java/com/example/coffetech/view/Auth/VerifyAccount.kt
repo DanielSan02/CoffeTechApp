@@ -37,6 +37,7 @@ fun VerifyAccountView(
     val token by viewModel.token
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current
+    val isLoading by viewModel.isLoading
 
     Box(
         modifier = modifier
@@ -50,7 +51,7 @@ fun VerifyAccountView(
         ) {
             LargeText(text = "Verifica tu cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
-            ReusableDescriptionText(text = "Por favor, introduce el código para verificar tu email")
+            ReusableDescriptionText(text = "Por favor, introduce el código para verificar tu correo")
 
             ReusableTextField(
                 value = token,
@@ -59,6 +60,7 @@ fun VerifyAccountView(
             )
 
             VerifyButton(
+                isLoading = isLoading,
                 onVerifyClick = { viewModel.verifyUser(navController, context) }
             )
 
@@ -71,16 +73,23 @@ fun VerifyAccountView(
 
 @Composable
 fun VerifyButton(
+    isLoading: Boolean,
     onVerifyClick: () -> Unit
 ) {
     Button(
-        onClick = { onVerifyClick() },
+        onClick = { if (!isLoading) onVerifyClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White),
-        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
+        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
+        enabled = !isLoading // Deshabilita el botón si está cargando
+
     ) {
-        Text("Verificar Email")
+        if (isLoading) {
+            Text("Verificando...") // Texto mientras está cargando
+        } else {
+            Text("Verificar Correo") // Texto normal
+        }
     }
 }
 

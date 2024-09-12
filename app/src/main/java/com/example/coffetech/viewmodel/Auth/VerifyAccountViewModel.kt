@@ -25,6 +25,10 @@ class VerifyAccountViewModel : ViewModel() {
     var errorMessage = mutableStateOf("")
         private set
 
+    var isLoading = mutableStateOf(false)
+        private set
+
+
     fun onTokenChange(newToken: String) {
         token.value = newToken
         if (newToken.isNotBlank()) {
@@ -39,9 +43,12 @@ class VerifyAccountViewModel : ViewModel() {
         }
 
         val verifyRequest = VerifyRequest(token = token.value)
+        isLoading.value = true // Indicar que estamos en proceso de carga
 
         RetrofitInstance.api.verifyUser(verifyRequest).enqueue(object : Callback<VerifyResponse> {
             override fun onResponse(call: Call<VerifyResponse>, response: Response<VerifyResponse>) {
+                isLoading.value = false
+
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     responseBody?.let {

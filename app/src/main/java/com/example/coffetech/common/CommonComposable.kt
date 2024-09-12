@@ -706,4 +706,18 @@ fun ReusableFieldLabel(
     )
 }
 
+@Composable
+fun ReusableCancelButton(
+    navController: NavController,
+    destination: String,  // Ruta a la que navegará cuando se presione cancelar
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = { navController.navigate(destination) },
+        modifier = modifier.padding(bottom = 16.dp)
+    ) {
+        Text("Cancelar", color = Color(0xFF49602D))
+    }
+}
+
 

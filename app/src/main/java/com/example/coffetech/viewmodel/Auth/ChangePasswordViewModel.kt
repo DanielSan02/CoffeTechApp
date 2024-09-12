@@ -27,6 +27,8 @@ class ChangePasswordViewModel : ViewModel() {
 
     var errorMessage = mutableStateOf("")
 
+    var isLoading = mutableStateOf(false)
+
     fun onCurrentPasswordChange(newValue: String) {
         currentPassword.value = newValue
     }
@@ -88,7 +90,7 @@ class ChangePasswordViewModel : ViewModel() {
             current_password = currentPassword.value,
             new_password = newPassword.value
         )
-
+        isLoading.value = true
         // Realiza la llamada al backend usando el método PUT
         RetrofitInstance.api.changePassword(changePasswordRequest, sessionToken)
             .enqueue(object : Callback<ChangePasswordResponse> {
@@ -96,6 +98,7 @@ class ChangePasswordViewModel : ViewModel() {
                     call: Call<ChangePasswordResponse>,
                     response: Response<ChangePasswordResponse>
                 ) {
+                    isLoading.value = false
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         if (responseBody?.status == "success") {

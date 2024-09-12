@@ -34,6 +34,10 @@ class RegisterViewModel : ViewModel() {
     var errorMessage = mutableStateOf("")
         private set
 
+
+    var isLoading = mutableStateOf(false)
+        private set
+
     fun onNameChange(newName: String) {
         name.value = newName
     }
@@ -66,10 +70,14 @@ class RegisterViewModel : ViewModel() {
         } else {
             errorMessage.value = "" // Limpiar el mensaje de error
 
+            isLoading.value = true // Indicar que estamos en proceso de carga
+
             val registerRequest = RegisterRequest(name.value, email.value, password.value, confirmPassword.value)
 
             RetrofitInstance.api.registerUser(registerRequest).enqueue(object : Callback<RegisterResponse> {
                 override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
+                    isLoading.value = false
+
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         responseBody?.let {

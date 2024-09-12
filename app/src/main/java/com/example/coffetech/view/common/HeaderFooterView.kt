@@ -37,16 +37,15 @@ fun HeaderFooterView(
     modifier: Modifier = Modifier,
     title: String,
     navController: NavController,
-    currentView: String = "", //
-    content: @Composable () -> Unit // No es necesario pasar el ViewModel aquí
+    currentView: String = "",
+    content: @Composable () -> Unit
 ) {
-    // HeaderFooterViewModel ahora se maneja internamente
     val headerFooterViewModel: HeaderFooterViewModel = viewModel()
     val isMenuVisible by headerFooterViewModel.isMenuVisible.collectAsState()
+    val isLoading by headerFooterViewModel.isLoading.collectAsState() // Observar el estado de carga
     val context = LocalContext.current
     val sharedPreferencesHelper = SharedPreferencesHelper(context)
     val userName = sharedPreferencesHelper.getUserName()
-// Obtener el nombre desde SharedPreferences
 
     Scaffold(
         topBar = {
@@ -59,10 +58,10 @@ fun HeaderFooterView(
         bottomBar = {
             BottomNavigationBar(
                 currentView = currentView,
-                navController = navController, // Pasar el NavController aquí
+                navController = navController,
                 onHomeClick = { headerFooterViewModel.onHomeClick(navController) },
                 onFincasClick = { headerFooterViewModel.onFincasClick(navController) },
-                onCentralButtonClick = {headerFooterViewModel.onCentralButtonClick(context)},
+                onCentralButtonClick = { headerFooterViewModel.onCentralButtonClick(context) },
                 onReportsClick = { headerFooterViewModel.onReportsClick(navController, context) },
                 onCostsClick = { headerFooterViewModel.onCostsClick(navController, context) }
             )
@@ -73,7 +72,7 @@ fun HeaderFooterView(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            content() // Pasamos el contenido dinámico aquí
+            content()
 
             if (isMenuVisible) {
                 HamburgerMenu(
@@ -83,12 +82,14 @@ fun HeaderFooterView(
                     onNotificationsClick = headerFooterViewModel::onNotificationsClick,
                     onHelpClick = headerFooterViewModel::onHelpClick,
                     onLogoutClick = { headerFooterViewModel.onLogoutClick(context, navController) },
+                    isLoading = isLoading, // Pasar el estado de carga al menú
                     onCloseClick = headerFooterViewModel::toggleMenu
                 )
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -159,9 +160,9 @@ fun HamburgerMenu(
     onNotificationsClick: () -> Unit,
     onHelpClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    isLoading: Boolean, // Nuevo parámetro para rastrear el estado de carga
     onCloseClick: () -> Unit,
     modifier: Modifier = Modifier
-
 ) {
     Box(
         modifier = modifier
@@ -181,7 +182,7 @@ fun HamburgerMenu(
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.close), // Asegúrate de tener este icono
+                    painter = painterResource(R.drawable.close),
                     contentDescription = "Cerrar menú",
                     tint = Color(0xFF2B2B2B)
                 )
@@ -190,7 +191,7 @@ fun HamburgerMenu(
             // Imagen de perfil y nombre
             Row(
                 modifier = Modifier
-                    .padding( 16.dp)
+                    .padding(16.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -210,7 +211,6 @@ fun HamburgerMenu(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
             }
 
             Divider()
@@ -241,20 +241,25 @@ fun HamburgerMenu(
                     containerColor = Color(0xFFB31D34),
                     contentColor = Color.White
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading // Deshabilitar si está en estado de carga
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.logout),
-                    contentDescription = "Cerrar sesión",
-                    tint = Color.White
-
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cerrar Sesión", color = Color.White)
+                if (isLoading) {
+                    Text("Cerrando sesión...") // Texto mientras se está cerrando sesión
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.logout),
+                        contentDescription = "Cerrar sesión",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Cerrar Sesión", color = Color.White)
+                }
             }
         }
     }
 }
+
 
 @Composable
 private fun MenuOption(
@@ -461,7 +466,8 @@ fun HamburgerMenuPreview() {
         onNotificationsClick = {},
         onHelpClick = {},
         onLogoutClick = {},
-        onCloseClick = {}
+        onCloseClick = {},
+        isLoading = false
     )
 }
 

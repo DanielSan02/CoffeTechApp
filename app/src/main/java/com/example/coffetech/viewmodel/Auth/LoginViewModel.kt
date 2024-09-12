@@ -29,6 +29,9 @@ class LoginViewModel() : ViewModel(), Parcelable {
     var errorMessage = mutableStateOf("")
         private set
 
+    var isLoading = mutableStateOf(false)
+        private set
+
     constructor(parcel: Parcel) : this()
 
     fun onEmailChange(newEmail: String) {
@@ -74,6 +77,8 @@ class LoginViewModel() : ViewModel(), Parcelable {
         // Si todas las validaciones pasan, limpiar el mensaje de error y proceder con la solicitud
         errorMessage.value = ""
 
+        isLoading.value = true // Indicar que estamos en proceso de carga
+
         val loginRequest = LoginRequest(email = email.value, password = password.value)
 
         Log.d("LoginViewModel", "Iniciando solicitud de inicio de sesión con email: ${email.value}")
@@ -81,6 +86,7 @@ class LoginViewModel() : ViewModel(), Parcelable {
         // Realizar la solicitud de inicio de sesión al servidor
         RetrofitInstance.api.loginUser(loginRequest).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                isLoading.value = false
                 Log.d("LoginViewModel", "Respuesta del servidor recibida")
                 if (response.isSuccessful) {
                     val responseBody = response.body()

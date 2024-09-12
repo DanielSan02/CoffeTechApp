@@ -45,6 +45,7 @@ fun LoginView(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isLoading by viewModel.isLoading
 
     Box(
         modifier = modifier
@@ -82,10 +83,12 @@ fun LoginView(
             }
 
             ForgotPasswordButton(navController = navController)
+
             LoginButton(
-                onLoginClick = { viewModel.loginUser(navController, context) }, // Usa el ViewModel para manejar el click
-                context = context
+                isLoading = isLoading, // Pasar el estado de carga
+                onLoginClick = { viewModel.loginUser(navController, context) } // Acción del botón
             )
+
 
             LoginToRegisterButton(navController = navController)
         }
@@ -106,18 +109,23 @@ fun ForgotPasswordButton(navController: NavController) {
 
 @Composable
 fun LoginButton(
-    onLoginClick: () -> Unit,
-    context: android.content.Context
+    isLoading: Boolean,
+    onLoginClick: () -> Unit
 ) {
     Button(
-        onClick = { onLoginClick() },
+        onClick = { if (!isLoading) onLoginClick() }, // Desactiva el click si está cargando
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = 16.dp),
+        enabled = !isLoading // Deshabilita el botón si está cargando
     ) {
-        Text("Iniciar sesión")
+        if (isLoading) {
+            Text("Iniciando sesión...") // Texto mientras está cargando
+        } else {
+            Text("Iniciar sesión") // Texto normal
+        }
     }
 }
 

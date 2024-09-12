@@ -27,6 +27,9 @@ class NewPasswordViewModel : ViewModel() {
     var errorMessage = mutableStateOf("")
         private set
 
+    var isLoading = mutableStateOf(false)
+        private set
+
     fun onPasswordChange(newPassword: String) {
         password.value = newPassword
         clearErrorMessage()
@@ -61,9 +64,12 @@ class NewPasswordViewModel : ViewModel() {
             new_password = password.value,
             confirm_password = confirmPassword.value // Pasa el passwordConfirmation aquí
         )
+            isLoading.value = true // Indicar que estamos en proceso de carga
 
         RetrofitInstance.api.resetPassword(resetPasswordRequest).enqueue(object : Callback<ResetPasswordResponse> {
             override fun onResponse(call: Call<ResetPasswordResponse>, response: Response<ResetPasswordResponse>) {
+                isLoading.value = false
+
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     responseBody?.let {

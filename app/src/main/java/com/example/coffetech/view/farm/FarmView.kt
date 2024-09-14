@@ -90,9 +90,10 @@ fun FarmView(
                 onMainButtonClick = { /* Handle main button click */ },
                 onSubButton1Click = { /* Handle sub button 1 click */ },
                 onSubButton2Click = { /* Handle sub button 2 click */ },
-                subButton1Icon = painterResource(id = R.drawable.edit_icon), // Reemplaza con icono adecuado
-                subButton2Icon = painterResource(id = R.drawable.plus_icon), // Reemplaza con icono adecuado
-                mainButtonIcon = painterResource(id = R.drawable.plus_icon) // Reemplaza con icono adecuado
+                subButton1Icon = painterResource(id = R.drawable.edit_icon),
+                subButton2Icon = painterResource(id = R.drawable.plus_icon),
+                mainButtonIcon = painterResource(id = R.drawable.plus_icon),
+                expandedMainButtonIcon = painterResource(id = R.drawable.closefloat_icon)
             )
         }
     }

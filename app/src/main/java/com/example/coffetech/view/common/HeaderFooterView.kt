@@ -166,10 +166,10 @@ fun HamburgerMenu(
 ) {
     Box(
         modifier = modifier
-            .width(280.dp)
+            .width(300.dp)
             .fillMaxHeight()
             .background(Color.White)
-            .border(1.dp, Color.LightGray, RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp))
+            .border(1.dp, Color.LightGray)
     ) {
         Column(
             modifier = Modifier

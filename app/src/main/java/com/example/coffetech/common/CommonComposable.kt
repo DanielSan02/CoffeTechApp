@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.runtime.Composable
@@ -22,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -258,7 +262,7 @@ fun HamburgerMenu(
     Column(
         modifier = modifier
             .background(Color.White)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            .border(1.dp, Color.Red, RectangleShape)
             .padding(16.dp)
             .zIndex(1f)
     ) {
@@ -500,11 +504,6 @@ fun BaseScreen(
 
 
 
-
-// end
-
-
-
 @Composable
 fun SearchBar(
     query: TextFieldValue,
@@ -518,11 +517,12 @@ fun SearchBar(
             .border(width = 1.dp, color = Color.White, shape = RoundedCornerShape(cornerRadius))
             .background(Color.Transparent, shape = RoundedCornerShape(cornerRadius)) // Background transparent to fit border
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White, shape = RoundedCornerShape(cornerRadius)) // White background inside the border
-                .padding(horizontal = 16.dp) // Padding to prevent text from touching the border
+                .background(Color.White, shape = RoundedCornerShape(cornerRadius)) // Fondo blanco del borde
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             BasicTextField(
                 value = query,
@@ -530,7 +530,7 @@ fun SearchBar(
                 decorationBox = { innerTextField ->
                     Box(
                         contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.weight(1f)
                     ) {
                         if (query.text.isEmpty()) {
                             Text(
@@ -542,7 +542,17 @@ fun SearchBar(
                         innerTextField()
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxHeight()
+            )
+            Spacer(modifier = Modifier.width(8.dp)) // Espaciador entre el campo de texto y el ícono
+
+            Icon(
+                imageVector = Icons.Default.Search, // Puedes cambiar el ícono por el que prefieras
+                contentDescription = "Search Icon",
+                modifier = Modifier
+                    .size(24.dp) // Tamaño del ícono
+                    .align(Alignment.CenterVertically), // Alinea el ícono verticalmente en el centro
+                tint = Color.Gray
             )
         }
     }
@@ -557,6 +567,7 @@ fun FloatingActionButtonGroup(
     subButton1Icon: Painter,
     subButton2Icon: Painter,
     mainButtonIcon: Painter,
+    expandedMainButtonIcon: Painter,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -646,7 +657,7 @@ fun FloatingActionButtonGroup(
                     )
                 ) {
                     Icon(
-                        painter = mainButtonIcon,
+                        painter = if(expanded) expandedMainButtonIcon else mainButtonIcon,
                         contentDescription = "Main Button",
                         modifier = Modifier.size(20.dp), // Tamaño del ícono dentro del botón
                         tint = Color.White,
@@ -701,7 +712,7 @@ fun ReusableFieldLabel(
         color = Color.Black,
         fontSize = 16.sp,
         modifier = modifier
-            .fillMaxWidth() // Asegurarse de que la etiqueta ocupe todo el ancho disponible
+            .fillMaxWidth()
             .padding(bottom = 8.dp) // Ajustar el padding inferior (puedes ajustarlo según sea necesario)
     )
 }

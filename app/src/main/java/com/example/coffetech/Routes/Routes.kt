@@ -15,6 +15,7 @@ object Routes {
     const val FarmView = "farmView"
     const val FarmInformationView = "farmInformationView"
     const val FarmEditView ="farmEditView"
+    const val CreateFarmView ="createFarmView"
     const val StartView = "startView"
     const val ProfileView = "profileView"
     const val ChangePasswordView ="changePasswordView"

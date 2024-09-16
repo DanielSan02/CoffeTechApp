@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.common.FarmItem
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableRoleDropdown
@@ -84,27 +85,17 @@ fun FarmView(
 
             // Mostrar lista de fincas
             LazyColumn {
-                items(farms) { finca ->
-                    ReusableButton(
-                        text = finca,
-                        onClick = { viewModel.onFarmClick(finca) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF95A94B)),
-                        modifier = Modifier
-                            .size(width = 333.dp , height = 87.dp)
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                items(farms) { farm ->
+                    FarmItem(
+                        farm = farm,
+                        onClick = { viewModel.onFarmClick(farm) }
                     )
                 }
             }
 
             FloatingActionButtonGroup(
-                onMainButtonClick = { /* Handle main button click */ },
-                onSubButton1Click = { /* Handle sub button 1 click */ },
-                onSubButton2Click = { /* Handle sub button 2 click */ },
-                subButton1Icon = painterResource(id = R.drawable.edit_icon),
-                subButton2Icon = painterResource(id = R.drawable.plus_icon),
-                mainButtonIcon = painterResource(id = R.drawable.plus_icon),
-                expandedMainButtonIcon = painterResource(id = R.drawable.closefloat_icon)
+                onMainButtonClick = { navController.navigate("CreateFarmView") }, // Navega a CreateFarmView
+                mainButtonIcon = painterResource(id = R.drawable.plus_icon)
             )
         }
     }

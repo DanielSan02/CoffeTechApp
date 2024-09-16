@@ -9,11 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class Farm(val name: String, val area: String)
+
 class FarmViewModel : ViewModel() {
 
     // Lista de fincas
-    private val _farms = MutableStateFlow<List<String>>(emptyList())
-    val farms: StateFlow<List<String>> = _farms.asStateFlow()
+    private val _farms = MutableStateFlow<List<Farm>>(emptyList())
+    val farms: StateFlow<List<Farm>> = _farms.asStateFlow()
 
     // Estado de búsqueda
     private val _searchQuery = mutableStateOf("")
@@ -35,13 +37,17 @@ class FarmViewModel : ViewModel() {
     private fun loadFarms() {
         viewModelScope.launch {
             // Simula la carga de fincas desde una fuente de datos
-            _farms.value = listOf("Finca 1", "Finca 2", "Finca 3")
+            _farms.value = listOf(
+                Farm("Finca 1", "Área: 50 Ha"),
+                Farm("Finca 2", "Área: 120 Ha"),
+                Farm("Finca 3", "Área: 75 Ha")
+            )
         }
     }
 
-    fun onFarmClick(farm: String) {
+    fun onFarmClick(farm: Farm) {
         // Lógica para manejar el clic en una finca
-        println("Finca seleccionada: $farm")
+        println("Finca seleccionada: ${farm.name}")
     }
 
     fun onSearchQueryChanged(query: String) {
@@ -58,4 +64,3 @@ class FarmViewModel : ViewModel() {
         _isDropdownExpanded.value = isExpanded
     }
 }
-

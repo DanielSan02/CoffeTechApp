@@ -21,17 +21,15 @@ import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.farm.FarmEditViewModel
+import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
 @Composable
-fun FarmEditView(
+fun CreateFarmView(
     navController: NavController,
-    viewModel: FarmEditViewModel = viewModel()
+    viewModel: CreateFarmViewModel = viewModel()
 ) {
-
     val farmName by viewModel.farmName.collectAsState()
     val farmArea by viewModel.farmArea.collectAsState()
     val selectedUnit by viewModel.selectedUnit.collectAsState()
@@ -54,14 +52,14 @@ fun FarmEditView(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Información de Finca",
+                    text = "Crear Finca",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color(0xFF49602D),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                // Nombre de fincq
+                // Nombre de finca
                 LabeledTextField(
                     label = "Nombre",
                     value = farmName,
@@ -70,7 +68,7 @@ fun FarmEditView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Area de la finca
+                // Área de la finca y unidad
                 Column(
                     modifier = Modifier
                         .padding(bottom = 10.dp)
@@ -92,8 +90,9 @@ fun FarmEditView(
                         expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                         arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     )
-
                 }
+
+                // Botón para crear finca
                 Column(
                     modifier = Modifier
                         .padding(top = 25.dp, bottom = 20.dp)
@@ -101,23 +100,13 @@ fun FarmEditView(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    //Guardar
                     ReusableButton(
-                        text = "Guardar",
-                        onClick = { viewModel.onSave(navController) },
+                        text = "Crear",
+                        onClick = { viewModel.onCreate(navController) },
                         modifier = Modifier
                             .size(width = 120.dp, height = 40.dp)
                             .padding(vertical = 3.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))
-                    )
-
-                    //Eliminar
-                    ReusableButton(
-                        text = "Eliminar",
-                        onClick = { viewModel.onDelete(navController) },
-                        modifier = Modifier
-                            .size(width = 120.dp, height = 35.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB31D34))
                     )
                 }
             }
@@ -127,8 +116,8 @@ fun FarmEditView(
 
 @Preview(showBackground = true)
 @Composable
-fun FarmEditViewPreview() {
+fun CreateFarmViewPreview() {
     CoffeTechTheme {
-        FarmEditView(navController = NavController(LocalContext.current))
+        CreateFarmView(navController = NavController(LocalContext.current))
     }
 }

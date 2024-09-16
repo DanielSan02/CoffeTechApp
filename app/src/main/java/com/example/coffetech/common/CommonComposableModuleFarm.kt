@@ -1,15 +1,20 @@
 package com.example.coffetech.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,8 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffetech.R
@@ -285,37 +293,80 @@ fun LabeledTextField(
 @Composable
 fun UnitDropdown(
     selectedUnit: String,
+    expandedArrowDropUp: Painter,
+    arrowDropDown: Painter,
     onUnitChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     val units = listOf("Metros cuadrados", "Kilometros", "Hectáreas") // Lista de unidades
 
-    Box(modifier = modifier) {
-        OutlinedButton(
-            onClick = { expanded = !expanded },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color(0xFF49602D)
-            )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(bottom = 13.dp)
+                .padding(horizontal = 8.dp)
+                .background(Color.White, shape = RoundedCornerShape(25.dp))
+                .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp))
+                .size(width = 95.dp, height = 40.dp)
         ) {
-            Text(text = selectedUnit)
-            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Seleccionar unidad")
+            OutlinedButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF49602D)
+                ),
+                contentPadding = PaddingValues(start = 4.dp, end = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(5.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedUnit,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // Manejo del desbordamiento con puntos suspensivos
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        painter = if (expanded) expandedArrowDropUp else arrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(0xFF5D8032)
+                    )
+                }
+            }
+
         }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            units.forEach { unit ->
-                DropdownMenuItem(
-                    text = { Text(text = unit) },
-                    onClick = {
-                        onUnitChange(unit)
-                        expanded = false
-                    }
-                )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .background(Color.White)
+            ) {
+                units.forEach { unit ->
+                    DropdownMenuItem(
+                        text = { Text(text = unit) },
+                        onClick = {
+                            onUnitChange(unit)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
-    }
 }
+
+

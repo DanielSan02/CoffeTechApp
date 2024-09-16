@@ -11,12 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.coffetech.R
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
@@ -69,35 +71,44 @@ fun FarmEditView(
                 )
 
                 // Area de la finca
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     LabeledTextField(
                         label = "Área",
                         value = farmArea,
                         onValueChange = { viewModel.onFarmAreaChange(it) },
                         placeholder = "Área de la finca",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     // Unidad de medida
                     UnitDropdown(
                         selectedUnit = selectedUnit,
                         onUnitChange = { viewModel.onUnitChange(it) },
-                        modifier = Modifier.weight(0.6f) // Tamaño ajustado del dropdown
+                        expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                        arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+
                     )
 
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                Column(
+                    modifier = Modifier
+                        .padding(top = 25.dp, bottom = 20.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     //Guardar
                     ReusableButton(
                         text = "Guardar",
                         onClick = { viewModel.onSave(navController) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .size(width = 120.dp, height = 40.dp)
+                            .padding(vertical = 3.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))
                     )
 
@@ -105,7 +116,8 @@ fun FarmEditView(
                     ReusableButton(
                         text = "Eliminar",
                         onClick = { viewModel.onDelete(navController) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .size(width = 120.dp, height = 35.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB31D34))
                     )
                 }

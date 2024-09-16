@@ -712,7 +712,7 @@ fun ReusableRoleDropdown(
             OutlinedButton(
                 onClick = { onExpandedChange(!expanded) },
                 modifier = Modifier
-                    .fillMaxSize(), // Ajusta el tamaño para llenar el área blanca
+                    .fillMaxWidth(), // Ajusta el tamaño para llenar el área blanca
                 contentPadding = PaddingValues(start = 8.dp, end = 8.dp)
             ) {
                 Row(

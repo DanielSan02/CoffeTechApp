@@ -30,7 +30,7 @@ import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.SearchBar
+import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterView
 

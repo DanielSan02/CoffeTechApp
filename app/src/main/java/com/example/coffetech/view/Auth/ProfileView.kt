@@ -19,7 +19,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.common.ReusableTextField
-import com.example.coffetech.common.TopBarWithHamburger
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.ProfileViewModel
 import androidx.compose.ui.tooling.preview.Preview

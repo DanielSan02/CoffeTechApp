@@ -14,7 +14,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialogDefaults.shape
+import androidx.compose.material3.Text
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,14 +51,13 @@ fun ReusableButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    backgroundColor: Color = Color(0xFF49602D),
-    contentColor: Color = Color.White
+    colors: ButtonColors = ButtonDefaults.buttonColors()
 ) {
     Button(
         onClick = onClick,
         enabled = enabled,
-        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor, contentColor = contentColor),
-        modifier = modifier
+        modifier = modifier,
+        colors = colors
     ) {
         Text(text)
     }
@@ -74,7 +75,7 @@ fun TopBarWithBackArrow(
             .fillMaxWidth()
             .size(90.dp)
             .height(56.dp)
-            .padding( 16.dp),
+            .padding(16.dp),
 
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -248,6 +249,9 @@ fun TopBarWithHamburger(
         LargeText(text = title, fontSize = 20, fontWeight = FontWeight.Bold)
     }
 }
+
+
+//
 
 @Composable
 fun HamburgerMenu(
@@ -505,9 +509,10 @@ fun BaseScreen(
 
 
 @Composable
-fun SearchBar(
+fun ReusableSearchBar(
     query: TextFieldValue,
-    onQueryChanged: (TextFieldValue) -> Unit
+    onQueryChanged: (TextFieldValue) -> Unit,
+    text: String
 ) {
     val cornerRadius = 28.dp
 
@@ -520,7 +525,10 @@ fun SearchBar(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White, shape = RoundedCornerShape(cornerRadius)) // Fondo blanco del borde
+                .background(
+                    Color.White,
+                    shape = RoundedCornerShape(cornerRadius)
+                ) // Fondo blanco del borde
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -534,7 +542,7 @@ fun SearchBar(
                     ) {
                         if (query.text.isEmpty()) {
                             Text(
-                                text = "Search by farm name",
+                                text = text,
                                 fontSize = 16.sp,
                                 color = Color.Gray
                             )
@@ -588,7 +596,11 @@ fun FloatingActionButtonGroup(
                     modifier = Modifier
                         .offset(-5.dp)
                         .clip(shape = CircleShape)
-                        .border(width = 2.dp, color = Color(0xFFE9E9F2), shape = RoundedCornerShape(28.dp))
+                        .border(
+                            width = 2.dp,
+                            color = Color(0xFFE9E9F2),
+                            shape = RoundedCornerShape(28.dp)
+                        )
                         .size(44.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -615,7 +627,11 @@ fun FloatingActionButtonGroup(
                         .offset(x = 10.dp)
                         .padding(15.dp)
                         .clip(shape = CircleShape)
-                        .border(width = 2.dp, color = Color(0xFFE9E9F2), shape = RoundedCornerShape(28.dp))
+                        .border(
+                            width = 2.dp,
+                            color = Color(0xFFE9E9F2),
+                            shape = RoundedCornerShape(28.dp)
+                        )
                         .size(44.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -667,6 +683,85 @@ fun FloatingActionButtonGroup(
         }
     }
 }
+
+@Composable
+fun ReusableRoleDropdown(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onRoleSelected: (String) -> Unit,
+    expandedArrowDropUp: Painter,
+    arrowDropDown: Painter
+) {
+    val roles = listOf("Administrador", "Operador", "Dueño")
+    var selectedRole by remember { mutableStateOf("Roles") }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+    ) {
+        // Fondo blanco alrededor del botón
+        Box(
+
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(bottom = 5.dp)
+                .padding(horizontal = 8.dp)
+                .background(Color.White, shape = RoundedCornerShape(25.dp)) // Fondo blanco con esquinas redondeadas
+                .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp)) // Borde gris alrededor del fondo
+                .size(width = 95.dp, height = 40.dp) // Tamaño del área del botón
+        ) {
+            OutlinedButton(
+                onClick = { onExpandedChange(!expanded) },
+                modifier = Modifier
+                    .fillMaxSize(), // Ajusta el tamaño para llenar el área blanca
+                contentPadding = PaddingValues(start = 8.dp, end = 8.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                        .background(Color.White),
+                ) {
+                    Text(
+                        text = selectedRole,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // Manejo del desbordamiento con puntos suspensivos
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        painter = if (expanded) expandedArrowDropUp else arrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(0xFF5D8032)
+                    )
+                }
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+            modifier = Modifier
+                .background(Color.White),
+        ) {
+            roles.forEach { role ->
+                DropdownMenuItem(
+                    text = { Text(text = role) },
+                    onClick = {
+                        selectedRole = role
+                        onRoleSelected(role)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+
 
 
 @Composable
@@ -730,5 +825,7 @@ fun ReusableCancelButton(
         Text("Cancelar", color = Color(0xFF49602D))
     }
 }
+
+
 
 

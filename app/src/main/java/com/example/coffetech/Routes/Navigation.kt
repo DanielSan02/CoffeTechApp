@@ -22,6 +22,8 @@ import com.example.coffetech.view.Auth.ChangePasswordView
 import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
 import com.example.coffetech.view.Auth.StartView
+import com.example.coffetech.view.farm.FarmEditView
+import com.example.coffetech.view.farm.FarmInformationView
 import com.example.coffetech.view.farm.FarmView
 
 @Composable
@@ -100,6 +102,20 @@ fun AppNavHost(context: Context) {
 
         composable(Routes.FarmView) {
             FarmView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
+        }
+
+        composable(Routes.FarmInformationView) {
+            FarmInformationView(navController = navController)
+            BackHandler {
+                // Si no haces nada, el gesto queda bloqueado
+            }
+        }
+
+        composable(Routes.FarmEditView) {
+            FarmEditView(navController = navController)
             BackHandler {
                 // Si no haces nada, el gesto queda bloqueado
             }

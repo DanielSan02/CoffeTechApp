@@ -3,18 +3,21 @@
 package com.example.coffetech.view.farm
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -23,16 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
-import com.example.coffetech.common.BaseScreen
-import com.example.coffetech.common.BottomNavigationBar
 import com.example.coffetech.common.FloatingActionButtonGroup
-import com.example.coffetech.common.HamburgerMenu
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.SearchBar
-import com.example.coffetech.common.TopBarWithHamburger
-import com.example.coffetech.viewmodel.farm.FarmViewModel
+import com.example.coffetech.common.ReusableRoleDropdown
+import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterView
+import com.example.coffetech.viewmodel.farm.FarmViewModel
 
 // FarmView Function
 @Composable
@@ -40,11 +40,11 @@ fun FarmView(
     navController: NavController,
     viewModel: FarmViewModel = viewModel() // Inyecta el ViewModel aquí
 ) {
-    var isMenuVisible by remember { mutableStateOf(false) }
-    var query by remember { mutableStateOf(TextFieldValue("")) }
-
-    // Aquí declaramos profileImage correctamente dentro de una función @Composable
-    val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
+    // Obtenemos los estados del ViewModel
+    val farms by viewModel.farms.collectAsState()
+    val query by viewModel.searchQuery
+    val selectedRole by viewModel.selectedRole
+    val expanded by viewModel.isDropdownExpanded
 
     // Llamamos a BaseScreen que contiene la lógica del top bar y bottom bar
     HeaderFooterView(
@@ -58,30 +58,41 @@ fun FarmView(
                 .background(Color(0xFFEFEFEF))
                 .padding(16.dp)
         ) {
-            SearchBar(
-                query = query,
-                onQueryChanged = { query = it }
+            // Barra de búsqueda reutilizable
+            ReusableSearchBar(
+                query = TextFieldValue(query),
+                onQueryChanged = { viewModel.onSearchQueryChanged(it.text) },
+                text = "Buscar finca por nombre"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Menú desplegable de roles reutilizable
+            ReusableRoleDropdown(
+                expanded = expanded,
+                onExpandedChange = { viewModel.setDropdownExpanded(it) },
+                expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                onRoleSelected = { role ->
+                    viewModel.selectRole(role)
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Espacio para las fincas
-            Text(
-                text = "Aquí van las fincas",
-                color = Color.Black
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Ejemplo de fincas
+            // Mostrar lista de fincas
             LazyColumn {
-                items(listOf("Finca 1", "Finca 2", "Finca 3")) { finca ->
+                items(farms) { finca ->
                     ReusableButton(
                         text = finca,
-                        onClick = { /* Handle finca item click */ },
+                        onClick = { viewModel.onFarmClick(finca) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF95A94B)),
                         modifier = Modifier
+                            .size(width = 333.dp , height = 87.dp)
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 8.dp),
                     )
                 }
             }
@@ -98,6 +109,8 @@ fun FarmView(
         }
     }
 }
+
+
 
 // Aquí usamos @Preview para previsualizar FarmView
 @Preview(showBackground = true)

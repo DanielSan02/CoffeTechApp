@@ -1,3 +1,5 @@
+// FarmView.kt
+
 package com.example.coffetech.view.farm
 
 import FarmViewModel
@@ -9,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,12 +32,15 @@ import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.common.FarmItemCard
 import com.example.coffetech.common.FloatingActionButtonGroup
+import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableRoleDropdown
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.common.RoleDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterView
 import androidx.compose.ui.Alignment
 
+// FarmView Function
 @Composable
 fun FarmView(
     navController: NavController,
@@ -107,7 +114,11 @@ fun FarmView(
                                 FarmItemCard(
                                     farmName = farm.name,
                                     farmRole = farm.role,
-                                    onClick = { viewModel.onFarmClick(farm) }
+                                    onClick = {
+                                        viewModel.onFarmClick(farm)
+                                        navController.navigate("FarmInformationView")
+                                        //Aqui debe ir el id de farm que sera la finca donde se navegara${farm.id}}
+                                    }
                                 )
                                 Spacer(modifier = Modifier.height(8.dp)) // Espacio entre las cards
                             }

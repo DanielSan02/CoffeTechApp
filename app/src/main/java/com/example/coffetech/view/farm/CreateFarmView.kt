@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.UnitDropdown
@@ -57,25 +58,45 @@ fun CreateFarmView(
                 .padding(16.dp)
         ) {
             Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .padding(top = 1.dp)
+                    .offset(x = -26.dp, y = -20.dp)
+                // Ajuste para evitar superposición con el botón
+            ) {
+
+
+                BackButton(
+                    navController = navController,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                )
+            }
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Crear Finca",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontWeight = FontWeight.W600,
+                    fontSize = 25.sp,
                     color = Color(0xFF49602D),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
+                // Nombre de finca
                 LabeledTextField(
                     label = "Nombre",
                     value = farmName,
                     onValueChange = { viewModel.onFarmNameChange(it) },
                     placeholder = "Nombre de la finca",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+
                 )
 
+                // Área de la finca y unidad
                 Column(
                     modifier = Modifier
                         .padding(bottom = 10.dp)
@@ -90,6 +111,9 @@ fun CreateFarmView(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Unidad de medida
                     UnitDropdown(
                         selectedUnit = selectedUnit,
                         onUnitChange = { viewModel.onUnitChange(it) },
@@ -103,9 +127,11 @@ fun CreateFarmView(
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
 
+                // Botón para crear finca
+
                 Column(
                     modifier = Modifier
-                        .padding(top = 25.dp, bottom = 20.dp)
+                        .padding(top = 35.dp, bottom = 50.dp)
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -115,7 +141,7 @@ fun CreateFarmView(
                         onClick = { viewModel.onCreate(navController, context) },
                         modifier = Modifier
                             .size(width = 120.dp, height = 40.dp)
-                            .padding(vertical = 3.dp),
+                            .padding(bottom = 3.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
                         enabled = !isLoading
                     )

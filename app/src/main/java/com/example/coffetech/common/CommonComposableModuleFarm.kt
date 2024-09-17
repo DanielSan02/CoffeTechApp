@@ -252,6 +252,39 @@ fun LotesList(
     }
 }
 
+@Composable
+fun FarmItemCard(
+    farmName: String,
+    farmRole: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color(0xFF86B049), RoundedCornerShape(12.dp)) // Fondo verde con bordes redondeados
+            .clickable(onClick = onClick)
+            .padding(16.dp)
+    ) {
+        Column {
+            Text(
+                text = farmName,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = farmRole,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                maxLines = 1
+            )
+        }
+    }
+}
+
 
 //FARM EDIT COMMON COMPOSABLES-----
 
@@ -292,13 +325,13 @@ fun LabeledTextField(
 @Composable
 fun UnitDropdown(
     selectedUnit: String,
+    units: List<String>,  // Parámetro para unidades dinámicas
     expandedArrowDropUp: Painter,
     arrowDropDown: Painter,
     onUnitChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val units = listOf("Metros cuadrados", "Kilometros", "Hectáreas") // Lista de unidades
 
     Box(
         modifier = Modifier
@@ -346,26 +379,102 @@ fun UnitDropdown(
                     )
                 }
             }
-
         }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .background(Color.White)
-            ) {
-                units.forEach { unit ->
-                    DropdownMenuItem(
-                        text = { Text(text = unit) },
-                        onClick = {
-                            onUnitChange(unit)
-                            expanded = false
-                        }
-                    )
-                }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+        ) {
+            units.forEach { unit ->
+                DropdownMenuItem(
+                    text = { Text(text = unit) },
+                    onClick = {
+                        onUnitChange(unit)
+                        expanded = false
+                    }
+                )
             }
         }
+    }
 }
+
+@Composable
+fun RoleDropdown(
+    selectedRole: String?,  // Cambiado a String? para aceptar valores nulos
+    onRoleChange: (String?) -> Unit, // onRoleChange ahora acepta String? para manejar la deselección
+    roles: List<String>,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    expandedArrowDropUp: Painter,
+    arrowDropDown: Painter
+) {
+    Box(
+        modifier = Modifier
+            .background(Color.White, shape = RoundedCornerShape(50.dp))
+            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(50.dp))
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        OutlinedButton(
+            onClick = { onExpandedChange(!expanded) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(50.dp),
+            border = null,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color.Black,
+                containerColor = Color.Transparent
+            ),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = selectedRole ?: "Todos los roles", // Muestra "Todos los roles" si es null
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Icon(
+                    painter = if (expanded) expandedArrowDropUp else arrowDropDown,
+                    contentDescription = null,
+                    tint = Color(0xFF8FB399)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Opción para mostrar todas las fincas
+            DropdownMenuItem(
+                text = { Text("Todos los roles") },
+                onClick = {
+                    onRoleChange(null) // Pasa null para quitar el filtro de roles
+                    onExpandedChange(false)
+                }
+            )
+
+            // Opciones de roles reales
+            roles.forEach { role ->
+                DropdownMenuItem(
+                    text = { Text(role) },
+                    onClick = {
+                        onRoleChange(role)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+
 
 

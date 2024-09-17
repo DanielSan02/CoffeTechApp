@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.coffetech"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2 // Este es el código de versión
+        versionName = "2.1.1"  // Este es el nombre de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.gson)
 
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
@@ -72,6 +73,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+
 
 
     val nav_version = "2.7.7"

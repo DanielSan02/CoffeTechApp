@@ -13,8 +13,10 @@ navigationCompose = "2.7.7"
 retrofit = "2.9.0"
 protoliteWellKnownTypes = "18.0.0"
 runtimeLivedata = "1.7.1"
+gson = "2.8.8"
 
 [libraries]
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

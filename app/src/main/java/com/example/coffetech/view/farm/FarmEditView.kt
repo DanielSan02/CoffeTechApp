@@ -86,12 +86,12 @@ fun FarmEditView(
                     )
 
                     // Unidad de medida
-                    UnitDropdown(
+                   /* UnitDropdown(
                         selectedUnit = selectedUnit,
                         onUnitChange = { viewModel.onUnitChange(it) },
                         expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                         arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
-                    )
+                    )*/
 
                 }
                 Column(

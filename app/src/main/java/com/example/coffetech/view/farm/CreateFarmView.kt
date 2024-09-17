@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,14 +31,22 @@ fun CreateFarmView(
     navController: NavController,
     viewModel: CreateFarmViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val farmName by viewModel.farmName.collectAsState()
     val farmArea by viewModel.farmArea.collectAsState()
     val selectedUnit by viewModel.selectedUnit.collectAsState()
+    val areaUnits by viewModel.areaUnits.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadUnitMeasuresFromSharedPreferences(context)
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010)) // Fondo oscuro
+            .background(Color(0xFF101010))
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -59,7 +68,6 @@ fun CreateFarmView(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                // Nombre de finca
                 LabeledTextField(
                     label = "Nombre",
                     value = farmName,
@@ -68,7 +76,6 @@ fun CreateFarmView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Área de la finca y unidad
                 Column(
                     modifier = Modifier
                         .padding(bottom = 10.dp)
@@ -83,16 +90,19 @@ fun CreateFarmView(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Unidad de medida
                     UnitDropdown(
                         selectedUnit = selectedUnit,
                         onUnitChange = { viewModel.onUnitChange(it) },
+                        units = areaUnits,
                         expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                         arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     )
                 }
 
-                // Botón para crear finca
+                if (errorMessage.isNotEmpty()) {
+                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                }
+
                 Column(
                     modifier = Modifier
                         .padding(top = 25.dp, bottom = 20.dp)
@@ -101,18 +111,21 @@ fun CreateFarmView(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ReusableButton(
-                        text = "Crear",
-                        onClick = { viewModel.onCreate(navController) },
+                        text = if (isLoading) "Creando..." else "Crear",
+                        onClick = { viewModel.onCreate(navController, context) },
                         modifier = Modifier
                             .size(width = 120.dp, height = 40.dp)
                             .padding(vertical = 3.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+                        enabled = !isLoading
                     )
                 }
             }
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

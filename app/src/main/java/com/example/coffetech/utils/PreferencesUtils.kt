@@ -2,10 +2,119 @@ package com.example.coffetech.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.util.Log
+import com.example.coffetech.model.Role
+import com.example.coffetech.model.UnitMeasure
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class SharedPreferencesHelper(context: Context) {
     private val sharedPref: SharedPreferences =
         context.getSharedPreferences("myAppPreferences", Context.MODE_PRIVATE)
+
+    // Inicializa Gson para la serialización/deserialización de objetos
+    private val gson = Gson()
+
+    // ============================= MANEJO DE VERSIONES ============================= //
+
+    // Obtener el código de versión actual de la app
+    fun getCurrentVersionCode(context: Context): Int {
+        return try {
+            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            pInfo.versionCode
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e("SharedPreferences", "No se pudo obtener el código de versión: ${e.localizedMessage}")
+            -1
+        }
+    }
+
+    // Obtener el código de versión almacenado
+    fun getSavedVersionCode(): Int {
+        return sharedPref.getInt("version_code", -1)  // -1 indica que no hay versión almacenada
+    }
+
+    // Guardar el código de versión actual
+    fun saveVersionCode(versionCode: Int) {
+        with(sharedPref.edit()) {
+            putInt("version_code", versionCode)
+            apply()
+        }
+    }
+
+    // ============================= MANEJO DE ROLES ============================= //
+
+    // Guardar roles
+    fun saveRoles(roles: List<Role>) {
+        try {
+            val jsonRoles = gson.toJson(roles)
+            with(sharedPref.edit()) {
+                putString("roles", jsonRoles)
+                apply()
+            }
+        } catch (e: Exception) {
+            Log.e("SharedPreferences", "Error guardando roles: ${e.localizedMessage}")
+        }
+    }
+
+    // Obtener roles
+    fun getRoles(): List<Role>? {
+        return try {
+            val jsonRoles = sharedPref.getString("roles", null) ?: return null
+            val type = object : TypeToken<List<Role>>() {}.type
+            gson.fromJson<List<Role>>(jsonRoles, type)
+        } catch (e: Exception) {
+            Log.e("SharedPreferences", "Error obteniendo roles: ${e.localizedMessage}")
+            null
+        }
+    }
+
+    // ============================= MANEJO DE UNIDADES DE MEDIDA ============================= //
+
+    // Guardar unidades de medida
+    fun saveUnitMeasures(unitMeasures: List<UnitMeasure>) {
+        try {
+            val jsonUnits = gson.toJson(unitMeasures)
+            with(sharedPref.edit()) {
+                putString("unit_measures", jsonUnits)
+                apply()
+            }
+        } catch (e: Exception) {
+            Log.e("SharedPreferences", "Error guardando unidades de medida: ${e.localizedMessage}")
+        }
+    }
+
+    // Obtener unidades de medida
+    fun getUnitMeasures(): List<UnitMeasure>? {
+        return try {
+            val jsonUnits = sharedPref.getString("unit_measures", null) ?: return null
+            val type = object : TypeToken<List<UnitMeasure>>() {}.type
+            gson.fromJson<List<UnitMeasure>>(jsonUnits, type)
+        } catch (e: Exception) {
+            Log.e("SharedPreferences", "Error obteniendo unidades de medida: ${e.localizedMessage}")
+            null
+        }
+    }
+
+    // ============================= OTRAS FUNCIONES ============================= //
+
+    // Guardar estado de actualización de datos
+    fun setDataUpdated(isUpdated: Boolean) {
+        with(sharedPref.edit()) {
+            putBoolean("data_updated", isUpdated)
+            apply()
+        }
+    }
+
+    // Verificar si los datos están actualizados
+    fun isDataUpdated(): Boolean {
+        return sharedPref.getBoolean("data_updated", false)
+    }
+
+    // Reiniciar el estado de actualización de datos
+    fun resetDataUpdatedFlag() {
+        setDataUpdated(false)
+    }
 
     // Función para guardar el token, nombre y correo
     fun saveSessionData(token: String, name: String, email: String) {
@@ -21,7 +130,6 @@ class SharedPreferencesHelper(context: Context) {
     fun isLoggedIn(): Boolean {
         return sharedPref.getString("session_token", null) != null
     }
-
 
     // Función para obtener el token de sesión
     fun getSessionToken(): String? {
@@ -58,7 +166,4 @@ class SharedPreferencesHelper(context: Context) {
     fun isVerified(): Boolean {
         return sharedPref.getBoolean("is_verified", false)
     }
-
-
-
 }

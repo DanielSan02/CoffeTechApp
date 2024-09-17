@@ -1,5 +1,6 @@
 package com.example.coffetech.common
 
+import Farm
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.coffetech.R
-import com.example.coffetech.viewmodel.farm.Farm
 
 @Composable
 fun ReusableButton(
@@ -75,6 +75,7 @@ fun FarmItem(farm: Farm, onClick: () -> Unit) {
             .clickable(onClick = onClick)
     ) {
         Column {
+            // Mostrar el nombre de la finca
             Text(
                 text = farm.name,
                 fontSize = 20.sp,
@@ -82,8 +83,9 @@ fun FarmItem(farm: Farm, onClick: () -> Unit) {
                 color = Color.Black
             )
             Spacer(modifier = Modifier.height(8.dp))
+            // Mostrar el rol en lugar del área
             Text(
-                text = farm.area,
+                text = farm.role,  // Cambiado de farm.area a farm.role
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.DarkGray
@@ -91,6 +93,7 @@ fun FarmItem(farm: Farm, onClick: () -> Unit) {
         }
     }
 }
+
 
 @Composable
 fun TopBarWithBackArrow(

@@ -2,7 +2,6 @@ package com.example.coffetech.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,16 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -37,16 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
 import com.example.coffetech.R
 
 //FARM INFORMATION COMMONS COMPOSABLES---------------------------------
@@ -121,14 +116,15 @@ fun GeneralInfoCard(
             IconButton(
                 onClick = onEditClick,
                 modifier = Modifier
-                    .size(40.dp)
+                    .offset(x = -10.dp)
+                    .size(20.dp)
                     .background(Color(0xFFB31D34), shape = CircleShape)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.edit_icon),
                     contentDescription = "Editar Información General",
                     tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
@@ -169,14 +165,15 @@ fun CollaboratorsCard(
             IconButton(
                 onClick = onAddClick,
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(Color(0xFFB31D34), shape = CircleShape)
+                    .size(20.dp)
+                    .offset(x = -10.dp)
+                    .background(Color(0xFFB31D34), shape = CircleShape,)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.plus_icon),
                     contentDescription = "Agregar Colaborador",
                     tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -254,8 +251,10 @@ fun LotesList(
 
 
 //FARM EDIT COMMON COMPOSABLES-----
+//FARM EDIT COMMON COMPOSABLES-----
+//FARM EDIT COMMON COMPOSABLES-----
+//FARM EDIT COMMON COMPOSABLES-----
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabeledTextField(
     label: String,
@@ -265,25 +264,41 @@ fun LabeledTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
+    val cornerRadius = 4.dp
+
     Column(modifier = modifier) {
         Text(
             text = label,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            color = Color(0xFF49602D), // Color verde
-            modifier = Modifier.padding(bottom = 4.dp)
+            fontWeight = FontWeight.W300,
+            fontSize = 22.sp,
+            color = Color.Black, // Color verde
+            modifier = Modifier
+                .padding(bottom = 4.dp)
+                .align(Alignment.CenterHorizontally)
         )
         TextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
             modifier = Modifier
+                .padding(top = 9.dp, bottom = 9.dp)
+                .size(width = 288.dp, height = 50.dp)
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(8.dp)),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.White,
+                .border(width = 1.dp, color = Color(0xFFA6A6A6), shape = RoundedCornerShape(cornerRadius))
+                .background(Color(0xFFA6A6A6), RoundedCornerShape(8.dp)),
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedPlaceholderColor = Color.Gray,
+                unfocusedPlaceholderColor = Color.Gray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                disabledTextColor = Color.Gray.copy(alpha = 0.6f), // Texto más claro cuando está deshabilitado
+                disabledPlaceholderColor = Color.Gray.copy(alpha = 0.6f) // Placeholder más claro cuando está deshabilitado
             )
         )
     }
@@ -307,7 +322,7 @@ fun UnitDropdown(
         Box(
             modifier = Modifier
                 .wrapContentWidth()
-                .padding(bottom = 13.dp)
+                .padding(bottom = 5.dp)
                 .padding(horizontal = 8.dp)
                 .background(Color.White, shape = RoundedCornerShape(25.dp))
                 .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp))
@@ -325,7 +340,7 @@ fun UnitDropdown(
                 Row(
                     modifier = Modifier
                         .background(Color.White)
-                        .padding(5.dp)
+                        .padding(3.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -354,18 +369,40 @@ fun UnitDropdown(
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
                     .background(Color.White)
+                    .widthIn(max = 200.dp)
             ) {
                 units.forEach { unit ->
                     DropdownMenuItem(
-                        text = { Text(text = unit) },
+                        text = {
+                                Text(
+                                    text = unit,
+                                    fontSize = 14.sp,
+                                    color = Color.Black,
+                                    )
+                               },
                         onClick = {
                             onUnitChange(unit)
                             expanded = false
-                        }
+                        },
+                        modifier = Modifier.padding(vertical = 0.dp), // Puedes ajustar este valor para reducir el espaciado
+                        contentPadding = PaddingValues(vertical = 0.dp, horizontal = 5.dp)
                     )
                 }
             }
         }
 }
 
-
+@Composable
+fun BackButton(navController: NavController, modifier: Modifier) {
+    IconButton(
+        onClick = { navController.popBackStack() },
+        modifier = Modifier
+            .padding(1.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.close), // Usa tu ícono de retroceso
+            contentDescription = "Back",
+            tint = Color.Black
+        )
+    }
+}

@@ -13,15 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.farm.FarmEditViewModel
@@ -43,25 +44,46 @@ fun FarmEditView(
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
+
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(16.dp)
+                .padding(horizontal = 15.dp)
         ) {
             Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .padding(top = 1.dp)
+                .offset(x = -20.dp, y = -10.dp)
+            // Ajuste para evitar superposición con el botón
+        ) {
+
+
+            BackButton(
+                navController = navController,
+                modifier = Modifier
+                    .align(Alignment.Start)
+            )
+        }
+
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(top = 18.dp) // Ajuste para evitar superposición con el botón
             ) {
+
+                Spacer(modifier = Modifier.height(40.dp))
+
                 Text(
-                    text = "Información de Finca",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    text = "Informacion de la Finca",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.W600,
+                    fontSize = 25.sp,
                     color = Color(0xFF49602D),
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                // Nombre de fincq
+                // Nombre de finca
                 LabeledTextField(
                     label = "Nombre",
                     value = farmName,
@@ -70,7 +92,7 @@ fun FarmEditView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Area de la finca
+                // Área de la finca
                 Column(
                     modifier = Modifier
                         .padding(bottom = 10.dp)
@@ -92,8 +114,8 @@ fun FarmEditView(
                         expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                         arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     )
-
                 }
+
                 Column(
                     modifier = Modifier
                         .padding(top = 25.dp, bottom = 20.dp)
@@ -101,7 +123,7 @@ fun FarmEditView(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    //Guardar
+                    // Guardar
                     ReusableButton(
                         text = "Guardar",
                         onClick = { viewModel.onSave(navController) },
@@ -111,7 +133,7 @@ fun FarmEditView(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))
                     )
 
-                    //Eliminar
+                    // Eliminar
                     ReusableButton(
                         text = "Eliminar",
                         onClick = { viewModel.onDelete(navController) },

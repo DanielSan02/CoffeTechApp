@@ -88,7 +88,11 @@ fun FarmView(
                 items(farms) { farm ->
                     FarmItem(
                         farm = farm,
-                        onClick = { viewModel.onFarmClick(farm) }
+                        onClick = { viewModel.onFarmClick(farm)
+                            navController.navigate("FarmInformationView/")
+                        //Aqui debe ir el id de farm que sera la finca donde se navegara${farm.id}
+                        }
+
                     )
                 }
             }

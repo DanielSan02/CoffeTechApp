@@ -15,6 +15,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * ViewModel responsible for managing the state and logic of the change password view.
+ */
 class ChangePasswordViewModel : ViewModel() {
     var currentPassword = mutableStateOf("")
         private set
@@ -29,21 +32,37 @@ class ChangePasswordViewModel : ViewModel() {
 
     var isLoading = mutableStateOf(false)
 
+    /**
+     * Updates the value of the current password when the user modifies it.
+     *
+     * @param newValue The new value entered by the user.
+     */
     fun onCurrentPasswordChange(newValue: String) {
         currentPassword.value = newValue
     }
-
+    /**
+     * Updates the value of the new password when the user modifies it.
+     *
+     * @param newValue The new password value entered by the user.
+     */
     fun onNewPasswordChange(newValue: String) {
         newPassword.value = newValue
     }
-
+    /**
+     * Updates the value of the confirm password field.
+     *
+     * @param newValue The new confirm password value entered by the user.
+     */
     fun onConfirmPasswordChange(newValue: String) {
         confirmPassword.value = newValue
     }
 
-    // Función para validar que la contraseña cumple con los requisitos de seguridad
 
-
+    /**
+     * Validates that the new password and confirm password meet the security requirements.
+     *
+     * @return `true` if the password is valid, `false` otherwise.
+     */
     fun validatePasswordRequirements(): Boolean {
         val (isValid, message) = validatePassword(newPassword.value, confirmPassword.value)
 
@@ -58,6 +77,18 @@ class ChangePasswordViewModel : ViewModel() {
 
     var isPasswordChanged = mutableStateOf(false) // Agregar esta línea
 
+
+    /**
+     * Validates whether the passwords entered meet the following security conditions:
+     * - The new password matches the confirm password.
+     * - The password has at least 8 characters.
+     * - The password contains at least one special character.
+     * - The password contains at least one uppercase letter.
+     *
+     * @param password The new password entered by the user.
+     * @param confirmPassword The confirm password entered by the user.
+     * @return A [Pair] where the first value is `true` if the password is valid, and the second is an error message if it is invalid.
+     */
     private fun validatePassword(password: String, confirmPassword: String): Pair<Boolean, String> {
         val specialCharacterPattern = Regex(".*[!@#\$%^&*(),.?\":{}|<>].*")
         val uppercasePattern = Regex(".*[A-Z].*")
@@ -73,8 +104,11 @@ class ChangePasswordViewModel : ViewModel() {
 
 
 
-
-
+    /**
+     * Initiates the password change process by making a call to the API.
+     *
+     * @param context The current context, needed for displaying toasts.
+     */
     fun changePassword(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val sessionToken = sharedPreferencesHelper.getSessionToken()

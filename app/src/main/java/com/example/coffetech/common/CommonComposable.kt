@@ -64,35 +64,6 @@ fun ReusableButton(
     }
 }
 
-@Composable
-fun FarmItem(farm: Farm, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(Color(0xFFD7E8D2)) // Color verde claro
-            .padding(16.dp)
-            .clickable(onClick = onClick)
-    ) {
-        Column {
-            // Mostrar el nombre de la finca
-            Text(
-                text = farm.name,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            // Mostrar el rol en lugar del área
-            Text(
-                text = farm.role,  // Cambiado de farm.area a farm.role
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.DarkGray
-            )
-        }
-    }
-}
 
 
 @Composable
@@ -212,7 +183,7 @@ fun ReusableTextField(
 
 
 @Composable
-fun LargeText(
+fun ReusableLargeText(
     text: String,
     modifier: Modifier = Modifier,
     fontSize: Int = 40,
@@ -342,85 +313,6 @@ fun FloatingActionButtonGroup(
         }
     }
 }
-
-@Composable
-fun ReusableRoleDropdown(
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    onRoleSelected: (String) -> Unit,
-    expandedArrowDropUp: Painter,
-    arrowDropDown: Painter
-) {
-    val roles = listOf("Administrador", "Operador", "Dueño")
-    var selectedRole by remember { mutableStateOf("Roles") }
-
-    Box(modifier = Modifier
-        .fillMaxWidth()
-    ) {
-        // Fondo blanco alrededor del botón
-        Box(
-
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(bottom = 5.dp)
-                .padding(horizontal = 8.dp)
-                .background(Color.White, shape = RoundedCornerShape(25.dp)) // Fondo blanco con esquinas redondeadas
-                .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp)) // Borde gris alrededor del fondo
-                .size(width = 95.dp, height = 40.dp) // Tamaño del área del botón
-        ) {
-            OutlinedButton(
-                onClick = { onExpandedChange(!expanded) },
-                modifier = Modifier
-                    .fillMaxWidth(), // Ajusta el tamaño para llenar el área blanca
-                contentPadding = PaddingValues(start = 8.dp, end = 8.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp)
-                        .background(Color.White),
-                ) {
-                    Text(
-                        text = selectedRole,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, // Manejo del desbordamiento con puntos suspensivos
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        painter = if (expanded) expandedArrowDropUp else arrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color(0xFF5D8032)
-                    )
-                }
-            }
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { onExpandedChange(false) },
-            modifier = Modifier
-                .background(Color.White),
-        ) {
-            roles.forEach { role ->
-                DropdownMenuItem(
-                    text = { Text(text = role) },
-                    onClick = {
-                        selectedRole = role
-                        onRoleSelected(role)
-                        onExpandedChange(false)
-                    }
-                )
-            }
-        }
-    }
-}
-
-
 
 
 @Composable

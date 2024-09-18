@@ -33,40 +33,48 @@ import com.example.coffetech.R
 import com.example.coffetech.common.FarmItemCard
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.ReusableRoleDropdown
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.common.RoleDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterView
 import androidx.compose.ui.Alignment
 
-// FarmView Function
+/**
+ * Composable function that renders the farm management screen.
+ * This screen allows the user to view, search, and filter farms by role, as well as navigate to create a new farm or view details of an existing one.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [FarmViewModel] used to manage the state and logic for the farm view.
+ */
 @Composable
 fun FarmView(
     navController: NavController,
-    viewModel: FarmViewModel = viewModel() // Inyecta el ViewModel aquí
+    viewModel: FarmViewModel = viewModel() // Injects the ViewModel here
 ) {
     val context = LocalContext.current
+
+    // Load the farms and roles when the composable is first displayed
     LaunchedEffect(Unit) {
         viewModel.loadFarms(context)
-        viewModel.loadRolesFromSharedPreferences(context) // Cargar roles desde SharedPreferences
+        viewModel.loadRolesFromSharedPreferences(context) // Loads roles from SharedPreferences
     }
 
-    // Obtenemos los estados del ViewModel
+    // Retrieve the current state from the ViewModel
     val farms by viewModel.farms.collectAsState()
     val query by viewModel.searchQuery
-    val selectedRole by viewModel.selectedRole // Puede ser String?
+    val selectedRole by viewModel.selectedRole
     val expanded by viewModel.isDropdownExpanded
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
     val roles by viewModel.roles.collectAsState()
 
+    // Header and Footer layout with content in between
     HeaderFooterView(
         title = "Mis Fincas",
         currentView = "Fincas",
         navController = navController
     ) {
-        // Usamos Box para apilar la lista y el botón flotante
+        // Main content box with the list of farms and floating action button
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,7 +85,7 @@ fun FarmView(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Buscador
+                // Search bar for filtering farms by name
                 ReusableSearchBar(
                     query = query,
                     onQueryChanged = { viewModel.onSearchQueryChanged(it) },
@@ -86,10 +94,10 @@ fun FarmView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // RoleDropdown para seleccionar el rol
+                // Dropdown menu for selecting user role
                 RoleDropdown(
-                    selectedRole = selectedRole, // Puede ser null
-                    onRoleChange = { viewModel.selectRole(it) }, // Ahora acepta String?
+                    selectedRole = selectedRole, // Can be null
+                    onRoleChange = { viewModel.selectRole(it) }, // Role change handler
                     roles = roles,
                     expanded = expanded,
                     onExpandedChange = { viewModel.setDropdownExpanded(it) },
@@ -99,48 +107,51 @@ fun FarmView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Conditional UI based on the state of loading or error
                 if (isLoading) {
-                    // Mostrar un indicador de carga
-                    Text("Cargando fincas...")
+                    Text("Cargando fincas...") // Show loading message
                 } else if (errorMessage.isNotEmpty()) {
-                    // Mostrar el mensaje de error
-                    Text(text = errorMessage, color = Color.Red)
+                    Text(text = errorMessage, color = Color.Red) // Show error message if any
                 } else {
+                    // LazyColumn to display the list of farms
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(farms) { farm ->
                             Column {
+                                // Card for each farm in the list
                                 FarmItemCard(
                                     farmName = farm.name,
                                     farmRole = farm.role,
                                     onClick = {
                                         viewModel.onFarmClick(farm)
+                                        // Navigate to FarmInformationView with the farm's id
                                         navController.navigate("FarmInformationView")
-                                        //Aqui debe ir el id de farm que sera la finca donde se navegara${farm.id}}
                                     }
                                 )
-                                Spacer(modifier = Modifier.height(8.dp)) // Espacio entre las cards
+                                Spacer(modifier = Modifier.height(8.dp)) // Space between cards
                             }
                         }
                     }
                 }
             }
 
-            // Botón flotante
+            // Floating action button for creating a new farm
             FloatingActionButtonGroup(
                 onMainButtonClick = { navController.navigate("CreateFarmView") },
                 mainButtonIcon = painterResource(id = R.drawable.plus_icon),
                 modifier = Modifier
-                    .align(Alignment.BottomEnd) // Colocamos el botón en la esquina inferior derecha
-                    .padding(16.dp) // Espaciado desde los bordes
+                    .align(Alignment.BottomEnd) // Align to the bottom right
+                    .padding(16.dp) // Padding for positioning
             )
         }
     }
 }
 
-
-
+/**
+ * Preview function for the FarmView.
+ * It simulates the farm management screen in a preview environment to visualize the layout.
+ */
 @Preview(showBackground = true)
 @Composable
 fun FarmViewPreview() {

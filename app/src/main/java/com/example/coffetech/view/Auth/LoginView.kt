@@ -25,20 +25,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel // Importación correcta p
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.common.LargeText
 import com.example.coffetech.common.LogoImage
 import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.viewmodel.Auth.LoginViewModel
-
+/**
+ * Composable function that renders the login screen.
+ * This screen allows the user to input their email and password, and log into the app.
+ *
+ * @param modifier A [Modifier] for adjusting the layout or appearance of the view.
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [LoginViewModel] used to manage the state and logic for login.
+ */
 @Composable
 fun LoginView(
     modifier: Modifier = Modifier,
     navController: NavController,
-    viewModel: LoginViewModel = viewModel() // Usando la función de Compose para obtener el ViewModel
+    viewModel: LoginViewModel = viewModel()
 ) {
-
-
     val email by viewModel.email
     val password by viewModel.password
     val errorMessage by viewModel.errorMessage
@@ -60,17 +65,23 @@ fun LoginView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Displays the app logo
             LogoImage()
-            LargeText(text = "!Bienvenido!", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
+            // Displays a welcome message
+            ReusableLargeText(text = "!Bienvenido!", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+
+            // Displays a description text asking the user to log in
             ReusableDescriptionText(text = "Por favor inicia sesión para continuar")
 
+            // Input field for the user's email
             ReusableTextField(
                 value = email,
                 onValueChange = { viewModel.onEmailChange(it) },
                 placeholder = "Correo Electrónico"
             )
 
+            // Input field for the user's password, hidden for security
             ReusableTextField(
                 value = password,
                 onValueChange = { viewModel.onPasswordChange(it) },
@@ -78,23 +89,31 @@ fun LoginView(
                 isPassword = true
             )
 
+            // Display an error message if one exists
             if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
             }
 
+            // Button to navigate to the forgot password screen
             ForgotPasswordButton(navController = navController)
 
+            // Button to log in the user, showing loading status when logging in
             LoginButton(
-                isLoading = isLoading, // Pasar el estado de carga
-                onLoginClick = { viewModel.loginUser(navController, context) } // Acción del botón
+                isLoading = isLoading,
+                onLoginClick = { viewModel.loginUser(navController, context) }
             )
 
-
+            // Button to navigate to the register screen for new users
             LoginToRegisterButton(navController = navController)
         }
     }
 }
 
+/**
+ * Composable function that renders a button to navigate to the forgot password screen.
+ *
+ * @param navController The [NavController] used for navigation.
+ */
 @Composable
 fun ForgotPasswordButton(navController: NavController) {
     TextButton(
@@ -107,28 +126,40 @@ fun ForgotPasswordButton(navController: NavController) {
     }
 }
 
+/**
+ * Composable function that renders the login button.
+ * The button triggers the login process when clicked.
+ *
+ * @param isLoading A Boolean indicating whether the login process is currently in progress.
+ * @param onLoginClick A lambda function that triggers when the button is clicked.
+ */
 @Composable
 fun LoginButton(
     isLoading: Boolean,
     onLoginClick: () -> Unit
 ) {
     Button(
-        onClick = { if (!isLoading) onLoginClick() }, // Desactiva el click si está cargando
+        onClick = { if (!isLoading) onLoginClick() }, // Disables the button when loading
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
         modifier = Modifier.padding(bottom = 16.dp),
-        enabled = !isLoading // Deshabilita el botón si está cargando
+        enabled = !isLoading // Disables the button when loading
     ) {
         if (isLoading) {
-            Text("Iniciando sesión...") // Texto mientras está cargando
+            Text("Iniciando sesión...") // Loading text
         } else {
-            Text("Iniciar sesión") // Texto normal
+            Text("Iniciar sesión") // Normal text
         }
     }
 }
 
+/**
+ * Composable function that renders a button to navigate to the registration screen.
+ *
+ * @param navController The [NavController] used for navigation.
+ */
 @Composable
 fun LoginToRegisterButton(navController: NavController) {
     TextButton(
@@ -141,6 +172,10 @@ fun LoginToRegisterButton(navController: NavController) {
     }
 }
 
+/**
+ * Preview function for the LoginView.
+ * It simulates the login screen in a preview environment to visualize the layout.
+ */
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {

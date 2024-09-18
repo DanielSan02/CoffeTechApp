@@ -1,5 +1,3 @@
-// ConfirmTokenForgotPasswordView.kt (View)
-
 package com.example.coffetech.view.Auth
 
 import androidx.activity.compose.BackHandler
@@ -23,21 +21,27 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
-import com.example.coffetech.common.LargeText
 import com.example.coffetech.common.ReusableCancelButton
 import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.ConfirmTokenForgotPasswordViewModel
 
+/**
+ * Composable function that renders the view for confirming the token to reset the password.
+ * It prompts the user to enter the token received for password reset.
+ *
+ * @param modifier A [Modifier] for adjusting the layout or appearance of the view.
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [ConfirmTokenForgotPasswordViewModel] that manages the state of the token confirmation.
+ */
 @Composable
 fun ConfirmTokenForgotPasswordView(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: ConfirmTokenForgotPasswordViewModel = viewModel()
 ) {
-
-
     val token by viewModel.token
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current // Obtener el contexto aquí
@@ -53,7 +57,7 @@ fun ConfirmTokenForgotPasswordView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LargeText(text = "Restablecer Contraseña", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+            ReusableLargeText(text = "Restablecer Contraseña", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
             ReusableDescriptionText(text = "Por favor, introduce el código para restablecer tu contraseña")
 
@@ -62,7 +66,7 @@ fun ConfirmTokenForgotPasswordView(
                 onValueChange = {
                     viewModel.onTokenChange(it)
                 },
-                placeholder = "Token"
+                placeholder = "Código"
             )
 
             ConfirmButton(
@@ -77,12 +81,19 @@ fun ConfirmTokenForgotPasswordView(
 
             ReusableCancelButton(
                 navController = navController,
-                destination = Routes.LoginView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
+                destination = Routes.LoginView // Define la ruta a la que navegar al cancelar
             )
         }
     }
 }
 
+/**
+ * Composable function that renders the confirmation button used to validate the token entered by the user.
+ *
+ * @param isLoading A boolean indicating whether the process of confirming the token is in progress.
+ * @param token The string token entered by the user for password reset.
+ * @param onConfirmClick A lambda function that triggers when the confirmation button is clicked.
+ */
 @Composable
 fun ConfirmButton(
     isLoading: Boolean,
@@ -90,14 +101,13 @@ fun ConfirmButton(
     onConfirmClick: () -> Unit
 ) {
     Button(
-        onClick = {if (!isLoading) onConfirmClick() },
+        onClick = { if (!isLoading) onConfirmClick() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
         modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
         enabled = !isLoading // Deshabilita el botón si está cargando
-
     ) {
         if (isLoading) {
             Text("Confirmando...") // Texto mientras está cargando
@@ -105,11 +115,12 @@ fun ConfirmButton(
             Text("Confirmar código") // Texto normal
         }
     }
-
-
 }
 
-
+/**
+ * Preview function for the ConfirmTokenForgotPasswordView.
+ * Simulates the view in a preview environment to visualize its layout and content.
+ */
 @Preview(showBackground = true)
 @Composable
 fun ConfirmTokenForgotPasswordPreview() {

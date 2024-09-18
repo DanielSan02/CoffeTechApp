@@ -22,6 +22,13 @@ import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.TopBarWithBackArrow
 import com.example.coffetech.viewmodel.Auth.ChangePasswordViewModel
 
+/**
+ * Composable function that renders a view for changing the user's password.
+ *
+ * @param modifier A [Modifier] for adjusting the layout or appearance of the view.
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [ChangePasswordViewModel] that manages the state of the password change process.
+ */
 @Composable
 fun ChangePasswordView(
     modifier: Modifier = Modifier,
@@ -63,9 +70,8 @@ fun ChangePasswordView(
                 value = currentPassword,
                 onValueChange = { viewModel.onCurrentPasswordChange(it) },
                 placeholder = "Contraseña actual",
-                margin=0.dp,
+                margin = 0.dp,
                 isPassword = true,
-
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -117,6 +123,12 @@ fun ChangePasswordView(
     }
 }
 
+/**
+ * Composable function that renders a save button for changing the password.
+ *
+ * @param isLoading A boolean indicating whether the password is currently being saved. Disables the button if true.
+ * @param onSaveClick A lambda function that triggers when the button is clicked and saving is not in progress.
+ */
 @Composable
 fun SavePasswordButton(
     isLoading: Boolean,
@@ -139,6 +151,9 @@ fun SavePasswordButton(
     }
 }
 
+/**
+ * A preview composable function to simulate and display the [ChangePasswordView] in a preview window.
+ */
 @Preview(showBackground = true)
 @Composable
 fun ChangePasswordViewPreview() {

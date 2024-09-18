@@ -15,9 +15,13 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+/**
+ * ViewModel for managing the state and logic of the forgot password flow.
+ * This ViewModel handles user input validation, sending a forgot password request, and navigation.
+ */
 class ForgotPasswordViewModel : ViewModel() {
 
+    // State variables
     var email = mutableStateOf("")
         private set
 
@@ -27,9 +31,15 @@ class ForgotPasswordViewModel : ViewModel() {
     var errorMessage = mutableStateOf("")
         private set
 
-    var isLoading = mutableStateOf(false) // Nuevo estado para manejar carga
+    var isLoading = mutableStateOf(false) // State to handle loading status
         private set
 
+    /**
+     * Updates the value of the email and validates its format.
+     * If the email is invalid, an error message is displayed.
+     *
+     * @param newEmail The new email entered by the user.
+     */
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
         isEmailValid.value = isValidEmail(newEmail)
@@ -40,19 +50,27 @@ class ForgotPasswordViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Sends a forgot password request to the backend API if the email is valid.
+     * If the request is successful, navigates to the confirm token view.
+     * Displays error messages in case of network issues or invalid responses.
+     *
+     * @param navController The [NavController] used for navigation between screens.
+     * @param context The [Context] used for displaying Toast messages.
+     */
     fun sendForgotPasswordRequest(navController: NavController, context: Context) {
         if (!isEmailValid.value) {
             errorMessage.value = "Correo electrónico no válido"
             return
         }
 
-        isLoading.value = true // Iniciar carga
+        isLoading.value = true // Start loading
 
         val forgotPasswordRequest = ForgotPasswordRequest(email.value)
 
         RetrofitInstance.api.forgotPassword(forgotPasswordRequest).enqueue(object : Callback<ForgotPasswordResponse> {
             override fun onResponse(call: Call<ForgotPasswordResponse>, response: Response<ForgotPasswordResponse>) {
-                isLoading.value = false // Terminar carga
+                isLoading.value = false // Stop loading
 
                 if (response.isSuccessful) {
                     val responseBody = response.body()
@@ -60,12 +78,14 @@ class ForgotPasswordViewModel : ViewModel() {
                         if (it.status == "success") {
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
 
+                            // Navigate to the confirm token screen
                             navController.navigate(Routes.ConfirmTokenForgotPasswordView)
                         } else {
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                         }
                     }
                 } else {
+                    // Handle error response from the server
                     val errorBody = response.errorBody()?.string()
                     errorBody?.let {
                         try {
@@ -87,13 +107,19 @@ class ForgotPasswordViewModel : ViewModel() {
             }
 
             override fun onFailure(call: Call<ForgotPasswordResponse>, t: Throwable) {
-                isLoading.value = false // Terminar carga
+                isLoading.value = false // Stop loading
                 errorMessage.value = "Error de red: ${t.localizedMessage}"
                 Toast.makeText(context, errorMessage.value, Toast.LENGTH_LONG).show()
             }
         })
     }
 
+    /**
+     * Validates the format of the given email address.
+     *
+     * @param email The email address to validate.
+     * @return `true` if the email format is valid, `false` otherwise.
+     */
     private fun isValidEmail(email: String): Boolean {
         val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
         return emailRegex.matches(email)

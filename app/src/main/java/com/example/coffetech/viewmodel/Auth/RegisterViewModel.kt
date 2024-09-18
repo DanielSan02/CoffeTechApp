@@ -16,9 +16,13 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+/**
+ * ViewModel for managing the state and logic of the user registration flow.
+ * This ViewModel handles user input validation, performing the registration request, and navigation.
+ */
 class RegisterViewModel : ViewModel() {
 
+    // State variables for managing user input, error messages, and loading status
     var name = mutableStateOf("")
         private set
 
@@ -34,32 +38,61 @@ class RegisterViewModel : ViewModel() {
     var errorMessage = mutableStateOf("")
         private set
 
-
     var isLoading = mutableStateOf(false)
         private set
 
+    /**
+     * Updates the name value when the user inputs a new name.
+     *
+     * @param newName The new name entered by the user.
+     */
     fun onNameChange(newName: String) {
         name.value = newName
     }
 
+    /**
+     * Updates the email value when the user inputs a new email.
+     *
+     * @param newEmail The new email entered by the user.
+     */
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
     }
 
+    /**
+     * Updates the password value when the user inputs a new password.
+     *
+     * @param newPassword The new password entered by the user.
+     */
     fun onPasswordChange(newPassword: String) {
         password.value = newPassword
     }
 
+    /**
+     * Updates the confirm password value when the user inputs a new confirmation password.
+     *
+     * @param newConfirmPassword The new confirm password entered by the user.
+     */
     fun onConfirmPasswordChange(newConfirmPassword: String) {
         confirmPassword.value = newConfirmPassword
     }
 
+    /**
+     * Registers the user by sending a registration request to the backend API.
+     * It first validates the inputs for name, email, and password. If valid, it makes the registration request.
+     * If successful, navigates to the account verification screen. Otherwise, it displays relevant error messages.
+     *
+     * @param navController The [NavController] used for navigation between screens.
+     * @param context The [Context] used for displaying Toast messages.
+     */
     fun registerUser(navController: NavController, context: Context) {
+        // Check if all required fields are filled
         if (name.value.isBlank() || email.value.isBlank() || password.value.isBlank() || confirmPassword.value.isBlank()) {
             errorMessage.value = "Todos los campos son obligatorios"
             return
         }
 
+        // Validate the password and email
         val (isValidPassword, passwordMessage) = validatePassword(password.value, confirmPassword.value)
         val isValidEmail = validateEmail(email.value)
 
@@ -68,15 +101,16 @@ class RegisterViewModel : ViewModel() {
         } else if (!isValidPassword) {
             errorMessage.value = passwordMessage
         } else {
-            errorMessage.value = "" // Limpiar el mensaje de error
+            errorMessage.value = "" // Clear error message
 
-            isLoading.value = true // Indicar que estamos en proceso de carga
+            isLoading.value = true // Set loading state to true
 
             val registerRequest = RegisterRequest(name.value, email.value, password.value, confirmPassword.value)
 
+            // Make the registration request to the backend
             RetrofitInstance.api.registerUser(registerRequest).enqueue(object : Callback<RegisterResponse> {
                 override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
-                    isLoading.value = false
+                    isLoading.value = false // Stop loading
 
                     if (response.isSuccessful) {
                         val responseBody = response.body()
@@ -84,6 +118,7 @@ class RegisterViewModel : ViewModel() {
                             if (it.status == "success") {
                                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
 
+                                // Navigate to the account verification screen
                                 navController.navigate(Routes.VerifyAccountView) {
                                     popUpTo(Routes.RegisterView) { inclusive = true }
                                 }
@@ -113,6 +148,14 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Validates the password and confirm password. It ensures that the passwords match and meet security criteria.
+     *
+     * @param password The password entered by the user.
+     * @param confirmPassword The confirmation password entered by the user.
+     * @return A pair where the first value is a boolean indicating whether the validation was successful,
+     * and the second value is an error message if applicable.
+     */
     private fun validatePassword(password: String, confirmPassword: String): Pair<Boolean, String> {
         val specialCharacterPattern = Regex(".*[!@#\$%^&*(),.?\":{}|<>].*")
         val uppercasePattern = Regex(".*[A-Z].*")
@@ -126,6 +169,12 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Validates the email format using Android's email pattern matcher.
+     *
+     * @param email The email to validate.
+     * @return `true` if the email is valid, `false` otherwise.
+     */
     private fun validateEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }

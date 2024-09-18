@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
-import com.example.coffetech.common.LargeText
+import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.coffetech.utils.SharedPreferencesHelper
@@ -124,7 +124,7 @@ fun TopBarWithHamburger(
 
     ) {
         // El texto centrado
-        LargeText(
+        ReusableLargeText(
             text = title,
             fontSize = 20,
             fontWeight = FontWeight.Bold,

@@ -19,8 +19,13 @@ import retrofit2.Response
 
 // ConfirmTokenForgotPasswordViewModel.kt (ViewModel)
 
+/**
+ * ViewModel for managing the state and logic for confirming the token in the forgot password flow.
+ * This ViewModel handles the process of verifying the token and navigating to the new password screen.
+ */
 class ConfirmTokenForgotPasswordViewModel : ViewModel() {
 
+    // State variables
     var token = mutableStateOf("")
         private set
 
@@ -30,6 +35,11 @@ class ConfirmTokenForgotPasswordViewModel : ViewModel() {
     var isLoading = mutableStateOf(false)
         private set
 
+    /**
+     * Updates the value of the token and clears any error message if the token is not blank.
+     *
+     * @param newToken The new token entered by the user.
+     */
     fun onTokenChange(newToken: String) {
         token.value = newToken
         if (newToken.isNotBlank()) {
@@ -37,6 +47,13 @@ class ConfirmTokenForgotPasswordViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Confirms the token provided by the user and verifies it with the backend.
+     * If successful, navigates to the NewPasswordView with the provided token.
+     *
+     * @param navController The [NavController] used for navigation between screens.
+     * @param context The [Context] used for displaying Toast messages.
+     */
     fun confirmToken(navController: NavController, context: Context) {
         if (token.value.isBlank()) {
             errorMessage.value = "El token es obligatorio"
@@ -45,11 +62,12 @@ class ConfirmTokenForgotPasswordViewModel : ViewModel() {
 
         val verifyRequest = VerifyRequest(token = token.value)
 
-        isLoading.value = true // Indicar que estamos en proceso de carga
+        isLoading.value = true // Indicate that the loading process has started
 
+        // Make a network call to verify the token
         RetrofitInstance.api.confirmForgotPassword(verifyRequest).enqueue(object : Callback<VerifyResponse> {
             override fun onResponse(call: Call<VerifyResponse>, response: Response<VerifyResponse>) {
-                isLoading.value = false
+                isLoading.value = false // End the loading process
 
                 if (response.isSuccessful) {
                     val responseBody = response.body()
@@ -57,14 +75,16 @@ class ConfirmTokenForgotPasswordViewModel : ViewModel() {
                         if (it.status == "success") {
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
 
-                            Log.d("ConfirmTokenViewModel", "Navegando a NewPasswordView con token: ${token.value}")
+                            Log.d("ConfirmTokenViewModel", "Navigating to NewPasswordView with token: ${token.value}")
 
+                            // Navigate to the NewPasswordView with the token
                             navController.navigate("${Routes.NewPasswordView}/${token.value}")
                         } else {
                             errorMessage.value = it.message ?: "Error desconocido del servidor"
                         }
                     }
                 } else {
+                    // Handle error response from the server
                     val errorBody = response.errorBody()?.string()
                     errorBody?.let {
                         try {
@@ -85,6 +105,7 @@ class ConfirmTokenForgotPasswordViewModel : ViewModel() {
             }
 
             override fun onFailure(call: Call<VerifyResponse>, t: Throwable) {
+                // Handle failure due to connection issues
                 errorMessage.value = "Fallo en la conexión: ${t.message}"
                 Toast.makeText(context, errorMessage.value, Toast.LENGTH_LONG).show()
             }

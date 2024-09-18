@@ -37,12 +37,23 @@ import com.example.coffetech.common.ReusableDescriptionText
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.NewPasswordViewModel
 
+
+/**
+ * Composable function that renders the screen for setting a new password.
+ * The user enters and confirms their new password. The token received from the reset
+ * password email is used to validate the request.
+ *
+ * @param modifier A [Modifier] for adjusting the layout or appearance of the view.
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [NewPasswordViewModel] that manages the state and logic for resetting the password.
+ * @param token The token used to validate the password reset request.
+ */
 @Composable
 fun NewPasswordView(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: NewPasswordViewModel = viewModel(),
-    token: String // Asegúrate de recibir el token aquí
+    token: String // Token passed for password reset validation
 ) {
 
     val password by viewModel.password
@@ -52,13 +63,13 @@ fun NewPasswordView(
     val scrollState = rememberScrollState()
     val isLoading by viewModel.isLoading
 
-    // Verifica si el token es válido y haz un registro del mismo
+    // Check if the token is valid and log it
     if (token.isBlank()) {
-        Log.e("NewPasswordView", "Token es nulo o vacío.")
-        Toast.makeText(context, "Error: Token inválido", Toast.LENGTH_SHORT).show()
-        return // Detén la composición si el token es inválido
+        Log.e("NewPasswordView", "Token is null or empty.")
+        Toast.makeText(context, "Error: Invalid token", Toast.LENGTH_SHORT).show()
+        return // Stop the composition if the token is invalid
     } else {
-        Log.d("NewPasswordView", "Token recibido correctamente: $token")
+        Log.d("NewPasswordView", "Token received successfully: $token")
     }
 
     Box(
@@ -75,12 +86,15 @@ fun NewPasswordView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Displays the app logo
             LogoImage()
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Instructional text prompting the user to enter a new password
             ReusableDescriptionText(text = "Ingrese su nueva contraseña", fontSize = 25)
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Input field for the new password, with password masking
             ReusableTextField(
                 value = password,
                 onValueChange = { viewModel.onPasswordChange(it) },
@@ -90,6 +104,7 @@ fun NewPasswordView(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Input field to confirm the new password, with password masking
             ReusableTextField(
                 value = confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChange(it) },
@@ -97,26 +112,35 @@ fun NewPasswordView(
                 isPassword = true
             )
 
+            // Displays an error message if there is any
             if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Button to submit the new password reset request
             ResetPasswordButton(
                 isLoading = isLoading,
                 onResetClick = { viewModel.resetPassword(navController, context, token) }
             )
 
+            // Button to cancel the password reset process and return to the login screen
             ReusableCancelButton(
                 navController = navController,
-                destination = Routes.LoginView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
+                destination = Routes.LoginView // Navigates to login screen on cancel
             )
         }
     }
 }
 
-
+/**
+ * Composable function that renders the reset password button.
+ * The button becomes disabled if the password reset request is in progress.
+ *
+ * @param isLoading A Boolean indicating whether the password reset process is in progress.
+ * @param onResetClick A lambda function triggered when the button is clicked, initiating the password reset request.
+ */
 @Composable
 fun ResetPasswordButton(
     isLoading: Boolean,
@@ -128,24 +152,27 @@ fun ResetPasswordButton(
             containerColor = Color(0xFF49602D),
             contentColor = Color.White
         ),
-        modifier = Modifier.padding(bottom = 16.dp, top=10.dp),
-        enabled = !isLoading // Deshabilita el botón si está cargando
-
+        modifier = Modifier.padding(bottom = 16.dp, top = 10.dp),
+        enabled = !isLoading // Disable the button if the request is in progress
     ) {
         if (isLoading) {
-            Text("Restableciendo...") // Texto mientras está cargando
+            Text("Restableciendo...") // Display loading text
         } else {
-            Text("Restablecer") // Texto normal
+            Text("Restablecer") // Normal button text
         }
     }
 }
 
-
+/**
+ * Preview function for the NewPasswordView.
+ * It simulates the new password reset screen with a sample token to visualize the layout.
+ */
 @Preview(showBackground = true)
 @Composable
 fun NewPasswordPreview() {
     CoffeTechTheme {
-        // Para la vista previa, se proporciona un token de ejemplo
+        // A sample token is provided for preview purposes
         NewPasswordView(navController = NavController(LocalContext.current), token = "sampleToken")
     }
 }
+

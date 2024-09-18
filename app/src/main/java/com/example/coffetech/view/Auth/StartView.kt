@@ -37,47 +37,54 @@ import com.example.coffetech.view.common.HeaderFooterView
 import com.example.coffetech.viewmodel.Auth.StartViewModel
 
 @SuppressLint("SuspiciousIndentation")
+/**
+ * Composable function that renders the Start screen of the CoffeeTech app.
+ * This view displays the main content and incorporates a header and footer with navigation.
+ *
+ * @param navController The [NavController] used for navigation between different screens.
+ * @param viewModel The [StartViewModel] that manages the state and logic for the start screen.
+ */
 @Composable
 fun StartView(
     navController: NavController,
-    viewModel: StartViewModel = viewModel() // Inyecta el ViewModel aquí
+    viewModel: StartViewModel = viewModel() // Injects the ViewModel here
 ) {
     var isMenuVisible by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf(TextFieldValue("")) }
 
-    // Aquí declaramos profileImage correctamente dentro de una función @Composable
+    // Profile image used in the header or other parts of the UI
     val profileImage: Painter = painterResource(id = R.drawable.menu_icon)
 
-        // Llamamos a BaseScreen que contiene la lógica del top bar y bottom bar
-        HeaderFooterView(
-            title = "CoffeeTech",
-            currentView = "Inicio",
-            navController = navController
-
+    // Calls HeaderFooterView which contains the top bar and bottom bar logic
+    HeaderFooterView(
+        title = "CoffeeTech",
+        currentView = "Inicio",
+        navController = navController
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF2F2F2)) // Applies background color to the central content
+                .padding(16.dp) // Adds padding if necessary
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFF2F2F2)) // Aplica el fondo rojo al contenido central
-                    .padding(16.dp) // Agrega padding si es necesario
-            ) {
-                // Contenido central
-                // Agregar aqui composables
-                Text(
-                    text = "Contenido central",
-                    color = Color.Black,
-                    modifier = Modifier.padding(16.dp)
-                )
-                }
+            // Central content for the Start screen
+            Text(
+                text = "Contenido central", // Placeholder for central content
+                color = Color.Black,
+                modifier = Modifier.padding(16.dp)
+            )
         }
     }
+}
 
-
-// Aquí usamos @Preview para previsualizar FarmView
+/**
+ * Preview function for the StartView.
+ * It simulates the Start screen in a preview environment to visualize the layout.
+ */
 @Preview(showBackground = true)
 @Composable
 fun StartViewPreview() {
     CoffeTechTheme {
-        com.example.coffetech.view.Auth.StartView(navController = NavController(LocalContext.current))
+        StartView(navController = NavController(LocalContext.current))
     }
 }

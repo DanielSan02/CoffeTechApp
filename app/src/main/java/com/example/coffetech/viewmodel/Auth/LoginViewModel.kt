@@ -17,9 +17,13 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+/**
+ * ViewModel for managing the state and logic of the login flow.
+ * This ViewModel handles user input validation, performing the login request, and navigation.
+ */
 class LoginViewModel() : ViewModel(), Parcelable {
 
+    // State variables for managing email, password, error messages, and loading status
     var email = mutableStateOf("")
         private set
 
@@ -32,12 +36,25 @@ class LoginViewModel() : ViewModel(), Parcelable {
     var isLoading = mutableStateOf(false)
         private set
 
+    /**
+     * Parcelable constructor for restoring the ViewModel state if needed.
+     */
     constructor(parcel: Parcel) : this()
 
+    /**
+     * Updates the email value when the user inputs a new email.
+     *
+     * @param newEmail The new email entered by the user.
+     */
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
     }
 
+    /**
+     * Updates the password value when the user inputs a new password.
+     *
+     * @param newPassword The new password entered by the user.
+     */
     fun onPasswordChange(newPassword: String) {
         password.value = newPassword
     }
@@ -58,32 +75,42 @@ class LoginViewModel() : ViewModel(), Parcelable {
         }
     }
 
+    /**
+     * Performs the login process by sending a login request to the server.
+     * It first validates the email format and ensures both email and password are not blank.
+     * If the login is successful, the session token, name, and email are stored in SharedPreferences,
+     * and the user is navigated to the StartView. In case of an error, it handles error messages and logs them.
+     *
+     * @param navController The [NavController] used for navigating between screens.
+     * @param context The [Context] used to show Toast messages and access SharedPreferences.
+     */
     fun loginUser(navController: NavController, context: Context) {
-        // Validar que los campos no estén vacíos
+        // Validate if email or password fields are empty
         if (email.value.isBlank() || password.value.isBlank()) {
             errorMessage.value = "El correo y la contraseña son obligatorios"
-            Log.e("LoginViewModel", "Los campos de email o contraseña están vacíos") // Log de error
+            Log.e("LoginViewModel", "Los campos de email o contraseña están vacíos")
             return
         }
 
-        // Validar el formato del correo electrónico
+        // Validate the email format
         val isValidEmail = validateEmail(email.value)
         if (!isValidEmail) {
             errorMessage.value = "Correo electrónico no válido"
-            Log.e("LoginViewModel", "El formato del correo electrónico es inválido") // Log de error
+            Log.e("LoginViewModel", "El formato del correo electrónico es inválido")
             return
         }
 
-        // Si todas las validaciones pasan, limpiar el mensaje de error y proceder con la solicitud
+        // Clear any previous error message
         errorMessage.value = ""
 
-        isLoading.value = true // Indicar que estamos en proceso de carga
+        // Set loading state to true
+        isLoading.value = true
 
         val loginRequest = LoginRequest(email = email.value, password = password.value)
 
         Log.d("LoginViewModel", "Iniciando solicitud de inicio de sesión con email: ${email.value}")
 
-        // Realizar la solicitud de inicio de sesión al servidor
+        // Send the login request to the server
         RetrofitInstance.api.loginUser(loginRequest).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 isLoading.value = false
@@ -91,26 +118,24 @@ class LoginViewModel() : ViewModel(), Parcelable {
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     responseBody?.let {
-                        Log.d("LoginViewModel", "Estado de la respuesta: ${it.status}")
                         if (it.status == "success") {
-                            // Obtener el token de la respuesta
+                            // Retrieve the session token, name, and email from the response
                             val token = it.data?.session_token
                             val name = it.data?.name ?: "Usuario"
                             val email = email.value
 
                             token?.let {
-                                // Guardar el token, nombre y correo en SharedPreferences
+                                // Save session data in SharedPreferences
                                 val sharedPreferencesHelper = SharedPreferencesHelper(context)
                                 sharedPreferencesHelper.saveSessionData(token, name, email)
 
                                 Log.d("LoginViewModel", "Datos guardados correctamente: token=$token, name=$name")
 
-                                // Notificar inicio de sesión exitoso
+                                // Notify successful login and navigate to the StartView
                                 Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_LONG).show()
                                 navController.navigate(Routes.StartView) {
-                                    popUpTo(Routes.LoginView) { inclusive = true } // Elimina LoginView de la pila de navegación
+                                    popUpTo(Routes.LoginView) { inclusive = true } // Remove LoginView from the navigation stack
                                 }
-
                             } ?: run {
                                 Log.e("LoginViewModel", "El token no fue recibido en la respuesta")
                                 Toast.makeText(context, "No se recibió el token de sesión", Toast.LENGTH_LONG).show()
@@ -121,9 +146,9 @@ class LoginViewModel() : ViewModel(), Parcelable {
                         }
                     }
                 } else {
+                    // Handle error response from the server
                     val errorBody = response.errorBody()?.string()
                     errorBody?.let {
-                        Log.e("LoginViewModel", "Error del servidor: $it")
                         try {
                             val errorJson = JSONObject(it)
                             val errorMessage = if (errorJson.has("message")) {
@@ -145,15 +170,21 @@ class LoginViewModel() : ViewModel(), Parcelable {
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                isLoading.value = false
                 Log.e("LoginViewModel", "Fallo en la conexión: ${t.message}")
-                val failureMessage = "Fallo en la conexión: ${t.message}"
-                Toast.makeText(context, failureMessage, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Fallo en la conexión: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
 
-
+    /**
+     * Validates the email format using Android's email address pattern matcher.
+     *
+     * @param email The email address to validate.
+     * @return `true` if the email format is valid, `false` otherwise.
+     */
     private fun validateEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 }
+

@@ -86,7 +86,8 @@ fun SelectedRoleDisplay(
 @Composable
 fun GeneralInfoCard(
     farmName: String,
-    farmArea: String,
+    farmArea: Double,
+    farmUnitMeasure: String,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -114,8 +115,15 @@ fun GeneralInfoCard(
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
                 )
+
                 Text(
-                    text = farmArea,
+                    text = String.format("%.2f", farmArea),
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+
+                Text(
+                    text = farmUnitMeasure,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -366,7 +374,7 @@ fun UnitDropdown(
                 .padding(horizontal = 8.dp)
                 .background(Color.White, shape = RoundedCornerShape(25.dp))
                 .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp))
-                .size(width = 95.dp, height = 40.dp)
+                .size(width = 200.dp, height = 40.dp)
         ) {
             OutlinedButton(
                 onClick = { expanded = !expanded },

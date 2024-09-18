@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,12 +31,31 @@ import com.example.coffetech.viewmodel.farm.FarmEditViewModel
 @Composable
 fun FarmEditView(
     navController: NavController,
+    farmId: Int,
+    farmName: String,
+    farmArea: String,
+    unitOfMeasure: String,
     viewModel: FarmEditViewModel = viewModel()
 ) {
+    val context = LocalContext.current
 
-    val farmName by viewModel.farmName.collectAsState()
-    val farmArea by viewModel.farmArea.collectAsState()
+    // Inicializar el ViewModel con los valores originales
+    LaunchedEffect(Unit) {
+        viewModel.initializeValues(farmName, farmArea, unitOfMeasure)
+        viewModel.onFarmNameChange(farmName)
+        viewModel.onFarmAreaChange(farmArea)
+        viewModel.onUnitChange(unitOfMeasure)
+        viewModel.loadUnitMeasuresFromSharedPreferences(context)
+    }
+
+    // Obtener los estados del ViewModel
+    val farmNameState by viewModel.farmName.collectAsState()
+    val farmAreaState by viewModel.farmArea.collectAsState()
     val selectedUnit by viewModel.selectedUnit.collectAsState()
+    val areaUnits by viewModel.areaUnits.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val hasChanges by viewModel.hasChanges.collectAsState()
 
     Box(
         modifier = Modifier
@@ -51,31 +71,27 @@ fun FarmEditView(
                 .padding(horizontal = 15.dp)
         ) {
             Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .padding(top = 1.dp)
-                .offset(x = -20.dp, y = -10.dp)
-            // Ajuste para evitar superposición con el botón
-        ) {
-
-
-            BackButton(
-                navController = navController,
+                horizontalAlignment = Alignment.Start,
                 modifier = Modifier
-                    .align(Alignment.Start)
-            )
-        }
+                    .padding(top = 1.dp)
+                    .offset(x = -20.dp, y = -10.dp)
+            ) {
+                BackButton(
+                    navController = navController,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+            }
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.padding(top = 18.dp) // Ajuste para evitar superposición con el botón
+                modifier = Modifier.padding(top = 18.dp)
             ) {
 
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Text(
-                    text = "Informacion de la Finca",
+                    text = "Información de la Finca",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.W600,
                     fontSize = 25.sp,
@@ -85,13 +101,13 @@ fun FarmEditView(
                 // Nombre de finca
                 LabeledTextField(
                     label = "Nombre",
-                    value = farmName,
+                    value = farmNameState,
                     onValueChange = { viewModel.onFarmNameChange(it) },
                     placeholder = "Nombre de la finca",
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Área de la finca
+                // Área de la finca y unidad
                 Column(
                     modifier = Modifier
                         .padding(bottom = 10.dp)
@@ -100,20 +116,25 @@ fun FarmEditView(
                 ) {
                     LabeledTextField(
                         label = "Área",
-                        value = farmArea,
+                        value = farmAreaState,
                         onValueChange = { viewModel.onFarmAreaChange(it) },
                         placeholder = "Área de la finca",
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     // Unidad de medida
-                   /* UnitDropdown(
+                    UnitDropdown(
                         selectedUnit = selectedUnit,
                         onUnitChange = { viewModel.onUnitChange(it) },
+                        units = areaUnits,
                         expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                         arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
-                    )*/
+                    )
+                }
 
+                // Mostrar mensaje de error si lo hay
+                if (errorMessage.isNotEmpty()) {
+                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
 
                 Column(
@@ -123,23 +144,15 @@ fun FarmEditView(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    //Guardar
+                    // Botón para guardar
                     ReusableButton(
-                        text = "Guardar",
-                        onClick = { viewModel.onSave(navController) },
+                        text = if (isLoading) "Guardando..." else "Guardar",
+                        onClick = { viewModel.updateFarmDetails(farmId, navController, context) },
                         modifier = Modifier
                             .size(width = 120.dp, height = 40.dp)
                             .padding(vertical = 3.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))
-                    )
-
-                    //Eliminar
-                    ReusableButton(
-                        text = "Eliminar",
-                        onClick = { viewModel.onDelete(navController) },
-                        modifier = Modifier
-                            .size(width = 120.dp, height = 35.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB31D34))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+                        enabled = hasChanges && !isLoading // Habilitar solo si hay cambios y no está cargando
                     )
                 }
             }
@@ -147,10 +160,17 @@ fun FarmEditView(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun FarmEditViewPreview() {
     CoffeTechTheme {
-        FarmEditView(navController = NavController(LocalContext.current))
+        FarmEditView(
+            navController = NavController(LocalContext.current),
+            farmName = "Finca Ejemplo",
+            farmId= 1,
+            farmArea = "500 Ha",
+            unitOfMeasure = "Hectáreas"
+        )
     }
 }

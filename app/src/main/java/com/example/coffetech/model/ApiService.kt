@@ -5,6 +5,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 // Data classes for API requests and responses
@@ -287,6 +288,31 @@ data class FarmResponse(
     val role: String
 )
 
+data class GetFarmResponse(
+    val status: String,
+    val message: String,
+    val data: FarmDataWrapper
+)
+
+data class FarmDataWrapper(
+    val farm: FarmResponse
+)
+
+
+data class UpdateFarmRequest(
+    val farm_id: Int,
+    val name: String,
+    val area: Double,
+    val unitMeasure: String
+)
+
+
+data class UpdateFarmResponse(
+    val status: String,
+    val message: String,
+    val data: FarmResponse
+)
+
 // API service interface for interacting with backend services
 
 /**
@@ -421,4 +447,20 @@ interface ApiService {
     fun listFarms(
         @Query("session_token") sessionToken: String
     ): Call<ListFarmResponse>
+
+
+    // Método corregido para obtener los detalles de la finca
+    @GET("/farm/get-farm/{farm_id}")
+    fun getFarm(
+        @Path("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetFarmResponse>
+
+
+    @POST("/farm/update-farm")
+    fun updateFarm(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdateFarmRequest
+    ): Call<UpdateFarmResponse>
+
 }

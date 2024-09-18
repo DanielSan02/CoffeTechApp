@@ -4,12 +4,20 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.coffetech.model.GetFarmResponse
+import com.example.coffetech.model.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+
+
+import android.util.Log // Importa la clase Log
 
 class FarmInformationViewModel : ViewModel() {
-
 
     // Estado de búsqueda
     private val _searchQuery = mutableStateOf("")
@@ -17,37 +25,99 @@ class FarmInformationViewModel : ViewModel() {
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-        // Implementa la lógica de búsqueda aquí
-        println("Búsqueda: $query")
+        Log.d("FarmInfoViewModel", "Search query changed: $query")
     }
 
-        fun onEditFarm(navController: NavController) {
-            navController.navigate("FarmEditView")
-        }
-
-        fun onAddCollaborator(navController: NavController) {
-            navController.navigate("CollaboratorView")
-        }
-
-        fun onAddLote(navController: NavController) {
-            navController.navigate("AddLoteView")
-        }
-
-    // State para los nombres de la (finca, área y colaborador)
-    private val _farmName = MutableStateFlow("Finca de Ejemplo")
+        // Estados de nombre, área, y otros datos de la finca
+    private val _farmName = MutableStateFlow("")
     val farmName: StateFlow<String> = _farmName.asStateFlow()
 
-    private val _farmArea = MutableStateFlow("Área de Ejemplo")
-    val farmArea: StateFlow<String> = _farmArea.asStateFlow()
+    private val _farmArea = MutableStateFlow(0.0)
+    val farmArea: StateFlow<Double> = _farmArea.asStateFlow()
+
+    private val _unitOfMeasure = MutableStateFlow("")
+    val unitOfMeasure: StateFlow<String> = _unitOfMeasure.asStateFlow()
+
+    private val _status = MutableStateFlow("")
+    val status: StateFlow<String> = _status.asStateFlow()
+
+    private val _selectedRole = MutableStateFlow("")
+    val selectedRole: StateFlow<String> = _selectedRole.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _collaboratorName = MutableStateFlow("Colaborador de Ejemplo")
     val collaboratorName: StateFlow<String> = _collaboratorName.asStateFlow()
 
-    // State para el rol seleccionado
-    private val _selectedRole = MutableStateFlow("Administrador")
-    val selectedRole: StateFlow<String> = _selectedRole.asStateFlow()
+    fun onEditFarm(navController: NavController, farmId: Int, farmName: String, farmArea: Double, unitOfMeasure: String) {
+        navController.navigate("FarmEditView/$farmId/$farmName/$farmArea/$unitOfMeasure")
+    }
 
-    // State la lista de lotes
+
+    fun onAddCollaborator(navController: NavController) {
+        Log.d("FarmInfoViewModel", "Navigating to CollaboratorView")
+        navController.navigate("CollaboratorView")
+    }
+
+    fun onAddLote(navController: NavController) {
+        Log.d("FarmInfoViewModel", "Navigating to AddLoteView")
+        navController.navigate("AddLoteView")
+    }
+
+    /**
+     * Loads the farm details from the backend by making an API request.
+     *
+     * @param farmId The ID of the farm to fetch details for.
+     * @param sessionToken The session token for authorization.
+     */
+    fun loadFarmData(farmId: Int, sessionToken: String) {
+        if (sessionToken.isEmpty()) {
+            setErrorMessage("Session token is missing. Please log in.")
+            Log.e("FarmInfoViewModel", "Session token is missing. Aborting API call.")
+            return
+        }
+
+        Log.d("FarmInfoViewModel", "Starting API call to fetch farm data for farmId: $farmId with sessionToken: $sessionToken")
+        _isLoading.value = true
+
+        // Llamada a Retrofit para obtener los datos de la finca
+        RetrofitInstance.api.getFarm(farmId, sessionToken).enqueue(object : Callback<GetFarmResponse> {
+            override fun onResponse(call: Call<GetFarmResponse>, response: Response<GetFarmResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    Log.d("FarmInfoViewModel", "API call successful for farmId: $farmId")
+                    response.body()?.data?.farm?.let { farm -> // Cambia aquí para acceder a farm dentro de data
+                        _farmName.value = farm.name
+                        _farmArea.value = farm.area // Convertir área a String con formato
+                        _unitOfMeasure.value = farm.unit_of_measure
+                        _selectedRole.value = farm.role
+                        _status.value = farm.status
+                        Log.d("FarmInfoViewModel", "Farm data loaded: $farm")
+                    } ?: run {
+                        _errorMessage.value = "Error: Farm data is null"
+                        Log.e("FarmInfoViewModel", "Error: Farm data is null")
+                    }
+                } else {
+                    // Obtener el error detallado si hay uno
+                    val errorBody = response.errorBody()?.string()
+                    _errorMessage.value = "Error: ${response.message()}, Details: $errorBody"
+                    Log.e("FarmInfoViewModel", "Error in API response: ${response.message()}, Body: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<GetFarmResponse>, t: Throwable) {
+                _isLoading.value = false
+                _errorMessage.value = "Error de conexión: ${t.message}"
+                Log.e("FarmInfoViewModel", "API call failed for farmId: $farmId, Error: ${t.message}", t)
+            }
+        })
+    }
+
+    // Estado para la lista de lotes (esto parece ser datos simulados, podrías cambiarlo cuando trabajes con datos reales)
     private val _lotes = MutableStateFlow(
         listOf(
             "Lote 1" to "Descripción de Lote 1",
@@ -57,20 +127,13 @@ class FarmInformationViewModel : ViewModel() {
 
     val lotes: StateFlow<List<Pair<String, String>>> = _lotes.asStateFlow()
 
-    // Función que simula la obtención de datos de un endpoint
-    fun fetchFarmData() {
-        // Simluacion de endpoint
-        // Por el momento son datos estaticos
-        _farmName.value = "Finca Los Álamos"
-        _farmArea.value = "500 Ha"
-        _collaboratorName.value = "Juan Pérez"
-        _selectedRole.value = "Administrador"
-
-        // Actualizar los lotes simulados
-        _lotes.value = listOf(
-            "Lote del Sur" to "Descripcion del norte del sur",
-            "Lote del Norte" to "Descripción sobre el Lote del Norte"
-        )
+    /**
+     * Sets an error message to be displayed in the UI.
+     *
+     * @param message The error message to set.
+     */
+    fun setErrorMessage(message: String) {
+        _errorMessage.value = message
+        Log.e("FarmInfoViewModel", "Error set: $message")
     }
 }
-

@@ -11,11 +11,23 @@ import retrofit2.Response
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.navigation.NavController
 import com.example.coffetech.model.ListFarmResponse
 import com.example.coffetech.model.RetrofitInstance
 import com.example.coffetech.utils.SharedPreferencesHelper
+import androidx.compose.runtime.State
 
-data class Farm(val name: String, val role: String)
+import androidx.compose.runtime.mutableStateOf
+
+
+data class Farm(
+    val farm_id: Int, // Agrega farm_id como propiedad de la clase Farm
+    val name: String,
+    val area: Int, // Agrega también otras propiedades que necesitas
+    val unit_of_measure: String,
+    val role: String
+)
+
 
 class FarmViewModel : ViewModel() {
 
@@ -104,8 +116,15 @@ class FarmViewModel : ViewModel() {
                     responseBody?.let {
                         if (it.status == "success") {
                             val farmsList = it.data.farms.map { farmResponse ->
-                                Farm(farmResponse.name, farmResponse.role)
+                                Farm(
+                                    farm_id = farmResponse.farm_id,
+                                    name = farmResponse.name,
+                                    area = farmResponse.area.toInt(),  // Convertir a Int si es necesario
+                                    unit_of_measure = farmResponse.unit_of_measure,
+                                    role = farmResponse.role
+                                )
                             }
+
                             _allFarms.clear()
                             _allFarms.addAll(farmsList)
                             _farms.value = farmsList // Mostrar todas las fincas al principio
@@ -145,8 +164,14 @@ class FarmViewModel : ViewModel() {
         }
     }
 
-    fun onFarmClick(farm: Farm) {
-        // Lógica para manejar el clic en una finca
-        println("Finca seleccionada: ${farm.name}")
+    // Añade una propiedad para almacenar temporalmente la finca seleccionada
+    private val _selectedFarmId = mutableStateOf<Int?>(null)
+    val selectedFarmId: State<Int?> = _selectedFarmId
+
+    fun onFarmClick(farm: Farm, navController: NavController) {
+        // Guarda el ID de la finca seleccionada
+        _selectedFarmId.value = farm.farm_id
+        // Navega hacia la vista de información de la finca
+        navController.navigate("FarmInformationView/${farm.farm_id}")
     }
 }

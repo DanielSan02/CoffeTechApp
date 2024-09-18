@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
 
 
@@ -127,7 +128,7 @@ fun TopBarWithBackArrow(
             .padding(10.dp)
     ) {
         // Centered title text
-        ReussableLargeText(
+        ReusableLargeText(
             text = title,
             fontSize = 20,
             fontWeight = FontWeight.Bold,
@@ -151,19 +152,7 @@ fun TopBarWithBackArrow(
     }
 }
 
-/**
- * Placeholder composable function for large reusable text.
- * This function will be used in multiple places where large text is needed.
- *
- * @param text The text to display.
- * @param fontSize The size of the text.
- * @param fontWeight The weight of the text, such as bold.
- * @param modifier A [Modifier] to adjust the layout or appearance of the text.
- */
-@Composable
-fun ReussableLargeText(text: String, fontSize: Int, fontWeight: FontWeight, modifier: Modifier) {
-    // Implementation for large reusable text goes here.
-}
+
 
 /**
  * Preview function for the TopBarWithBackArrow.

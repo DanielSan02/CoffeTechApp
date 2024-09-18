@@ -131,25 +131,38 @@ fun AppNavHost(context: Context) {
             }
         }
 
-        /**
-         * Composable destination for the FarmInformationView, which displays detailed information about a farm.
-         */
-        composable(Routes.FarmInformationView) {
-            FarmInformationView(navController = navController)
-            BackHandler {
-                // Prevents back navigation gesture here
-            }
-        }
 
         /**
          * Composable destination for the FarmEditView, allowing users to edit farm details.
          */
-        composable(Routes.FarmEditView) {
-            FarmEditView(navController = navController)
-            BackHandler {
-                // Prevents back navigation gesture here
-            }
+        composable(
+            route = "${Routes.FarmEditView}/{farmId}/{farmName}/{farmArea}/{unitOfMeasure}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmArea") { type = NavType.StringType },
+                navArgument("unitOfMeasure") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            val farmArea = backStackEntry.arguments?.getString("farmArea") ?: ""
+            val unitOfMeasure = backStackEntry.arguments?.getString("unitOfMeasure") ?: ""
+
+            FarmEditView(navController = navController, farmId = farmId, farmName = farmName, farmArea = farmArea, unitOfMeasure = unitOfMeasure)
         }
+
+        /**
+         * Composable destination for the FarmInformationView, which displays detailed information about a farm.
+         */
+        composable("FarmInformationView/{farmId}") { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getString("farmId")?.toIntOrNull() ?: 0
+            FarmInformationView(navController = navController, farmId = farmId)
+        }
+
+
+
+
 
         /**
          * Composable destination for the CreateFarmView, allowing users to create a new farm.

@@ -124,11 +124,10 @@ fun FarmView(
                                     farmName = farm.name,
                                     farmRole = farm.role,
                                     onClick = {
-                                        viewModel.onFarmClick(farm)
-                                        // Navigate to FarmInformationView with the farm's id
-                                        navController.navigate("FarmInformationView")
+                                        viewModel.onFarmClick(farm, navController)
                                     }
                                 )
+
                                 Spacer(modifier = Modifier.height(8.dp)) // Space between cards
                             }
                         }

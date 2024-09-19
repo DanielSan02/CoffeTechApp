@@ -109,7 +109,9 @@ fun ForgotButton(
 ) {
     Button(
         onClick = { if (!isLoading) onSendRequest() }, // Only trigger if not loading
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF49602D),
+            contentColor = Color.White),
         modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
         enabled = isEmailValid && !isLoading // Disable button if the email is invalid or request is loading
     ) {

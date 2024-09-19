@@ -159,7 +159,9 @@ fun SaveButton(
     Button(
         onClick = { if (!isLoading) onSaveClick() }, // Disable click if loading
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isProfileUpdated && name.isNotBlank()) Color(0xFF49602D) else Color(0xFF49602D).copy(alpha = 0.5f),
+            containerColor = if (isProfileUpdated && name.isNotBlank()) Color(0xFF49602D) else Color(
+                0xF2DD2F2F
+            ).copy(alpha = 0.5f),
             contentColor = Color.White
         ),
         modifier = Modifier

@@ -1,7 +1,9 @@
 package com.example.coffetech.view.farm
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -52,10 +55,16 @@ fun FarmInformationView(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     //val searchQuery by viewModel.searchQuery.collectAsState()
+    val displayedFarmName = if (farmName.length > 19) {
+        farmName.take(17) + "..." // Si tiene más de 13 caracteres, corta y añade "..."
+    } else {
+        farmName // Si es menor o igual a 13 caracteres, lo dejamos como está
+    }
+
 
     // Vista principal
     HeaderFooterSubView(
-        title = "Finca: $farmName",
+        title = "Finca: $displayedFarmName",
         currentView = "Fincas",
         navController = navController
     ) {
@@ -65,6 +74,13 @@ fun FarmInformationView(
                 .background(Color(0xFFEFEFEF))
                 .padding(16.dp)
         ) {
+            Text(
+                text = "Finca: $displayedFarmName",
+                color = Color.Black,
+                maxLines = 1, // Limita a una línea
+                overflow = TextOverflow.Ellipsis, // Si es muy largo, muestra "..."
+                modifier = Modifier.fillMaxWidth()
+            )
             // Barra de búsqueda reutilizable
             /*ReusableSearchBar(
                 query = TextFieldValue(searchQuery),
@@ -76,7 +92,10 @@ fun FarmInformationView(
             if (isLoading) {
                 // Mostrar un indicador de carga
                 CircularProgressIndicator()
-                Text(text = "Cargando datos de la finca...")
+                Text(
+                    text = "Cargando datos de la finca...",
+                    color =Color.Black,
+                )
             } else if (errorMessage.isNotEmpty()) {
                 // Mostrar el error si ocurrió algún problema
                 Text(text = errorMessage, color = Color.Red)
@@ -90,7 +109,7 @@ fun FarmInformationView(
 
                 // Componente reutilizable de Información General
                 GeneralInfoCard(
-                    farmName = farmName,
+                    farmName = displayedFarmName,
                     farmArea = farmArea,
                     farmUnitMeasure = unitOfMeasure,
                     onEditClick = { viewModel.onEditFarm(navController, farmId, farmName, farmArea, unitOfMeasure) }

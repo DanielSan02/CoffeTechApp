@@ -30,7 +30,7 @@ class CreateFarmViewModel : ViewModel() {
     private val _areaUnits = MutableStateFlow<List<String>>(emptyList())
     val areaUnits: StateFlow<List<String>> = _areaUnits.asStateFlow()
 
-    private val _selectedUnit = MutableStateFlow("Metros cuadrados")
+    private val _selectedUnit = MutableStateFlow("Seleccione una opción")
     val selectedUnit: StateFlow<String> = _selectedUnit.asStateFlow()
 
     var errorMessage = MutableStateFlow("")
@@ -69,6 +69,12 @@ class CreateFarmViewModel : ViewModel() {
         val area = _farmArea.value.toDoubleOrNull()
         if (area == null || area <= 0 || area > 10000) {
             errorMessage.value = "El área debe ser un número mayor a 0 y menor a 10000."
+            return false
+        }
+
+        // Validación de la unidad seleccionada
+        if (_selectedUnit.value == "Seleccione una opción") {
+            errorMessage.value = "Debe seleccionar una opción válida para la unidad de medida."
             return false
         }
 

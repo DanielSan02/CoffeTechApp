@@ -1,5 +1,3 @@
-// FarmView.kt
-
 package com.example.coffetech.view.farm
 
 import FarmViewModel
@@ -119,10 +117,13 @@ fun FarmView(
                     ) {
                         items(farms) { farm ->
                             Column {
+                                val cleanedFarmName = farm.name.replace(Regex("\\s+"), " ")
+                                val cleanedFarmRole = farm.role.replace(Regex("\\s+"), " ")
+
                                 // Card for each farm in the list
                                 FarmItemCard(
-                                    farmName = farm.name,
-                                    farmRole = farm.role,
+                                    farmName = cleanedFarmName,
+                                    farmRole = cleanedFarmRole,
                                     onClick = {
                                         viewModel.onFarmClick(farm, navController)
                                     }
@@ -151,6 +152,7 @@ fun FarmView(
  * Preview function for the FarmView.
  * It simulates the farm management screen in a preview environment to visualize the layout.
  */
+
 @Preview(showBackground = true)
 @Composable
 fun FarmViewPreview() {

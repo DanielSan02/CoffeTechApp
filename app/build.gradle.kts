@@ -66,6 +66,7 @@ dependencies {
     implementation (libs.converter.gson)
     implementation(libs.protolite.well.known.types)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.firebase.crashlytics.buildtools)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

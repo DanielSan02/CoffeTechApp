@@ -2,6 +2,7 @@ package com.example.coffetech.view.farm
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -71,14 +72,14 @@ fun FarmEditView(
                 .padding(horizontal = 15.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.Start,
+                horizontalAlignment = Alignment.End,
                 modifier = Modifier
                     .padding(top = 1.dp)
-                    .offset(x = -20.dp, y = -10.dp)
+                    .offset(x = 255.dp, y = 4.dp)
             ) {
                 BackButton(
                     navController = navController,
-                    modifier = Modifier.align(Alignment.Start)
+                    modifier = Modifier.align(Alignment.End)
                 )
             }
 
@@ -151,7 +152,9 @@ fun FarmEditView(
                         modifier = Modifier
                             .size(width = 120.dp, height = 40.dp)
                             .padding(vertical = 3.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF49602D),
+                            contentColor = Color.White),
                         enabled = hasChanges && !isLoading // Habilitar solo si hay cambios y no está cargando
                     )
                 }

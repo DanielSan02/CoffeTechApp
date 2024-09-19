@@ -3,6 +3,7 @@ package com.example.coffetech.common
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,12 +12,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -44,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,7 +107,9 @@ fun GeneralInfoCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column {
+            Column(
+            modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
+            ) {
                 Text(
                     text = "Información General",
                     color = Color.Black,
@@ -113,7 +120,9 @@ fun GeneralInfoCard(
                     text = farmName,
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
@@ -248,6 +257,7 @@ fun LotesList(
     ) {
         Text(
             text = "Lotes",
+            color = Color.Black,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -271,6 +281,10 @@ fun FarmItemCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val cleanedFarmName = farmName.replace(Regex("\\s+"), " ")
+    val cleanedFarmRole = farmRole.replace(Regex("\\s+"), " ")
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -280,14 +294,14 @@ fun FarmItemCard(
     ) {
         Column {
             Text(
-                text = farmName,
+                text = cleanedFarmName,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = farmRole,
+                text = cleanedFarmRole,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black,
@@ -310,6 +324,9 @@ fun LabeledTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    maxWidth: Dp = 270.dp,
+    maxHeight: Dp = 50.dp,
+
     enabled: Boolean = true
 ) {
     val cornerRadius = 4.dp
@@ -326,12 +343,16 @@ fun LabeledTextField(
         )
         TextField(
             value = value,
+            maxLines = 1,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
             modifier = Modifier
-                .padding(top = 9.dp, bottom = 9.dp)
-                .size(width = 288.dp, height = 50.dp)
+                .padding(top = 6.dp, bottom = 7.dp)
                 .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .widthIn(max = maxWidth)
+                .width(maxWidth)
+                .heightIn(max = maxHeight)
                 .border(width = 1.dp, color = Color(0xFFA6A6A6), shape = RoundedCornerShape(cornerRadius))
                 .background(Color(0xFFA6A6A6), RoundedCornerShape(8.dp)),
             colors = TextFieldDefaults.colors(
@@ -505,7 +526,9 @@ fun RoleDropdown(
             // Opciones de roles reales
             roles.forEach { role ->
                 DropdownMenuItem(
-                    text = { Text(role) },
+                    text = { Text(
+                        role,
+                        color = Color.Black) },
                     onClick = {
                         onRoleChange(role)
                         onExpandedChange(false)
@@ -524,6 +547,7 @@ fun RoleDropdown(
 fun BackButton(navController: NavController, modifier: Modifier) {
     IconButton(
         onClick = { navController.popBackStack() },
+
         modifier = Modifier
             .padding(1.dp)
     ) {

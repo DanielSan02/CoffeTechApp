@@ -7,7 +7,6 @@ import android.util.Log
 import com.example.coffetech.model.Role
 import com.example.coffetech.model.UnitMeasure
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 class SharedPreferencesHelper(context: Context) {
     private val sharedPref: SharedPreferences =
@@ -61,7 +60,7 @@ class SharedPreferencesHelper(context: Context) {
     fun getRoles(): List<Role>? {
         return try {
             val jsonRoles = sharedPref.getString("roles", null) ?: return null
-            val type = object : TypeToken<List<Role>>() {}.type
+            val type = object : com.google.gson.reflect.TypeToken<List<Role>>() {}.type
             gson.fromJson<List<Role>>(jsonRoles, type)
         } catch (e: Exception) {
             Log.e("SharedPreferences", "Error obteniendo roles: ${e.localizedMessage}")
@@ -88,7 +87,7 @@ class SharedPreferencesHelper(context: Context) {
     fun getUnitMeasures(): List<UnitMeasure>? {
         return try {
             val jsonUnits = sharedPref.getString("unit_measures", null) ?: return null
-            val type = object : TypeToken<List<UnitMeasure>>() {}.type
+            val type = object : com.google.gson.reflect.TypeToken<List<UnitMeasure>>() {}.type
             gson.fromJson<List<UnitMeasure>>(jsonUnits, type)
         } catch (e: Exception) {
             Log.e("SharedPreferences", "Error obteniendo unidades de medida: ${e.localizedMessage}")

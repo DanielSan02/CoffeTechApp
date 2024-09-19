@@ -58,10 +58,10 @@ fun CreateFarmView(
                 .padding(16.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.Start,
+                horizontalAlignment = Alignment.End,
                 modifier = Modifier
                     .padding(top = 1.dp)
-                    .offset(x = -26.dp, y = -20.dp)
+                    .offset(x = 255.dp, y = -14.dp),
                 // Ajuste para evitar superposición con el botón
             ) {
 
@@ -69,7 +69,7 @@ fun CreateFarmView(
                 BackButton(
                     navController = navController,
                     modifier = Modifier
-                        .align(Alignment.Start)
+                        .align(Alignment.End),
                 )
             }
             Column(
@@ -142,7 +142,9 @@ fun CreateFarmView(
                         modifier = Modifier
                             .size(width = 120.dp, height = 40.dp)
                             .padding(bottom = 3.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF49602D),
+                            contentColor = Color.White),
                         enabled = !isLoading
                     )
                 }

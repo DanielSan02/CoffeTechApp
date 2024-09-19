@@ -25,6 +25,7 @@ import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.farm.FarmEditViewModel
@@ -62,106 +63,116 @@ fun FarmEditView(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF101010)) // Fondo oscuro
-            .padding(16.dp),
+            .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(horizontal = 15.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.End,
                 modifier = Modifier
-                    .padding(top = 1.dp)
-                    .offset(x = 255.dp, y = 4.dp)
+                    .fillMaxWidth()
+                    .padding(16.dp) // Añadir padding interno
             ) {
-                BackButton(
-                    navController = navController,
-                    modifier = Modifier.align(Alignment.End)
-                )
-            }
+                // Botón de cerrar o volver (BackButton)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+                ) {
+                    BackButton(
+                        navController = navController,
+                        modifier = Modifier.size(32.dp) // Tamaño más manejable
+                    )
+                }
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.padding(top = 18.dp)
-            ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(40.dp))
-
+                // Título de la pantalla
                 Text(
                     text = "Información de la Finca",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.W600,
                     fontSize = 25.sp,
                     color = Color(0xFF49602D),
-                )
-
-                // Nombre de finca
-                LabeledTextField(
-                    label = "Nombre",
-                    value = farmNameState,
-                    onValueChange = { viewModel.onFarmNameChange(it) },
-                    placeholder = "Nombre de la finca",
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Área de la finca y unidad
-                Column(
-                    modifier = Modifier
-                        .padding(bottom = 10.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    LabeledTextField(
-                        label = "Área",
-                        value = farmAreaState,
-                        onValueChange = { viewModel.onFarmAreaChange(it) },
-                        placeholder = "Área de la finca",
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    // Unidad de medida
-                    UnitDropdown(
-                        selectedUnit = selectedUnit,
-                        onUnitChange = { viewModel.onUnitChange(it) },
-                        units = areaUnits,
-                        expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
-                        arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
-                    )
-                }
+                // Nombre de finca
+                ReusableTextField(
+                    value = farmNameState,
+                    onValueChange = { viewModel.onFarmNameChange(it) },
+                    placeholder = "Nombre de la finca",
+                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
+                    isValid = farmNameState.isNotEmpty(),
+                    errorMessage = if (farmNameState.isEmpty()) "El nombre de la finca no puede estar vacío" else ""
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Área de la finca y unidad
+                ReusableTextField(
+                    value = farmAreaState,
+                    onValueChange = { viewModel.onFarmAreaChange(it) },
+                    placeholder = "Área de la finca",
+                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
+                    isValid = farmAreaState.isNotEmpty(),
+                    errorMessage = if (farmAreaState.isEmpty()) "El área de la finca no puede estar vacía" else ""
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Unidad de medida
+                UnitDropdown(
+                    selectedUnit = selectedUnit,
+                    onUnitChange = { viewModel.onUnitChange(it) },
+                    units = areaUnits,
+                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
 
-                Column(
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Botón para guardar
+                ReusableButton(
+                    text = if (isLoading) "Guardando..." else "Guardar",
+                    onClick = { // Recortar los valores antes de guardar
+                        val trimmedFarmName = viewModel.farmName.value.trim()
+                        val trimmedFarmArea = viewModel.farmArea.value.trim()
+
+                        // Actualizar los valores recortados en el ViewModel
+                        viewModel.onFarmNameChange(trimmedFarmName)
+                        viewModel.onFarmAreaChange(trimmedFarmArea)
+
+                        // Llamar al método de actualización con los valores ya recortados
+                        viewModel.updateFarmDetails(farmId, navController, context)
+                              },
                     modifier = Modifier
-                        .padding(top = 25.dp, bottom = 20.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Botón para guardar
-                    ReusableButton(
-                        text = if (isLoading) "Guardando..." else "Guardar",
-                        onClick = { viewModel.updateFarmDetails(farmId, navController, context) },
-                        modifier = Modifier
-                            .size(width = 120.dp, height = 40.dp)
-                            .padding(vertical = 3.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF49602D),
-                            contentColor = Color.White),
-                        enabled = hasChanges && !isLoading // Habilitar solo si hay cambios y no está cargando
-                    )
-                }
+                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .align(Alignment.CenterHorizontally),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF49602D),
+                        contentColor = Color.White
+                    ),
+                    enabled = hasChanges && !isLoading
+                )
             }
         }
     }
 }
+
 
 
 @Preview(showBackground = true)

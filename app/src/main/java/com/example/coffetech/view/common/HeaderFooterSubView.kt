@@ -41,6 +41,10 @@ import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
  * @param currentView A string representing the current active view in the navigation bar.
  * @param content A lambda composable function that represents the main content of the screen.
  */
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+
 @Composable
 fun HeaderFooterSubView(
     modifier: Modifier = Modifier,
@@ -53,12 +57,16 @@ fun HeaderFooterSubView(
     val context = LocalContext.current
 
     Scaffold(
+        modifier = Modifier
+            .systemBarsPadding() // Aplica padding en las áreas de barras del sistema (notificaciones y navegación)
+            .navigationBarsPadding() // Ajusta el padding para la barra de navegación
+            .statusBarsPadding(), // Ajusta el padding para la barra de estado (notificaciones)
         topBar = {
             // Top bar with a back arrow and a title
             TopBarWithBackArrow(
                 onBackClick = { navController.navigate(Routes.FarmView) },
                 title = title,
-                backgroundColor = Color.White
+                backgroundColor = Color.White,
             )
         },
         bottomBar = {
@@ -70,7 +78,7 @@ fun HeaderFooterSubView(
                 onFincasClick = { headerFooterSubViewModel.onFincasClick(navController) },
                 onCentralButtonClick = { headerFooterSubViewModel.onCentralButtonClick(context) },
                 onReportsClick = { headerFooterSubViewModel.onReportsClick(navController, context) },
-                onCostsClick = { headerFooterSubViewModel.onCostsClick(navController, context) }
+                onCostsClick = { headerFooterSubViewModel.onCostsClick(navController, context) },
             )
         }
     ) { paddingValues ->
@@ -79,11 +87,13 @@ fun HeaderFooterSubView(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .systemBarsPadding() // Ajuste total para respetar las áreas seguras del sistema
         ) {
             content()
         }
     }
 }
+
 
 /**
  * Preview function for the HeaderFooterSubView.
@@ -132,7 +142,7 @@ fun TopBarWithBackArrow(
             text = title,
             fontSize = 20,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.Center)
         )
         // Back arrow button
         Row(

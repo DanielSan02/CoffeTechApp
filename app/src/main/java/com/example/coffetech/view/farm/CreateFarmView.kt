@@ -8,12 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +26,7 @@ import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
@@ -40,6 +44,10 @@ fun CreateFarmView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    val isFormSubmitted = remember { mutableStateOf(false) }
+
+
+    // Cargar unidades de medida al iniciar
     LaunchedEffect(Unit) {
         viewModel.loadUnitMeasuresFromSharedPreferences(context)
     }
@@ -47,107 +55,112 @@ fun CreateFarmView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010))
+            .background(Color(0xFF101010)) // Fondo oscuro
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(16.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.End,
                 modifier = Modifier
-                    .padding(top = 1.dp)
-                    .offset(x = 255.dp, y = -14.dp),
-                // Ajuste para evitar superposición con el botón
+                    .fillMaxWidth()
+                    .padding(16.dp) // Añadir padding interno
             ) {
-
-
-                BackButton(
-                    navController = navController,
-                    modifier = Modifier
-                        .align(Alignment.End),
-                )
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Crear Finca",
-                    fontWeight = FontWeight.W600,
-                    fontSize = 25.sp,
-                    color = Color(0xFF49602D),
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-
-                // Nombre de finca
-                LabeledTextField(
-                    label = "Nombre",
-                    value = farmName,
-                    onValueChange = { viewModel.onFarmNameChange(it) },
-                    placeholder = "Nombre de la finca",
-                    modifier = Modifier
-                        .fillMaxWidth()
-
-                )
-
-                // Área de la finca y unidad
-                Column(
-                    modifier = Modifier
-                        .padding(bottom = 10.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                // Botón de cerrar o volver (BackButton)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    LabeledTextField(
-                        label = "Área",
-                        value = farmArea,
-                        onValueChange = { viewModel.onFarmAreaChange(it) },
-                        placeholder = "Área de la finca",
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Unidad de medida
-                    UnitDropdown(
-                        selectedUnit = selectedUnit,
-                        onUnitChange = { viewModel.onUnitChange(it) },
-                        units = areaUnits,
-                        expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
-                        arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                    BackButton(
+                        navController = navController,
+                        modifier = Modifier.size(32.dp) // Tamaño más manejable
                     )
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Título de la pantalla
+                Text(
+                    text = "Crear Finca",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.W600,
+                    fontSize = 25.sp,
+                    color = Color(0xFF49602D),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Nombre de finca utilizando ReusableTextField
+                ReusableTextField(
+                    value = farmName,
+                    onValueChange = { viewModel.onFarmNameChange(it) },
+                    placeholder = "Nombre de la finca",
+                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
+                    isValid = farmName.isNotEmpty() || !isFormSubmitted.value,
+                    errorMessage = if (farmName.isEmpty() && isFormSubmitted.value) "El nombre de la finca no puede estar vacío" else ""
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Área de la finca utilizando ReusableTextField
+                ReusableTextField(
+                    value = farmArea,
+                    onValueChange = { viewModel.onFarmAreaChange(it) },
+                    placeholder = "Área de la finca",
+                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
+                    isValid = farmArea.isNotEmpty() || !isFormSubmitted.value,
+                    errorMessage = if (farmArea.isEmpty() && isFormSubmitted.value) "El área de la finca no puede estar vacía" else ""
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Unidad de medida
+                UnitDropdown(
+                    selectedUnit = selectedUnit,
+                    onUnitChange = { viewModel.onUnitChange(it) },
+                    units = areaUnits,
+                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
 
-                // Botón para crear finca
+                Spacer(modifier = Modifier.height(24.dp))
 
-                Column(
+                // Botón para crear finca
+                ReusableButton(
+                    text = if (isLoading) "Creando..." else "Crear",
+                    onClick = {
+                        isFormSubmitted.value = true
+                        val trimmedFarmName = farmName.trim()  // Eliminar espacios antes de enviar
+                        val trimmedFarmArea = farmArea.trim()  // Eliminar espacios antes de enviar
+
+                        if (trimmedFarmName.isNotEmpty() && trimmedFarmArea.isNotEmpty()) {
+                            viewModel.onFarmNameChange(trimmedFarmName)  // Guardar la versión recortada
+                            viewModel.onFarmAreaChange(trimmedFarmArea)  // Guardar la versión recortada
+                            viewModel.onCreate(navController, context)   // Enviar los datos
+                        }
+                              },
                     modifier = Modifier
-                        .padding(top = 35.dp, bottom = 50.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    ReusableButton(
-                        text = if (isLoading) "Creando..." else "Crear",
-                        onClick = { viewModel.onCreate(navController, context) },
-                        modifier = Modifier
-                            .size(width = 120.dp, height = 40.dp)
-                            .padding(bottom = 3.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF49602D),
-                            contentColor = Color.White),
-                        enabled = !isLoading
-                    )
-                }
+                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .align(Alignment.CenterHorizontally),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF49602D),
+                        contentColor = Color.White
+                    ),
+                    enabled = !isLoading
+                )
             }
         }
     }

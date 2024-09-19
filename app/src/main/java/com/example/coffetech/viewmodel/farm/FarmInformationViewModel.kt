@@ -1,5 +1,6 @@
 package com.example.coffetech.viewmodel.farm
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,7 @@ import retrofit2.Response
 
 
 import android.util.Log // Importa la clase Log
+import com.example.coffetech.utils.SharedPreferencesHelper
 
 class FarmInformationViewModel : ViewModel() {
 
@@ -44,6 +46,9 @@ class FarmInformationViewModel : ViewModel() {
     private val _selectedRole = MutableStateFlow("")
     val selectedRole: StateFlow<String> = _selectedRole.asStateFlow()
 
+    private val _permissions = MutableStateFlow<List<String>>(emptyList())
+    val permissions: StateFlow<List<String>> = _permissions.asStateFlow()
+
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
 
@@ -68,13 +73,30 @@ class FarmInformationViewModel : ViewModel() {
         navController.navigate("AddLoteView")
     }
 
+
+    // Función para verificar si el rol tiene un permiso específico
+    fun hasPermission(permission: String): Boolean {
+        return _permissions.value.contains(permission)
+    }
+
+    // Función para cargar los permisos basados en el rol seleccionado
+    fun loadRolePermissions(context: Context, selectedRoleName: String) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val roles = sharedPreferencesHelper.getRoles()
+
+        // Buscar el rol seleccionado y obtener sus permisos
+        roles?.find { it.name == selectedRoleName }?.let { role ->
+            _permissions.value = role.permissions.map { it.name }
+        }
+    }
+
     /**
      * Loads the farm details from the backend by making an API request.
      *
      * @param farmId The ID of the farm to fetch details for.
      * @param sessionToken The session token for authorization.
      */
-    fun loadFarmData(farmId: Int, sessionToken: String) {
+    fun loadFarmData(farmId: Int, sessionToken: String, context: Context) {
         if (sessionToken.isEmpty()) {
             setErrorMessage("Session token is missing. Please log in.")
             Log.e("FarmInfoViewModel", "Session token is missing. Aborting API call.")
@@ -97,6 +119,7 @@ class FarmInformationViewModel : ViewModel() {
                         _selectedRole.value = farm.role
                         _status.value = farm.status
                         Log.d("FarmInfoViewModel", "Farm data loaded: $farm")
+                        loadRolePermissions(context, farm.role)
                     } ?: run {
                         _errorMessage.value = "Error: Farm data is null"
                         Log.e("FarmInfoViewModel", "Error: Farm data is null")

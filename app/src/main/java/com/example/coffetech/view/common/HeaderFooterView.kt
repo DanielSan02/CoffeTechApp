@@ -32,6 +32,13 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 
 
 
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+
 @Composable
 fun HeaderFooterView(
     modifier: Modifier = Modifier,
@@ -42,12 +49,16 @@ fun HeaderFooterView(
 ) {
     val headerFooterViewModel: HeaderFooterViewModel = viewModel()
     val isMenuVisible by headerFooterViewModel.isMenuVisible.collectAsState()
-    val isLoading by headerFooterViewModel.isLoading.collectAsState() // Observar el estado de carga
+    val isLoading by headerFooterViewModel.isLoading.collectAsState()
     val context = LocalContext.current
     val sharedPreferencesHelper = SharedPreferencesHelper(context)
     val userName = sharedPreferencesHelper.getUserName()
 
     Scaffold(
+        modifier = Modifier
+            .systemBarsPadding() // Aplica padding en las áreas de barras del sistema (notificaciones y navegación)
+            .navigationBarsPadding() // Ajusta el padding para la barra de navegación
+            .statusBarsPadding(), // Ajusta el padding para la barra de estado (notificaciones)
         topBar = {
             TopBarWithHamburger(
                 onHamburgerClick = headerFooterViewModel::toggleMenu,
@@ -70,7 +81,7 @@ fun HeaderFooterView(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues) // Respetar el padding total de las barras del sistema
         ) {
             content()
 
@@ -82,13 +93,15 @@ fun HeaderFooterView(
                     onNotificationsClick = headerFooterViewModel::onNotificationsClick,
                     onHelpClick = headerFooterViewModel::onHelpClick,
                     onLogoutClick = { headerFooterViewModel.onLogoutClick(context, navController) },
-                    isLoading = isLoading, // Pasar el estado de carga al menú
-                    onCloseClick = headerFooterViewModel::toggleMenu
+                    isLoading = isLoading,
+                    onCloseClick = headerFooterViewModel::toggleMenu,
+                    modifier = Modifier.systemBarsPadding() // Respeta las áreas seguras del sistema
                 )
             }
         }
     }
 }
+
 
 
 @Preview(showBackground = true)
@@ -128,7 +141,7 @@ fun TopBarWithHamburger(
             text = title,
             fontSize = 20,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.Center)
         )
 
         // El ícono alineado a la izquierda

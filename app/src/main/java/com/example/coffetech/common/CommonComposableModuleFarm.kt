@@ -88,13 +88,15 @@ fun SelectedRoleDisplay(
     }
 }
 
+
 @Composable
 fun GeneralInfoCard(
     farmName: String,
     farmArea: Double,
     farmUnitMeasure: String,
     onEditClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showEditButton: Boolean = false // Nuevo parámetro opcional para mostrar el botón
 ) {
     Box(
         modifier = modifier
@@ -108,7 +110,7 @@ fun GeneralInfoCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-            modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
+                modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
             ) {
                 Text(
                     text = "Información General",
@@ -137,23 +139,28 @@ fun GeneralInfoCard(
                     fontSize = 12.sp
                 )
             }
-            IconButton(
-                onClick = onEditClick,
-                modifier = Modifier
-                    .offset(x = -10.dp)
-                    .size(20.dp)
-                    .background(Color(0xFFB31D34), shape = CircleShape)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.edit_icon),
-                    contentDescription = "Editar Información General",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
+
+            // Mostrar el botón de edición solo si showEditButton es true
+            if (showEditButton) {
+                IconButton(
+                    onClick = onEditClick,
+                    modifier = Modifier
+                        .offset(x = -10.dp)
+                        .size(20.dp)
+                        .background(Color(0xFFB31D34), shape = CircleShape)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.edit_icon),
+                        contentDescription = "Editar Información General",
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun CollaboratorsCard(

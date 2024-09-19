@@ -39,7 +39,7 @@ fun FarmInformationView(
     // Llamar a loadFarmData cuando la vista se cargue
     LaunchedEffect(farmId) {
         sessionToken?.let {
-            viewModel.loadFarmData(farmId, it)
+            viewModel.loadFarmData(farmId, it, context)
         } ?: run {
             viewModel.setErrorMessage("Session token no encontrado. Por favor, inicia sesión.")
         }
@@ -55,6 +55,10 @@ fun FarmInformationView(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     //val searchQuery by viewModel.searchQuery.collectAsState()
+
+    // Verificar si el usuario tiene permiso para editar la finca
+    val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
+
     val displayedFarmName = if (farmName.length > 19) {
         farmName.take(17) + "..." // Si tiene más de 13 caracteres, corta y añade "..."
     } else {
@@ -112,10 +116,9 @@ fun FarmInformationView(
                     farmName = displayedFarmName,
                     farmArea = farmArea,
                     farmUnitMeasure = unitOfMeasure,
-                    onEditClick = { viewModel.onEditFarm(navController, farmId, farmName, farmArea, unitOfMeasure) }
+                    onEditClick = { viewModel.onEditFarm(navController, farmId, farmName, farmArea, unitOfMeasure) },
+                    showEditButton = userHasPermissionToEdit // Solo muestra el botón si tiene el permiso
                 )
-
-
 
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -123,7 +126,7 @@ fun FarmInformationView(
                 // Componente reutilizable de Colaboradores
                 CollaboratorsCard(
                     collaboratorName = collaboratorName, // Usamos los datos obtenidos del ViewModel
-                    onAddClick = { viewModel.onAddCollaborator(navController) }
+                    onAddClick = { /*viewModel.onAddCollaborator(navController) */}
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

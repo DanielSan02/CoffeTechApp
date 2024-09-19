@@ -7,6 +7,7 @@ import android.util.Log
 import com.example.coffetech.model.Role
 import com.example.coffetech.model.UnitMeasure
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class SharedPreferencesHelper(context: Context) {
     private val sharedPref: SharedPreferences =
@@ -43,7 +44,7 @@ class SharedPreferencesHelper(context: Context) {
 
     // ============================= MANEJO DE ROLES ============================= //
 
-    // Guardar roles
+    // Guardar roles incluyendo los permisos asociados
     fun saveRoles(roles: List<Role>) {
         try {
             val jsonRoles = gson.toJson(roles)
@@ -55,6 +56,7 @@ class SharedPreferencesHelper(context: Context) {
             Log.e("SharedPreferences", "Error guardando roles: ${e.localizedMessage}")
         }
     }
+
 
     // Obtener roles
     fun getRoles(): List<Role>? {

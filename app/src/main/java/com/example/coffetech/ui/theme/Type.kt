@@ -5,30 +5,51 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import com.example.coffetech.R
 
-// Set of Material typography styles to start with
+// Definir la familia de fuentes (Roboto)
+val RobotoFamily = FontFamily(
+    Font(R.font.roboto_regular, FontWeight.Normal),
+    Font(R.font.roboto_medium, FontWeight.Medium),
+    Font(R.font.roboto_bold, FontWeight.Bold),
+    Font(R.font.roboto_black, FontWeight.Black)
+)
+
+// Definir los estilos de texto personalizados
+val TitleLarge = TextStyle(
+    fontFamily = RobotoFamily,
+    fontWeight = FontWeight.Black,
+    fontSize = 40.sp
+)
+
+val TitleSmall = TextStyle(
+    fontFamily = RobotoFamily,
+    fontWeight = FontWeight.Medium,
+    fontSize = 25.sp
+)
+
+val Description = TextStyle(
+    fontFamily = RobotoFamily,
+    fontWeight = FontWeight.Normal,
+    fontSize = 20.sp
+)
+
+// Set de Material typography para Compose
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+    // Sobrescribir los estilos predeterminados con los personalizados
+    titleLarge = TitleLarge,  // Usa TitleLarge definido arriba
+    titleSmall = TitleSmall,  // Usa TitleSmall definido arriba
+    bodyLarge = Description,  // Usa Description para textos grandes
+    bodyMedium = TextStyle(   // Puedes usarlo para otro estilo intermedio
+        fontFamily = RobotoFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        fontSize = 16.sp
     ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
+    labelSmall = TextStyle(   // Estilo para etiquetas pequeñas
+        fontFamily = RobotoFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        fontSize = 11.sp
     )
-    */
 )

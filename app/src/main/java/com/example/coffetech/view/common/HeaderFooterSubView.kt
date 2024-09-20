@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -26,7 +28,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.Routes.Routes
-import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
 
 
@@ -44,6 +45,8 @@ import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.coffetech.common.ReusableTittleSmall
 
 @Composable
 fun HeaderFooterSubView(
@@ -130,37 +133,47 @@ fun TopBarWithBackArrow(
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .size(width = 360.dp, height = 74.dp)
+            .height(74.dp)  // Ajustamos solo la altura
             .background(backgroundColor)
-            .padding(10.dp)
+            .padding(horizontal = 10.dp)
     ) {
-        // Centered title text
-        ReusableLargeText(
-            text = title,
-            fontSize = 20,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Center)
-        )
-        // Back arrow button
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.align(Alignment.BottomStart)
+        // Back arrow button, alineado a la izquierda
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
         ) {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    painter = painterResource(R.drawable.back_arrow),
-                    contentDescription = "Back",
-                    tint = Color(0xFF2B2B2B),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            Icon(
+                painter = painterResource(R.drawable.back_arrow),
+                contentDescription = "Back",
+                tint = Color(0xFF2B2B2B),
+                modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
+            )
         }
+
+        // Espaciador para el lado izquierdo
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Título centrado
+        Box(
+            modifier = Modifier.weight(6f), // Ocupa más espacio central
+            contentAlignment = Alignment.Center // Asegura que el texto esté centrado
+        ) {
+            ReusableTittleSmall(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        // Espaciador para el lado derecho, para equilibrar el diseño
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
+
 
 
 

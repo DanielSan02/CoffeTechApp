@@ -30,10 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.LogoImage
-import com.example.coffetech.common.ReusableCancelButton
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.NewPasswordViewModel
 
@@ -91,7 +93,8 @@ fun NewPasswordView(
             Spacer(modifier = Modifier.height(40.dp))
 
             // Instructional text prompting the user to enter a new password
-            ReusableDescriptionText(text = "Ingrese su nueva contraseña", fontSize = 25)
+            ReusableDescriptionText(text = "Ingrese su nueva contraseña")
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Input field for the new password, with password masking
@@ -120,48 +123,25 @@ fun NewPasswordView(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Button to submit the new password reset request
-            ResetPasswordButton(
-                isLoading = isLoading,
-                onResetClick = { viewModel.resetPassword(navController, context, token) }
+            ReusableButton(
+                text = if (isLoading) "Restableciendo..." else "Restablecer",
+                onClick = { viewModel.resetPassword(navController, context, token) },
+                buttonType = ButtonType.Green,  // Botón verde
+                enabled = !isLoading,
+                modifier = Modifier.padding(bottom = 16.dp, top = 10.dp)
             )
 
+
             // Button to cancel the password reset process and return to the login screen
-            ReusableCancelButton(
+            ReusableTextButton(
                 navController = navController,
+                text = "Volver",
                 destination = Routes.LoginView // Navigates to login screen on cancel
             )
         }
     }
 }
 
-/**
- * Composable function that renders the reset password button.
- * The button becomes disabled if the password reset request is in progress.
- *
- * @param isLoading A Boolean indicating whether the password reset process is in progress.
- * @param onResetClick A lambda function triggered when the button is clicked, initiating the password reset request.
- */
-@Composable
-fun ResetPasswordButton(
-    isLoading: Boolean,
-    onResetClick: () -> Unit
-) {
-    Button(
-        onClick = { if (!isLoading) onResetClick() },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF49602D),
-            contentColor = Color.White
-        ),
-        modifier = Modifier.padding(bottom = 16.dp, top = 10.dp),
-        enabled = !isLoading // Disable the button if the request is in progress
-    ) {
-        if (isLoading) {
-            Text("Restableciendo...") // Display loading text
-        } else {
-            Text("Restablecer") // Normal button text
-        }
-    }
-}
 
 /**
  * Preview function for the NewPasswordView.

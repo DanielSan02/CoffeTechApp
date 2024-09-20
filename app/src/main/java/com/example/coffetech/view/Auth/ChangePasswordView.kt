@@ -10,14 +10,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.Routes.Routes
-import com.example.coffetech.common.ReusableCancelButton
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableDescriptionText
 import com.example.coffetech.common.ReusableFieldLabel
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.TopBarWithBackArrow
 import com.example.coffetech.viewmodel.Auth.ChangePasswordViewModel
@@ -48,8 +52,12 @@ fun ChangePasswordView(
             navController.popBackStack() // Navegar a la pantalla anterior
         }
     }
+         // Ajusta el padding para la barra de estado (notificaciones)
+    Column(modifier = modifier.fillMaxSize()
+        .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
+        .navigationBarsPadding(), // Ajusta el padding para la barra de navegación
 
-    Column(modifier = modifier.fillMaxSize()) {
+    ) {
         TopBarWithBackArrow(
             onBackClick = { navController.navigate(Routes.ProfileView)},
             title = "Actualizar contraseña"
@@ -63,21 +71,30 @@ fun ChangePasswordView(
         ) {
 
             Spacer(modifier = Modifier.height(16.dp))
-            ReusableFieldLabel(text = "Contraseña actual",
-                modifier = Modifier.padding(start = 25.dp))
+
+            ReusableDescriptionText(
+                text = "Contraseña actual",
+                modifier = Modifier.padding(start = 25.dp),
+                textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
+
+            )
+            Spacer(modifier = Modifier.height(5.dp))
 
             ReusableTextField(
                 value = currentPassword,
                 onValueChange = { viewModel.onCurrentPasswordChange(it) },
                 placeholder = "Contraseña actual",
-                margin = 0.dp,
                 isPassword = true,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ReusableFieldLabel(text = "Nueva contraseña",
-                modifier = Modifier.padding(start = 25.dp))
+            ReusableDescriptionText(
+                text = "Nueva contraseña",
+                modifier = Modifier.padding(start = 25.dp),
+                textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
+            )
+            Spacer(modifier = Modifier.height(5.dp))
 
             ReusableTextField(
                 value = newPassword,
@@ -87,8 +104,13 @@ fun ChangePasswordView(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            ReusableFieldLabel(text = "Confirme nueva contraseña",
-                modifier = Modifier.padding(start = 25.dp))
+
+            ReusableDescriptionText(
+                text = "Confirme nueva contraseña",
+                modifier = Modifier.padding(start = 25.dp),
+                textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
+            )
+            Spacer(modifier = Modifier.height(5.dp))
 
             ReusableTextField(
                 value = confirmPassword,
@@ -104,18 +126,20 @@ fun ChangePasswordView(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            SavePasswordButton(
-                isLoading = isLoading,
-                onSaveClick = {
+            ReusableButton(
+                text = if (isLoading) "Guardando..." else "Guardar",
+                onClick = {
                     if (viewModel.validatePasswordRequirements()) {
                         viewModel.changePassword(context)
                     }
-                }
+                },
+                buttonType = ButtonType.Green,  // Botón verde
+                enabled = !isLoading,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ReusableCancelButton(
+            ReusableTextButton(
                 navController = navController,
                 destination = Routes.ProfileView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
             )
@@ -123,33 +147,7 @@ fun ChangePasswordView(
     }
 }
 
-/**
- * Composable function that renders a save button for changing the password.
- *
- * @param isLoading A boolean indicating whether the password is currently being saved. Disables the button if true.
- * @param onSaveClick A lambda function that triggers when the button is clicked and saving is not in progress.
- */
-@Composable
-fun SavePasswordButton(
-    isLoading: Boolean,
-    onSaveClick: () -> Unit
-) {
-    Button(
-        onClick = { if (!isLoading) onSaveClick() },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF49602D),
-            contentColor = Color.White
-        ),
-        modifier = Modifier.padding(bottom = 16.dp),
-        enabled = !isLoading // Deshabilita el botón si está en estado de carga
-    ) {
-        if (isLoading) {
-            Text("Guardando...") // Texto cuando está guardando
-        } else {
-            Text("Guardar") // Texto normal
-        }
-    }
-}
+
 
 /**
  * A preview composable function to simulate and display the [ChangePasswordView] in a preview window.

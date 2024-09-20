@@ -23,9 +23,13 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.ProfileViewModel
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableDescriptionText
 import com.example.coffetech.common.ReusableFieldLabel
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.TopBarWithBackArrow
 
 /**
@@ -57,7 +61,10 @@ fun ProfileView(
         viewModel.loadUserData(context)
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()
+        .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
+        .navigationBarsPadding(), // Ajusta el padding para la barra de navegación
+    ) {
         // Top bar with a back arrow for navigation
         TopBarWithBackArrow(
             onBackClick = { navController.navigate(Routes.StartView) },
@@ -73,7 +80,7 @@ fun ProfileView(
             // Profile image
             Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(110.dp)
                     .padding(bottom = 16.dp)
             ) {
                 Image(
@@ -88,17 +95,27 @@ fun ProfileView(
                 modifier = Modifier.padding(16.dp),
             ) {
                 // Name field
-                ReusableFieldLabel(text = "Nombre")
+                ReusableDescriptionText(
+                    text = "Nombre",
+                    textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
                 ReusableTextField(
                     value = name,
                     onValueChange = { viewModel.onNameChange(it) },
-                    placeholder = "Nombre",
+                    placeholder = "Nombre:",
                     margin = 0.dp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Email field (disabled)
-                ReusableFieldLabel(text = "Correo")
+                ReusableDescriptionText(
+                    text = "Correo",
+                    textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+
                 ReusableTextField(
                     value = email,
                     onValueChange = { },
@@ -109,13 +126,18 @@ fun ProfileView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Change password button
-                ReusableFieldLabel(text = "Contraseña")
-                TextButton(
-                    onClick = { navController.navigate(Routes.ChangePasswordView) },
-                    modifier = Modifier.align(Alignment.Start)
-                ) {
-                    Text("Cambiar contraseña", color = Color(0xFF49602D))
-                }
+                ReusableDescriptionText(
+                    text = "Contraseña",
+                    textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+
+
+                ReusableTextButton(
+                    navController = navController,
+                    text = "Cambiar contraseña",
+                    destination = Routes.ChangePasswordView // Navigates to login screen on cancel
+                )
 
                 // Display error message if any
                 if (errorMessage.isNotEmpty()) {
@@ -123,59 +145,19 @@ fun ProfileView(
                 }
             }
 
-            // Display name error message if any
-            if (ErrorMessage.isNotEmpty()) {
-                Text(text = ErrorMessage, color = Color.Red, modifier = Modifier.padding(top = 4.dp))
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // Save button for updating profile
-            SaveButton(
-                isLoading = isLoading,
-                isProfileUpdated = isProfileUpdated,
-                name = name,
-                onSaveClick = { viewModel.saveProfile(context) { /* Success action */ } }
+            ReusableButton(
+                text = if (isLoading) "Guardando..." else "Guardar",
+                onClick = { viewModel.saveProfile(context) { /* Success action */ }},
+                buttonType = ButtonType.Green,  // Verde si actualizado, rojo si no
+                enabled = isProfileUpdated && name.isNotBlank() && !isLoading,
+
             )
         }
     }
 }
 
-/**
- * Composable function that renders a button to save profile changes.
- *
- * @param isLoading A Boolean indicating whether the save process is in progress.
- * @param isProfileUpdated A Boolean indicating whether the profile has been updated and needs saving.
- * @param name The current name of the user.
- * @param onSaveClick A lambda function that triggers when the save button is clicked.
- */
-@Composable
-fun SaveButton(
-    isLoading: Boolean,
-    isProfileUpdated: Boolean,
-    name: String,
-    onSaveClick: () -> Unit
-) {
-    Button(
-        onClick = { if (!isLoading) onSaveClick() }, // Disable click if loading
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isProfileUpdated && name.isNotBlank()) Color(0xFF49602D) else Color(
-                0xF2DD2F2F
-            ).copy(alpha = 0.5f),
-            contentColor = Color.White
-        ),
-        modifier = Modifier
-            .width(200.dp)
-            .padding(vertical = 16.dp),
-        enabled = isProfileUpdated && name.isNotBlank() && !isLoading // Disable if not updated, name is blank, or loading
-    ) {
-        if (isLoading) {
-            Text("Guardando...") // Display loading text
-        } else {
-            Text("Guardar") // Normal button text
-        }
-    }
-}
 
 /**
  * Preview function for the ProfileView.

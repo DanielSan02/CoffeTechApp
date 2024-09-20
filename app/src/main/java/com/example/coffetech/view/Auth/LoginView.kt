@@ -3,9 +3,13 @@ package com.example.coffetech.view.Auth
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -24,11 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel // Importación correcta para obtener ViewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ButtonType
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.common.LogoImage
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableDescriptionText
-import com.example.coffetech.common.ReusableLargeText
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.ReusableTittleLarge
 import com.example.coffetech.viewmodel.Auth.LoginViewModel
 /**
  * Composable function that renders the login screen.
@@ -52,24 +59,29 @@ fun LoginView(
     val keyboardController = LocalSoftwareKeyboardController.current
     val isLoading by viewModel.isLoading
 
-    Box(
+    BoxWithConstraints( // Detectamos el tamaño disponible
         modifier = modifier
             .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
             .padding(5.dp),
         contentAlignment = Alignment.Center
     ) {
+        val logoSize = if (maxHeight < 800.dp) 80.dp else 150.dp // Ajuste dinámico del tamaño del logo
+
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
                 .padding(top = 25.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
+
         ) {
             // Displays the app logo
-            LogoImage()
+            LogoImage(modifier = Modifier.size(logoSize))
 
             // Displays a welcome message
-            ReusableLargeText(text = "!Bienvenido!", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+            ReusableTittleLarge(text = "!Bienvenido!", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
             // Displays a description text asking the user to log in
             ReusableDescriptionText(text = "Por favor inicia sesión para continuar")
@@ -95,16 +107,26 @@ fun LoginView(
             }
 
             // Button to navigate to the forgot password screen
-            ForgotPasswordButton(navController = navController)
+            ReusableTextButton(
+                navController = navController,
+                text = "Olvidé la contraseña",
+                destination = Routes.ForgotPasswordView
+            )
 
-            // Button to log in the user, showing loading status when logging in
-            LoginButton(
-                isLoading = isLoading,
-                onLoginClick = { viewModel.loginUser(navController, context) }
+            ReusableButton(
+                text = if (isLoading) "Iniciando sesión..." else "Iniciar sesión",
+                onClick = { viewModel.loginUser(navController, context) },
+                buttonType = ButtonType.Green,  // Botón verde
+                enabled = !isLoading,  // Deshabilitar mientras está cargando
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
             // Button to navigate to the register screen for new users
-            LoginToRegisterButton(navController = navController)
+            ReusableTextButton(
+                navController = navController,
+                text = "¿No tienes cuenta? Registrarse",
+                destination = Routes.RegisterView
+            )
         }
     }
 }

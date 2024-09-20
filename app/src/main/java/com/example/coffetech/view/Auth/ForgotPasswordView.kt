@@ -6,7 +6,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,9 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableDescriptionText
-import com.example.coffetech.common.ReusableLargeText
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.ReusableTittleLarge
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.ForgotPasswordViewModel
 
@@ -48,7 +53,8 @@ fun ForgotPasswordView(
     val isEmailValid by viewModel.isEmailValid
     val errorMessage by viewModel.errorMessage
     val isLoading by viewModel.isLoading
-    val context = LocalContext.current // Obtain the current context for displaying toasts or handling actions
+    val context =
+        LocalContext.current // Obtain the current context for displaying toasts or handling actions
 
     Box(
         modifier = modifier
@@ -61,7 +67,7 @@ fun ForgotPasswordView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Title of the screen
-            ReusableLargeText(
+            ReusableTittleLarge(
                 text = "Restablecer contraseña",
                 modifier = Modifier
                     .padding(top = 30.dp, bottom = 30.dp)
@@ -69,6 +75,7 @@ fun ForgotPasswordView(
 
             // Instructional text explaining the process of password reset
             ReusableDescriptionText(text = "Te enviaremos un correo con las instrucciones para restablecer tu contraseña")
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Input field for the user's email, with validation and error messages
             ReusableTextField(
@@ -82,14 +89,22 @@ fun ForgotPasswordView(
             )
 
             // Button to send the password reset request, handling loading and validation states
-            ForgotButton(
-                isEmailValid = isEmailValid,
-                isLoading = isLoading,
-                onSendRequest = { viewModel.sendForgotPasswordRequest(navController, context) } // Passing context to handle the request
+            ReusableButton(
+                text = if (isLoading) "Enviando..." else "Enviar correo",
+                onClick = {
+                    if (isEmailValid) {
+                        viewModel.sendForgotPasswordRequest(navController, context)
+                    }
+                },
+                buttonType = ButtonType.Green,  // Botón verde
+                enabled = isEmailValid && !isLoading,
+                modifier = Modifier.padding(bottom = 16.dp, top = 16.dp) // Padding similar al anterior
             )
 
-            // Button to go back to the login screen
-            ForgotBack(navController = navController)
+            ReusableTextButton(
+                navController = navController,
+                destination = Routes.LoginView // Define la ruta a la que navegar al cancelar
+            )
         }
     }
 }
@@ -111,7 +126,8 @@ fun ForgotButton(
         onClick = { if (!isLoading) onSendRequest() }, // Only trigger if not loading
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF49602D),
-            contentColor = Color.White),
+            contentColor = Color.White
+        ),
         modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
         enabled = isEmailValid && !isLoading // Disable button if the email is invalid or request is loading
     ) {

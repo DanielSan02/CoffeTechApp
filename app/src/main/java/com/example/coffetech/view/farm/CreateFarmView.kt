@@ -22,8 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
+import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
@@ -68,7 +70,7 @@ fun CreateFarmView(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp) // Añadir padding interno
+                    .padding(10.dp) // Añadir padding interno
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -83,14 +85,14 @@ fun CreateFarmView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Título de la pantalla
                 Text(
                     text = "Crear Finca",
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.W600,
-                    fontSize = 25.sp,
-                    color = Color(0xFF49602D),
-                    modifier = Modifier.fillMaxWidth()
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+              // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF49602D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -129,14 +131,13 @@ fun CreateFarmView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Botón para crear finca
                 ReusableButton(
@@ -151,16 +152,13 @@ fun CreateFarmView(
                             viewModel.onFarmAreaChange(trimmedFarmArea)  // Guardar la versión recortada
                             viewModel.onCreate(navController, context)   // Enviar los datos
                         }
-                              },
+                    },
                     modifier = Modifier
-                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
                         .align(Alignment.CenterHorizontally),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF49602D),
-                        contentColor = Color.White
-                    ),
+                    buttonType = ButtonType.Green,  // Usar el botón con color rojo
                     enabled = !isLoading
                 )
+
             }
         }
     }
@@ -171,7 +169,8 @@ fun CreateFarmView(
 @Preview(showBackground = true)
 @Composable
 fun CreateFarmViewPreview() {
+    val mockNavController = rememberNavController() // MockNavController
     CoffeTechTheme {
-        CreateFarmView(navController = NavController(LocalContext.current))
+        CreateFarmView(navController = mockNavController)
     }
 }

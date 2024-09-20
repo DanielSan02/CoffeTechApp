@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
+import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.LabeledTextField
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
@@ -136,7 +137,6 @@ fun FarmEditView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {
@@ -162,10 +162,7 @@ fun FarmEditView(
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
                         .align(Alignment.CenterHorizontally),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF49602D),
-                        contentColor = Color.White
-                    ),
+                    buttonType = ButtonType.Red,
                     enabled = hasChanges && !isLoading
                 )
             }

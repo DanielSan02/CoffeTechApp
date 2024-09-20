@@ -4,8 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -21,10 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
-import com.example.coffetech.common.ReusableCancelButton
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableDescriptionText
-import com.example.coffetech.common.ReusableLargeText
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.ReusableTittleLarge
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.ConfirmTokenForgotPasswordViewModel
 
@@ -50,16 +56,21 @@ fun ConfirmTokenForgotPasswordView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(5.dp),
+            .padding(5.dp)
+            .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
+        .navigationBarsPadding(), // Ajusta el padding para la barra de navegación
+
         contentAlignment = Alignment.Center
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ReusableLargeText(text = "Restablecer Contraseña", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+            ReusableTittleLarge(text = "Restablecer Contraseña", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
             ReusableDescriptionText(text = "Por favor, introduce el código para restablecer tu contraseña")
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             ReusableTextField(
                 value = token,
@@ -68,18 +79,27 @@ fun ConfirmTokenForgotPasswordView(
                 },
                 placeholder = "Código"
             )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            ConfirmButton(
-                isLoading = isLoading,
-                token = token,
-                onConfirmClick = { viewModel.confirmToken(navController, context) }
+
+            ReusableButton(
+                text = if (isLoading) "Confirmando..." else "Confirmar",
+                onClick = {
+                    if (token.isNotEmpty()) {
+                        viewModel.confirmToken(navController, context)
+                    }
+                },
+                buttonType = ButtonType.Green,  // Botón verde
+                enabled = !isLoading,
             )
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
             }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            ReusableCancelButton(
+            ReusableTextButton(
                 navController = navController,
                 destination = Routes.LoginView // Define la ruta a la que navegar al cancelar
             )
@@ -87,35 +107,6 @@ fun ConfirmTokenForgotPasswordView(
     }
 }
 
-/**
- * Composable function that renders the confirmation button used to validate the token entered by the user.
- *
- * @param isLoading A boolean indicating whether the process of confirming the token is in progress.
- * @param token The string token entered by the user for password reset.
- * @param onConfirmClick A lambda function that triggers when the confirmation button is clicked.
- */
-@Composable
-fun ConfirmButton(
-    isLoading: Boolean,
-    token: String,
-    onConfirmClick: () -> Unit
-) {
-    Button(
-        onClick = { if (!isLoading) onConfirmClick() },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF49602D),
-            contentColor = Color.White
-        ),
-        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
-        enabled = !isLoading // Deshabilita el botón si está cargando
-    ) {
-        if (isLoading) {
-            Text("Confirmando...") // Texto mientras está cargando
-        } else {
-            Text("Confirmar código") // Texto normal
-        }
-    }
-}
 
 /**
  * Preview function for the ConfirmTokenForgotPasswordView.

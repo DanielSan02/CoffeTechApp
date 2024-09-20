@@ -6,8 +6,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -21,9 +25,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableDescriptionText
-import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.ReusableTittleLarge
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.VerifyAccountViewModel
 
@@ -49,7 +55,9 @@ fun VerifyAccountView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(5.dp),
+            .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
+            .navigationBarsPadding() // Ajusta el padding para la barra de navegación
+            .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -57,11 +65,12 @@ fun VerifyAccountView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Title for the verification screen
-            ReusableLargeText(text = "Verifica tu cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+            ReusableTittleLarge(text = "Verifica tu cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
             // Description for entering the verification code
             ReusableDescriptionText(text = "Por favor, introduce el código para verificar tu correo")
 
+            Spacer(modifier = Modifier.height(16.dp))
             // Input field for the user to enter the verification token
             ReusableTextField(
                 value = token,
@@ -70,9 +79,12 @@ fun VerifyAccountView(
             )
 
             // Button to verify the account
-            VerifyButton(
-                isLoading = isLoading,
-                onVerifyClick = { viewModel.verifyUser(navController, context) }
+            ReusableButton(
+                text = if (isLoading) "Verificando..." else "Verificar Correo",
+                onClick = { viewModel.verifyUser(navController, context) },
+                buttonType = ButtonType.Green,  // Botón verde
+                enabled = !isLoading,  // Deshabilitar mientras está cargando
+                modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
             )
 
             // Display an error message if one exists
@@ -83,33 +95,7 @@ fun VerifyAccountView(
     }
 }
 
-/**
- * Composable function that renders the button to submit the verification code.
- * The button is disabled while the verification process is in progress.
- *
- * @param isLoading A Boolean indicating whether the verification process is currently in progress.
- * @param onVerifyClick A lambda function triggered when the button is clicked, initiating the verification process.
- */
-@Composable
-fun VerifyButton(
-    isLoading: Boolean,
-    onVerifyClick: () -> Unit
-) {
-    Button(
-        onClick = { if (!isLoading) onVerifyClick() }, // Only trigger if not loading
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF49602D),
-            contentColor = Color.White),
-        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
-        enabled = !isLoading // Disable button while loading
-    ) {
-        if (isLoading) {
-            Text("Verificando...") // Show loading text
-        } else {
-            Text("Verificar Correo") // Normal button text
-        }
-    }
-}
+
 
 /**
  * Preview function for the VerifyAccountView.

@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
-import com.example.coffetech.common.ReusableLargeText
 import com.example.coffetech.viewmodel.common.HeaderFooterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.coffetech.utils.SharedPreferencesHelper
@@ -38,6 +37,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import com.example.coffetech.common.ReusableTittleSmall
 
 @Composable
 fun HeaderFooterView(
@@ -137,10 +137,9 @@ fun TopBarWithHamburger(
 
     ) {
         // El texto centrado
-        ReusableLargeText(
+        ReusableTittleSmall(
             text = title,
-            fontSize = 20,
-            fontWeight = FontWeight.Bold,
+
             modifier = Modifier.align(Alignment.Center)
         )
 
@@ -156,7 +155,7 @@ fun TopBarWithHamburger(
                     painter = painterResource(R.drawable.menu_icon),
                     contentDescription = "Menu",
                     tint = Color(0xFF2B2B2B) ,
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(56.dp)
                 )
             }
         }
@@ -318,16 +317,17 @@ fun BottomNavigationBar(
 
 ) {
     BottomAppBar(
-        modifier = modifier,
+        modifier = modifier
+            .size(width = 360.dp, height = 74.dp),
         containerColor = Color.White,
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        contentPadding = PaddingValues(horizontal = 10.dp)
     ) {
         IconButton(
             onClick = onHomeClick,
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 9.dp)
-                .size(70.dp)
+                .size(74.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -357,7 +357,7 @@ fun BottomNavigationBar(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 8.dp)
-                .size(70.dp)
+                .size(74.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -405,7 +405,7 @@ fun BottomNavigationBar(
             onClick = onReportsClick,
             modifier = Modifier
                 .weight(1f)
-                .size(70.dp)
+                .size(74.dp)
                 .padding(vertical = 8.dp)
         ) {
             Column(
@@ -433,7 +433,7 @@ fun BottomNavigationBar(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 8.dp)
-                .size(70.dp)
+                .size(74.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

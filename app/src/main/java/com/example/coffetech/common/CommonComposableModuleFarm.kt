@@ -400,9 +400,8 @@ fun UnitDropdown(
                 .wrapContentWidth()
                 .padding(bottom = 5.dp)
                 .padding(horizontal = 8.dp)
-                .background(Color.White, shape = RoundedCornerShape(25.dp))
-                .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp))
-                .size(width = 200.dp, height = 40.dp)
+                .background(Color.White, shape = RoundedCornerShape(20.dp))
+                .size(width = 300.dp, height = 56.dp)
         ) {
             OutlinedButton(
                 onClick = { expanded = !expanded },
@@ -411,7 +410,7 @@ fun UnitDropdown(
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color(0xFF49602D)
                 ),
-                contentPadding = PaddingValues(start = 4.dp, end = 4.dp)
+                contentPadding = PaddingValues(start = 10.dp, end = 4.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -480,9 +479,8 @@ fun RoleDropdown(
             .wrapContentWidth()
             .padding(bottom = 15.dp)
             .padding(horizontal = 8.dp)
-            .background(Color.White, shape = RoundedCornerShape(25.dp)) // Fondo blanco con esquinas redondeadas
-            .border(1.dp, Color(0xD7FFFEFE), shape = RoundedCornerShape(25.dp)) // Borde gris alrededor del fondo
-            .size(width = 150.dp, height = 40.dp) // Tamaño del área del botón
+            .background(Color.White, shape = RoundedCornerShape(20.dp)) // Fondo blanco con esquinas redondeadas
+            .size(width = 200.dp, height = 32.dp) // Tamaño del área del botón
     ) {
         OutlinedButton(
             onClick = { onExpandedChange(!expanded) },

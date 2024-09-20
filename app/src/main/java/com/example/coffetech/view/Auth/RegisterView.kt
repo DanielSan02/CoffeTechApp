@@ -5,9 +5,15 @@ package com.example.coffetech.view.Auth
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -26,9 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.LogoImage
-import com.example.coffetech.common.ReusableLargeText
+import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableDescriptionText
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.ReusableTittleLarge
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Auth.RegisterViewModel
 
@@ -53,15 +63,18 @@ fun RegisterView(
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-    val keyboardController = LocalSoftwareKeyboardController.current
     val isLoading by viewModel.isLoading
 
-    Box(
+    BoxWithConstraints( // Detectamos el tamaño disponible
         modifier = modifier
             .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
             .padding(5.dp),
         contentAlignment = Alignment.Center
     ) {
+        val logoSize = if (maxHeight < 800.dp) 80.dp else 150.dp // Ajuste dinámico del tamaño del logo
+
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
@@ -69,17 +82,22 @@ fun RegisterView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Displays the app logo
-            LogoImage()
+            // Displays the app logo con tamaño dinámico
+            LogoImage(modifier = Modifier.size(logoSize))
 
             // Large header text for registration
-            ReusableLargeText(text = "Crea tu Cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
+            ReusableTittleLarge(
+                text = "Crea tu Cuenta",
+                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+            )
+            ReusableDescriptionText(text = "Por favor ingresa tus datos ")
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Input fields for name, email, password, and confirm password
             ReusableTextField(
                 value = name,
                 onValueChange = { viewModel.onNameChange(it) },
-                placeholder = "Nombre"
+                placeholder = "Nombre o apodo"
             )
 
             ReusableTextField(
@@ -104,49 +122,36 @@ fun RegisterView(
 
             // Display an error message if one exists
             if (errorMessage.isNotEmpty()) {
-                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
-            // Button to submit registration details
-            RegisterButton(
-                isLoading = isLoading,
-                onRegisterClick = { viewModel.registerUser(navController, context) }
+            // Reemplazar RegisterButton por ReusableButton
+            ReusableButton(
+                text = if (isLoading) "Registrandose..." else "Registrarse",
+                onClick = { viewModel.registerUser(navController, context) },
+                buttonType = ButtonType.Green,
+                enabled = !isLoading,
+                modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
             )
 
             // Button to navigate to the login screen
-            ToLoginButton(navController = navController)
+            ReusableTextButton(
+                navController = navController,
+                text = "¿Ya tienes cuenta? Inicia sesión",
+                maxWidth = 400.dp,
+                destination = Routes.LoginView
+            )
         }
     }
 }
 
-/**
- * Composable function that renders the registration button.
- * The button becomes disabled while the registration process is in progress.
- *
- * @param isLoading A Boolean indicating whether the registration process is in progress.
- * @param onRegisterClick A lambda function triggered when the button is clicked, initiating the registration process.
- */
-@Composable
-fun RegisterButton(
-    isLoading: Boolean,
-    onRegisterClick: () -> Unit
-) {
-    Button(
-        onClick = { if (!isLoading) onRegisterClick() }, // Only trigger if not loading
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF49602D),
-            contentColor = Color.White
-        ),
-        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp),
-        enabled = !isLoading // Disable button when loading
-    ) {
-        if (isLoading) {
-            Text("Registrandose...") // Show loading text while in progress
-        } else {
-            Text("Registrarse") // Normal text
-        }
-    }
-}
+
+
+
 
 /**
  * Composable function that renders a button to navigate to the login screen.
@@ -159,7 +164,10 @@ fun ToLoginButton(navController: NavController) {
         onClick = { navController.navigate(Routes.LoginView) },
         modifier = Modifier.padding(bottom = 16.dp)
     ) {
-        Text("¿Ya tienes cuenta? Inicia sesión", color = Color(0xFF49602D)) // Text to navigate to the login screen
+        Text(
+            "¿Ya tienes cuenta? Inicia sesión",
+            color = Color(0xFF49602D)
+        ) // Text to navigate to the login screen
     }
 }
 

@@ -1,54 +1,56 @@
 package com.example.coffetech.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
+// Definir los colores personalizados para el tema claro
 
+import androidx.compose.material3.lightColorScheme
+
+// Definir los colores personalizados para el tema claro
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    // Color principal, usado en botones primarios, barras de acción principales, etc.
+    primary = Color(0xFFB31D34),  // Rojo para Botones 1
+
+    // Color secundario, utilizado para botones secundarios, detalles adicionales.
+    secondary = Color(0xFF49602D),  // Verde oscuro para Botones 2
+
+    // Color de fondo general para la aplicación
+    background = Color(0xFFF2F2F2),  // Gris claro para el fondo
+
+    // Superficie principal, aplicado a tarjetas, contenedores, etc.
+    surface = Color(0xFF95A94B),  // Verde claro para card1
+
+    // Colores de texto sobre el fondo primario (botones, etc.)
+    onPrimary = Color.White,  // Texto blanco sobre Botones 1 (rojo)
+
+    // Colores de texto sobre el fondo secundario (botones secundarios, etc.)
+    onSecondary = Color.White,  // Texto blanco sobre Botones 2 (verde oscuro)
+
+    // Color del texto sobre superficies (como tarjetas, diálogos, etc.)
+    onSurface = Color.Black,  // Texto negro sobre card1 (verde claro)
+
+    // Otros colores adicionales
+    primaryContainer = Color(0xFFB3C896), // Verde suave para card2
+    onPrimaryContainer = Color.Black,     // Texto negro sobre card2 (verde suave)
+
+    secondaryContainer = Color(0xFF77AF44), // Verde vivo para card3
+    onSecondaryContainer = Color.Black,     // Texto blanco sobre card3 (verde vivo)
+
+    // Colores para diferentes tipos de texto
+    tertiary = Color(0xFF777438),  // Amarillo oscuro para Texto 2
+    onTertiary = Color.Black,      // Texto negro sobre texto terciario
 )
+
 
 @Composable
 fun CoffeTechTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

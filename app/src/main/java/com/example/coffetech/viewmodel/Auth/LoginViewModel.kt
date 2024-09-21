@@ -140,6 +140,11 @@ class LoginViewModel() : ViewModel(), Parcelable {
                                 Log.e("LoginViewModel", "El token no fue recibido en la respuesta")
                                 Toast.makeText(context, "No se recibió el token de sesión", Toast.LENGTH_LONG).show()
                             }
+                        }else if (it.message == "Debes verificar tu correo antes de iniciar sesión") {
+                            // Si el mensaje es que debe verificar el correo
+                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                            navController.navigate(Routes.VerifyAccountView) {
+                            }
                         } else {
                             Log.e("LoginViewModel", "Inicio de sesión fallido: ${it.message}")
                             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()

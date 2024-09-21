@@ -133,46 +133,41 @@ fun TopBarWithBackArrow(
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(74.dp)  // Ajustamos solo la altura
+            .height(74.dp) // Altura fija para la barra
             .background(backgroundColor)
             .padding(horizontal = 10.dp)
     ) {
-        // Back arrow button, alineado a la izquierda
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
+        // Icono alineado a la izquierda
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.align(Alignment.CenterStart)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.back_arrow),
-                contentDescription = "Back",
-                tint = Color(0xFF2B2B2B),
-                modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
-            )
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.back_arrow),
+                    contentDescription = "Back",
+                    tint = Color(0xFF2B2B2B),
+                    modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
+                )
+            }
         }
 
-        // Espaciador para el lado izquierdo
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Título centrado
-        Box(
-            modifier = Modifier.weight(8f), // Ocupa más espacio central
-            contentAlignment = Alignment.Center // Asegura que el texto esté centrado
-        ) {
-            ReusableTittleSmall(
-                text = title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        // Espaciador para el lado derecho, para equilibrar el diseño
-        Spacer(modifier = Modifier.weight(1f))
+        // Título centrado entre el ícono y el final de la pantalla
+        ReusableTittleSmall(
+            text = title,
+            modifier = Modifier.align(Alignment.Center) // Céntralo en el espacio disponible
+        )
     }
 }
+
+
 
 
 

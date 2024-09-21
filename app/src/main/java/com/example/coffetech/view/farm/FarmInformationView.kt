@@ -62,7 +62,9 @@ fun FarmInformationView(
 
     // Verificar si el usuario tiene permiso para editar la finca
     val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
-
+// Verificar si el usuario tiene permiso para eliminar la finca
+    val userHasPermissionToDelete = viewModel.hasPermission("delete_farm")
+    val userHasPermissionCollaborators = viewModel.hasPermission("agregar_administrador_farm") || viewModel.hasPermission("agregar_operador_farm")
     val displayedFarmName = if (farmName.length > 21) {
         farmName.take(17) + "..." // Si tiene más de 13 caracteres, corta y añade "..."
     } else {
@@ -72,7 +74,7 @@ fun FarmInformationView(
 
     // Vista principal
     HeaderFooterSubView(
-        title = "Información de Finca",
+        title = "Mi Finca",
         currentView = "Fincas",
         navController = navController
     ) {
@@ -103,11 +105,13 @@ fun FarmInformationView(
                 Spacer(modifier = Modifier.width(20.dp)) // Espacio entre el botón y el texto
 
                 // Nombre de la finca alineado a la derecha
-                ReusableDeleteButton(
-                    contentDescription = "Eliminar Finca",
-                    onClick = { /* Lógica para eliminar la finca */ },
-                    modifier = Modifier.size(48.dp)
-                )
+                if (userHasPermissionToDelete) {
+                    ReusableDeleteButton(
+                        contentDescription = "Eliminar Finca",
+                        onClick = { /* Lógica para eliminar la finca */ },
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
             // Barra de búsqueda reutilizable
             /*ReusableSearchBar(
@@ -148,10 +152,14 @@ fun FarmInformationView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Componente reutilizable de Colaboradores
-                CollaboratorsCard(
-                    collaboratorName = collaboratorName, // Usamos los datos obtenidos del ViewModel
-                    onAddClick = { /*viewModel.onAddCollaborator(navController) */}
-                )
+                if (userHasPermissionCollaborators){
+                    CollaboratorsCard(
+                        collaboratorName = collaboratorName, // Usamos los datos obtenidos del ViewModel
+                        onAddClick = { /*viewModel.onAddCollaborator(navController) */},
+
+                        )
+                }
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 

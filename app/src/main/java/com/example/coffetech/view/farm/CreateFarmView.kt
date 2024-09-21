@@ -100,9 +100,10 @@ fun CreateFarmView(
                 ReusableTextField(
                     value = farmName,
                     onValueChange = { viewModel.onFarmNameChange(it) },
-                    placeholder = "Nombre de la finca",
+                    placeholder = "Nombre de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmName.isNotEmpty() || !isFormSubmitted.value,
+                    charLimit = 50,
                     errorMessage = if (farmName.isEmpty() && isFormSubmitted.value) "El nombre de la finca no puede estar vacío" else ""
                 )
 
@@ -112,9 +113,10 @@ fun CreateFarmView(
                 ReusableTextField(
                     value = farmArea,
                     onValueChange = { viewModel.onFarmAreaChange(it) },
-                    placeholder = "Área de la finca",
+                    placeholder = "Área de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmArea.isNotEmpty() || !isFormSubmitted.value,
+                    charLimit = 5,
                     errorMessage = if (farmArea.isEmpty() && isFormSubmitted.value) "El área de la finca no puede estar vacía" else ""
                 )
 

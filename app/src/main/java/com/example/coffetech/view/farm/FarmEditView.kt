@@ -106,9 +106,10 @@ fun FarmEditView(
                 ReusableTextField(
                     value = farmNameState,
                     onValueChange = { viewModel.onFarmNameChange(it) },
-                    placeholder = "Nombre de la finca",
+                    placeholder = "Nombre de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmNameState.isNotEmpty(),
+                    charLimit = 50,
                     errorMessage = if (farmNameState.isEmpty()) "El nombre de la finca no puede estar vacío" else ""
                 )
 
@@ -118,9 +119,10 @@ fun FarmEditView(
                 ReusableTextField(
                     value = farmAreaState,
                     onValueChange = { viewModel.onFarmAreaChange(it) },
-                    placeholder = "Área de la finca",
+                    placeholder = "Área de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmAreaState.isNotEmpty(),
+                    charLimit= 5,
                     errorMessage = if (farmAreaState.isEmpty()) "El área de la finca no puede estar vacía" else ""
                 )
 

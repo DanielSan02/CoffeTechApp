@@ -153,7 +153,7 @@ fun ReusableTextField(
     maxHeight: Dp = 1000.dp,
     margin: Dp = 8.dp,
     errorMessage: String = "",
-    charLimit: Int = 40, // Límite de caracteres por defecto a 100
+    charLimit: Int = 100, // Límite de caracteres por defecto a 100
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()

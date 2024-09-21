@@ -20,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -152,9 +153,10 @@ fun ReusableTextField(
     maxHeight: Dp = 1000.dp,
     margin: Dp = 8.dp,
     errorMessage: String = "",
-    charLimit: Int = 100, // Límite de caracteres por defecto a 100
+    charLimit: Int = 40, // Límite de caracteres por defecto a 100
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     Column {
         TextField(
@@ -208,8 +210,14 @@ fun ReusableTextField(
                 .widthIn(max = maxWidth)
                 .width(maxWidth)
                 .heightIn(min = 56.dp, max = maxHeight) // Altura mínima de 56.dp
-                .horizontalScroll(rememberScrollState())
+                .horizontalScroll(scrollState)
         )
+
+        LaunchedEffect(value) {
+            // Cuando cambie el valor, desplázate al final del texto
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+
         if (!isValid && errorMessage.isNotEmpty()) {
             Text(
                 text = errorMessage,

@@ -159,7 +159,7 @@ fun TopBarWithBackArrow(
 
         // Título centrado
         Box(
-            modifier = Modifier.weight(6f), // Ocupa más espacio central
+            modifier = Modifier.weight(8f), // Ocupa más espacio central
             contentAlignment = Alignment.Center // Asegura que el texto esté centrado
         ) {
             ReusableTittleSmall(

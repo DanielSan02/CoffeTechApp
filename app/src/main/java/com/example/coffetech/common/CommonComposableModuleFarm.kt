@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -325,62 +327,6 @@ fun FarmItemCard(
 //FARM EDIT COMMON COMPOSABLES-----
 
 @Composable
-fun LabeledTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier,
-    maxWidth: Dp = 270.dp,
-    maxHeight: Dp = 50.dp,
-
-    enabled: Boolean = true
-) {
-    val cornerRadius = 4.dp
-
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            fontWeight = FontWeight.W300,
-            fontSize = 22.sp,
-            color = Color.Black, // Color verde
-            modifier = Modifier
-                .padding(bottom = 4.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-        TextField(
-            value = value,
-            maxLines = 1,
-            onValueChange = onValueChange,
-            placeholder = { Text(placeholder) },
-            modifier = Modifier
-                .padding(top = 6.dp, bottom = 7.dp)
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .widthIn(max = maxWidth)
-                .width(maxWidth)
-                .heightIn(max = maxHeight)
-                .border(width = 1.dp, color = Color(0xFFA6A6A6), shape = RoundedCornerShape(cornerRadius))
-                .background(Color(0xFFA6A6A6), RoundedCornerShape(8.dp)),
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                disabledTextColor = Color.Gray.copy(alpha = 0.6f), // Texto más claro cuando está deshabilitado
-                disabledPlaceholderColor = Color.Gray.copy(alpha = 0.6f) // Placeholder más claro cuando está deshabilitado
-            )
-        )
-    }
-}
-
-@Composable
 fun UnitDropdown(
     selectedUnit: String,
     units: List<String>,  // Parámetro para unidades dinámicas
@@ -544,10 +490,6 @@ fun RoleDropdown(
     }
 }
 
-
-
-
-
 @Composable
 fun BackButton(navController: NavController, modifier: Modifier) {
     IconButton(
@@ -560,6 +502,27 @@ fun BackButton(navController: NavController, modifier: Modifier) {
             painter = painterResource(id = R.drawable.close), // Usa tu ícono de retroceso
             contentDescription = "Back",
             tint = Color.Black
+        )
+    }
+}
+
+@Composable
+fun ReusableDeleteButton(
+    deleteIcon: Painter = painterResource(id = R.drawable.delete_icon),
+    contentDescription: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .size(48.dp)
+    ) {
+        Icon(
+            painter = deleteIcon,
+            contentDescription = contentDescription,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(42.dp)
         )
     }
 }

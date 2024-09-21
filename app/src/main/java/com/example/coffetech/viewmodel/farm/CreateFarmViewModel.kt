@@ -73,7 +73,7 @@ class CreateFarmViewModel : ViewModel() {
         }
 
         // Validación de la unidad seleccionada
-        if (_selectedUnit.value == "Seleccione una opción") {
+        if (_selectedUnit.value == "Seleccione unidad de medida") {
             errorMessage.value = "Debe seleccionar una opción válida para la unidad de medida."
             return false
         }

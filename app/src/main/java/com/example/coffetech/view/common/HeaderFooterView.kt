@@ -114,7 +114,8 @@ fun HeaderFooterViewPreview() {
         navController = navController
     ) {
         // Contenido de ejemplo
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier
+            .fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Contenido Principal")
         }
     }
@@ -318,7 +319,8 @@ fun BottomNavigationBar(
 ) {
     BottomAppBar(
         modifier = modifier
-            .size(width = 360.dp, height = 74.dp),
+            .fillMaxWidth()
+            .height(74.dp),
         containerColor = Color.White,
         contentPadding = PaddingValues(horizontal = 10.dp)
     ) {

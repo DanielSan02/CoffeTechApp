@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,9 +13,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,7 +63,7 @@ fun FarmInformationView(
     // Verificar si el usuario tiene permiso para editar la finca
     val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
 
-    val displayedFarmName = if (farmName.length > 19) {
+    val displayedFarmName = if (farmName.length > 21) {
         farmName.take(17) + "..." // Si tiene más de 13 caracteres, corta y añade "..."
     } else {
         farmName // Si es menor o igual a 13 caracteres, lo dejamos como está
@@ -68,7 +72,7 @@ fun FarmInformationView(
 
     // Vista principal
     HeaderFooterSubView(
-        title = "Finca: $displayedFarmName",
+        title = "Información de Finca",
         currentView = "Fincas",
         navController = navController
     ) {
@@ -78,13 +82,33 @@ fun FarmInformationView(
                 .background(Color(0xFFEFEFEF))
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Finca: $displayedFarmName",
-                color = Color.Black,
-                maxLines = 1, // Limita a una línea
-                overflow = TextOverflow.Ellipsis, // Si es muy largo, muestra "..."
-                modifier = Modifier.fillMaxWidth()
-            )
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically // Centra los elementos verticalmente
+            ) {
+                // Botón de eliminar alineado a la izquierda
+                Text(
+                    text = "Finca: $farmName",
+                    color = Color.Black,
+                    maxLines = 3, // Limita a una línea
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f), // Hace que el texto ocupe el espacio restante y se alinee a la derecha
+                )
+
+                Spacer(modifier = Modifier.width(20.dp)) // Espacio entre el botón y el texto
+
+                // Nombre de la finca alineado a la derecha
+                ReusableDeleteButton(
+                    contentDescription = "Eliminar Finca",
+                    onClick = { /* Lógica para eliminar la finca */ },
+                    modifier = Modifier.size(48.dp)
+                )
+            }
             // Barra de búsqueda reutilizable
             /*ReusableSearchBar(
                 query = TextFieldValue(searchQuery),

@@ -19,4 +19,5 @@ object Routes {
     const val StartView = "startView"
     const val ProfileView = "profileView"
     const val ChangePasswordView ="changePasswordView"
+    const val RegisterPasswordView = "registerPasswordView"
 }

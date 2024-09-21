@@ -20,6 +20,7 @@ import com.example.coffetech.view.Auth.VerifyAccountView
 import com.example.coffetech.view.Auth.ChangePasswordView
 import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
+import com.example.coffetech.view.Auth.RegisterPasswordView
 import com.example.coffetech.view.Auth.StartView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
@@ -67,12 +68,23 @@ fun AppNavHost(context: Context) {
         /**
          * Composable destination for the RegisterView.
          */
-        composable(Routes.RegisterView) {
-            RegisterView(navController = navController)
+
+
+        composable(
+            route = "${Routes.RegisterView}?name={name}&email={email}",
+            arguments = listOf(
+                navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                navArgument("email") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            RegisterView(navController = navController, name = name, email = email)
             BackHandler {
                 // Prevents back navigation gesture here
             }
         }
+
 
         /**
          * Composable destination for the ForgotPasswordView.
@@ -203,5 +215,24 @@ fun AppNavHost(context: Context) {
                 // Prevents back navigation gesture here
             }
         }
+
+        composable(
+            route = "${Routes.RegisterPasswordView}/{name}/{email}",
+            arguments = listOf(
+                navArgument("name") { type = NavType.StringType },
+                navArgument("email") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            RegisterPasswordView(navController = navController, name = name, email = email)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+
+
+
     }
 }

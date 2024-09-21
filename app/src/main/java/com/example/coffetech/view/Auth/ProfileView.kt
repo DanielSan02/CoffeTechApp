@@ -105,6 +105,7 @@ fun ProfileView(
                     value = name,
                     onValueChange = { viewModel.onNameChange(it) },
                     placeholder = "Nombre:",
+                    charLimit = 50,
                     margin = 0.dp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -136,6 +137,7 @@ fun ProfileView(
                 ReusableTextButton(
                     navController = navController,
                     text = "Cambiar contraseña",
+
                     destination = Routes.ChangePasswordView // Navigates to login screen on cancel
                 )
 

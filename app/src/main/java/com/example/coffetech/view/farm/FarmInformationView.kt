@@ -133,6 +133,7 @@ fun FarmInformationView(
                 // Mostrar el rol seleccionado
                 SelectedRoleDisplay(roleName = selectedRole ?: "Sin rol")
 
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Componente reutilizable de Información General

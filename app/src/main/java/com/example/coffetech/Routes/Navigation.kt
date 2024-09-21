@@ -21,6 +21,7 @@ import com.example.coffetech.view.Auth.ChangePasswordView
 import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
 import com.example.coffetech.view.Auth.StartView
+import com.example.coffetech.view.Plot.PlotInformationView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
@@ -202,6 +203,11 @@ fun AppNavHost(context: Context) {
             BackHandler {
                 // Prevents back navigation gesture here
             }
+        }
+
+        composable("PlotInformationView/{plotId}") { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getString("plotId")?.toIntOrNull() ?: 0
+            PlotInformationView(navController = navController, plotId = plotId)
         }
     }
 }

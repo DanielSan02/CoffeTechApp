@@ -22,6 +22,7 @@ import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
 import com.example.coffetech.view.Auth.RegisterPasswordView
 import com.example.coffetech.view.Auth.StartView
+import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
@@ -226,6 +227,13 @@ fun AppNavHost(context: Context) {
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val email = backStackEntry.arguments?.getString("email") ?: ""
             RegisterPasswordView(navController = navController, name = name, email = email)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+        composable(Routes.CollaboratorView) {
+            CollaboratorView(navController = navController)
             BackHandler {
                 // Prevents back navigation gesture here
             }

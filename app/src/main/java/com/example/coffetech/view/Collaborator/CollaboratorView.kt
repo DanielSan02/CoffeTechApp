@@ -1,6 +1,5 @@
-package com.example.coffetech.view.farm
+package com.example.coffetech.view.Collaborator
 
-import FarmViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,12 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.common.CollaboratorInfoCard
 import com.example.coffetech.common.FarmItemCard
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.common.RoleDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterView
+import com.example.coffetech.viewmodel.Collaborator.Collaborator
+import com.example.coffetech.viewmodel.Collaborator.CollaboratorViewModel
 
 /**
  * Composable function that renders the farm management screen.
@@ -40,20 +42,19 @@ import com.example.coffetech.view.common.HeaderFooterView
  * @param viewModel The [FarmViewModel] used to manage the state and logic for the farm view.
  */
 @Composable
-fun FarmView(
+fun CollaboratorView(
     navController: NavController,
-    viewModel: FarmViewModel = viewModel() // Injects the ViewModel here
+    viewModel: CollaboratorViewModel = viewModel() // Injects the ViewModel here
 ) {
     val context = LocalContext.current
 
     // Load the farms and roles when the composable is first displayed
     LaunchedEffect(Unit) {
-        viewModel.loadFarms(context)
         viewModel.loadRolesFromSharedPreferences(context) // Loads roles from SharedPreferences
     }
 
     // Retrieve the current state from the ViewModel
-    val farms by viewModel.farms.collectAsState()
+    val collaborators by viewModel.collaborators.collectAsState()
     val query by viewModel.searchQuery
     val selectedRole by viewModel.selectedRole
     val expanded by viewModel.isDropdownExpanded
@@ -63,7 +64,7 @@ fun FarmView(
 
     // Header and Footer layout with content in between
     HeaderFooterView(
-        title = "Mis Fincas",
+        title = "Mis Colaboradores",
         currentView = "Fincas",
         navController = navController
     ) {
@@ -82,7 +83,7 @@ fun FarmView(
                 ReusableSearchBar(
                     query = query,
                     onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                    text = "Buscar finca por nombre"
+                    text = "Buscar colaborador por nombre"
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -101,26 +102,26 @@ fun FarmView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Conditional UI based on the state of loading or error
-                /*if (isLoading) {
+                if (isLoading) {
                     Text("Cargando fincas...") // Show loading message
                 } else if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red) // Show error message if any
-                } else {*/
+                } else {
                     // LazyColumn to display the list of farms
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(farms) { farm ->
+                        items(collaborators) { collaborator ->
                             Column {
-                                val cleanedFarmName = farm.name.replace(Regex("\\s+"), " ")
-                                val cleanedFarmRole = farm.role.replace(Regex("\\s+"), " ")
+                                val cleanedCollaboratorName = collaborator.name.replace(Regex("\\s+"), " ")
+                                val cleanedCollaboratorRole = collaborator.role.replace(Regex("\\s+"), " ")
 
                                 // Card for each farm in the list
-                                FarmItemCard(
-                                    farmName = cleanedFarmName,
-                                    farmRole = cleanedFarmRole,
-                                    onClick = {
-                                        viewModel.onFarmClick(farm, navController)
+                                CollaboratorInfoCard(
+                                    collaboratorName = cleanedCollaboratorName,
+                                    collaboratorRole = cleanedCollaboratorRole,
+                                    onEditClick = {
+                                        viewModel.onCollaboratorClick(collaborator, navController)
                                     }
                                 )
 
@@ -128,12 +129,12 @@ fun FarmView(
                             }
                         }
                     }
-                //}
+                }
             }
 
             // Floating action button for creating a new farm
             FloatingActionButtonGroup(
-                onMainButtonClick = { navController.navigate("CreateFarmView") },
+                onMainButtonClick = { navController.navigate("AddCollaboratorView") },
                 mainButtonIcon = painterResource(id = R.drawable.plus_icon),
                 modifier = Modifier
                     .align(Alignment.BottomEnd) // Align to the bottom right
@@ -150,8 +151,9 @@ fun FarmView(
 
 @Preview(showBackground = true)
 @Composable
-fun FarmViewPreview() {
+fun CollaboratorViewPreview() {
     CoffeTechTheme {
-        FarmView(navController = NavController(LocalContext.current))
+        CollaboratorView(navController = NavController(LocalContext.current))
     }
 }
+

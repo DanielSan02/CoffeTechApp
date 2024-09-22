@@ -7,25 +7,18 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import android.content.Context
-import android.util.Log
-import android.widget.Toast
 import androidx.navigation.NavController
-import com.example.coffetech.model.ListFarmResponse
-import com.example.coffetech.model.RetrofitInstance
 import com.example.coffetech.utils.SharedPreferencesHelper
 import androidx.compose.runtime.State
-
-import androidx.compose.runtime.mutableStateOf
 
 
 data class Collaborator(
     val collaborator_id: Int,
     val name: String,
     val role: String, // Agrega también otras propiedades que necesitas
+    val id: String,
+    val email: String,
 )
 
 
@@ -120,6 +113,6 @@ class CollaboratorViewModel : ViewModel() {
         // Guarda el ID de la finca seleccionada
         _selectedCollaboratorId.value = collaborator.collaborator_id
         // Navega hacia la vista de información de la finca
-        navController.navigate("CollaboratorEditView/${collaborator.collaborator_id}")
+        navController.navigate("AddCollaboratorView/${collaborator.collaborator_id}")
     }
 }

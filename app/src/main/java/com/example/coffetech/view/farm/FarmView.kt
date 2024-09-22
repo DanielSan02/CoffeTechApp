@@ -101,11 +101,11 @@ fun FarmView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Conditional UI based on the state of loading or error
-                /*if (isLoading) {
+                if (isLoading) {
                     Text("Cargando fincas...") // Show loading message
                 } else if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red) // Show error message if any
-                } else {*/
+                } else {
                     // LazyColumn to display the list of farms
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
@@ -128,7 +128,7 @@ fun FarmView(
                             }
                         }
                     }
-                //}
+                }
             }
 
             // Floating action button for creating a new farm

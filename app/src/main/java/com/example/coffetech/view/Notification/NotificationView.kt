@@ -1,88 +1,108 @@
-package com.example.coffetech.view.Notification
-
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.TopBarWithBackArrow
-import com.example.coffetech.common.ReusableButton
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.platform.LocalContext
-//import com.example.coffetech.viewmodel.Notification.NotificationViewModel
-import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.NotificationCard
-
+import com.example.coffetech.ui.theme.CoffeTechTheme
 @Composable
 fun NotificationView(
-    modifier: Modifier = Modifier,
     navController: NavController,
-    //viewModel: NotificationViewModel = viewModel()
+    viewModel: NotificationViewModel = viewModel()
 ) {
-    val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    // Cargar notificaciones cuando el Composable se crea
+    LaunchedEffect(Unit) {
+        viewModel.loadNotifications(context)
+    }
+
+    val notifications by viewModel.notifications.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     Column(
-        modifier = modifier
-            .background(Color(0xFFF2F2F2))
+        modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding() // Ajusta el padding para la barra de estado
-            .navigationBarsPadding() // Ajusta el padding para la barra de navegación
+            .background(Color(0xFFF2F2F2))
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        // Top bar con botón de retroceso
         TopBarWithBackArrow(
-            onBackClick = { navController.navigate(Routes.StartView) },
+            onBackClick = { navController.popBackStack() },
             title = "Notificaciones"
         )
 
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Notificaciones
-            NotificationCard(
-                title = "Nueva Invitación",
-                description = "nameUser te ha invitado a colaborar como rol en la finca nameFarm",
-                onRejectClick = { /* Acción de rechazar */ },
-                onAcceptClick = { /* Acción de aceptar */ }
-            )
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            NotificationCard(
-                title = "Solicitud Aceptada",
-                description = "nameUser ha aceptado tu solicitud para colaborar en nameFarm. Programa sus labores ahora."
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            NotificationCard(
-                title = "Solicitud Rechazada",
-                description = "nameUser ha rechazado tu solicitud para colaborar en nameFarm. Reenvía la invitación.",
-                onResendClick = { /* Acción de reenviar */ }
-            )
+        when {
+            isLoading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
+            errorMessage.isNotEmpty() -> {
+                Text(text = errorMessage, color = Color.Red)
+            }
+            notifications.isNotEmpty() -> {
+                notifications.forEach { notification ->
+                    NotificationCard(
+                        title = when (notification.type) {
+                            "invitacion" -> "Nueva Invitación"
+                            "solicitud" -> "Solicitud Aceptada"
+                            else -> "Notificación"
+                        },
+                        description = notification.message,
+                        // Mostrar botones solo si `type` es "invitacion" y `is_responded` es `false`
+                        onRejectClick = if (notification.type == "invitacion" && !notification.is_responded) {
+                            {
+                                viewModel.respondToInvitation(
+                                    context,
+                                    notification.invitation_id,
+                                    "reject",
+                                    onSuccess = {
+                                        // Actualizar la lista de notificaciones
+                                        viewModel.loadNotifications(context)
+                                    },
+                                    onFailure = { message ->
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                        } else null,
+                        onAcceptClick = if (notification.type == "invitacion" && !notification.is_responded) {
+                            {
+                                viewModel.respondToInvitation(
+                                    context,
+                                    notification.invitation_id,
+                                    "accept",
+                                    onSuccess = {
+                                        // Actualizar la lista de notificaciones
+                                        viewModel.loadNotifications(context)
+                                    },
+                                    onFailure = { message ->
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                        } else null
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+            else -> {
+                Text(text = "No tienes notificaciones.", modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun NotificationViewPreview() {
-    CoffeTechTheme {
-        val navController = NavController(LocalContext.current)
 
-        NotificationView(
-            navController = navController
-        )
-    }
-}

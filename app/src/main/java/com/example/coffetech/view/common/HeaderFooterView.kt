@@ -90,7 +90,7 @@ fun HeaderFooterView(
                     profileImage = painterResource(id = R.drawable.menu_icon),
                     profileName = userName,
                     onProfileClick = { headerFooterViewModel.onProfileClick(navController) },
-                    onNotificationsClick = headerFooterViewModel::onNotificationsClick,
+                    onNotificationsClick = { headerFooterViewModel.onNotificationsClick(navController) },
                     onHelpClick = headerFooterViewModel::onHelpClick,
                     onLogoutClick = { headerFooterViewModel.onLogoutClick(context, navController) },
                     isLoading = isLoading,

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,6 +45,8 @@ import com.example.coffetech.viewmodel.Collaborator.CollaboratorViewModel
 @Composable
 fun CollaboratorView(
     navController: NavController,
+    farmId: Int,  // Añadir farmId
+    farmName: String,  // Añadir farmName
     viewModel: CollaboratorViewModel = viewModel() // Injects the ViewModel here
 ) {
     val context = LocalContext.current
@@ -63,6 +66,7 @@ fun CollaboratorView(
     val roles by viewModel.roles.collectAsState()
 
     // Header and Footer layout with content in between
+
     HeaderFooterView(
         title = "Mis Colaboradores",
         currentView = "Fincas",
@@ -74,11 +78,22 @@ fun CollaboratorView(
                 .fillMaxSize()
                 .background(Color(0xFFEFEFEF))
         ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+
+                Text(
+                    text = "Finca: $farmName",
+                    color = Color.Black,
+                    maxLines = 3, // Limita a una línea
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f), // Hace que el texto ocupe el espacio restante y se alinee a la derecha
+                )
+
                 // Search bar for filtering farms by name
                 ReusableSearchBar(
                     query = query,
@@ -98,6 +113,8 @@ fun CollaboratorView(
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon)
                 )
+
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -134,11 +151,13 @@ fun CollaboratorView(
 
             // Floating action button for creating a new farm
             FloatingActionButtonGroup(
-                onMainButtonClick = { navController.navigate("AddCollaboratorView") },
+                onMainButtonClick = {
+                    navController.navigate("AddCollaboratorView/$farmId/$farmName")
+                },
                 mainButtonIcon = painterResource(id = R.drawable.plus_icon),
                 modifier = Modifier
-                    .align(Alignment.BottomEnd) // Align to the bottom right
-                    .padding(16.dp) // Padding for positioning
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
             )
         }
     }
@@ -153,7 +172,9 @@ fun CollaboratorView(
 @Composable
 fun CollaboratorViewPreview() {
     CoffeTechTheme {
-        CollaboratorView(navController = NavController(LocalContext.current))
+        CollaboratorView(navController = NavController(LocalContext.current),
+            farmName = "Finca Ejemplo",
+            farmId= 1,)
     }
 }
 

@@ -1,3 +1,4 @@
+// MainActivity.kt
 package com.example.coffetech
 
 import CommonDataViewModel
@@ -8,28 +9,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import com.example.coffetech.ui.theme.CoffeTechTheme
+import androidx.compose.runtime.*
+import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.navigation.AppNavHost
-
-
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-
-import androidx.activity.viewModels
-import androidx.core.content.ContextCompat
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.navigation.AppNavHost
 import com.google.firebase.messaging.FirebaseMessaging
-
 
 class MainActivity : ComponentActivity() {
 
     // Obtener la instancia del ViewModel usando la propiedad delegada by viewModels()
     private val commonDataViewModel: CommonDataViewModel by viewModels()
+
     // Llamada para solicitar permisos
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -61,15 +51,16 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     private fun requestNotificationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33)
-            if (ContextCompat.checkSelfPermission(
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33)
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
                     this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
             ) {
                 // Si el permiso no ha sido otorgado, lo solicitamos.
-                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                requestNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
@@ -90,4 +81,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-

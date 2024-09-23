@@ -2,6 +2,7 @@
 
 package com.example.coffetech.navigation
 
+import NotificationView
 import android.content.Context // Importar el Context correcto
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
 import com.example.coffetech.view.Auth.RegisterPasswordView
 import com.example.coffetech.view.Auth.StartView
+import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
@@ -232,8 +234,39 @@ fun AppNavHost(context: Context) {
             }
         }
 
-        composable(Routes.CollaboratorView) {
-            CollaboratorView(navController = navController)
+
+        composable(Routes.NotificationView) {
+            NotificationView(navController = navController)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+        composable(
+            route = "${Routes.CollaboratorView}/{farmId}/{farmName}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("farmName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            CollaboratorView(navController = navController, farmId = farmId, farmName = farmName)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+        composable(
+            route = "${Routes.AddCollaboratorView}/{farmId}/{farmName}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("farmName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            AddCollaboratorView(navController = navController, farmId = farmId, farmName = farmName)
             BackHandler {
                 // Prevents back navigation gesture here
             }

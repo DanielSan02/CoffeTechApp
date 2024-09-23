@@ -22,4 +22,6 @@ object Routes {
     const val ChangePasswordView ="changePasswordView"
     const val RegisterPasswordView = "registerPasswordView"
     const val CollaboratorView = "collaboratorView"
+    const val NotificationView = "notificationView"
+    const val AddCollaboratorView = "addCollaboratorView"
 }

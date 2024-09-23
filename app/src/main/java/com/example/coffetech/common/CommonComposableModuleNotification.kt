@@ -3,7 +3,9 @@ package com.example.coffetech.common
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -18,8 +20,7 @@ fun NotificationCard(
     title: String,
     description: String,
     onRejectClick: (() -> Unit)? = null,
-    onAcceptClick: (() -> Unit)? = null,
-    onResendClick: (() -> Unit)? = null
+    onAcceptClick: (() -> Unit)? = null
 ) {
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -32,36 +33,40 @@ fun NotificationCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Título de la notificación
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium
             )
+            // Descripción de la notificación
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium
             )
-            onRejectClick?.let {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ReusableButton(
-                        text = "Rechazar",
-                        onClick = it,
-                        buttonType = ButtonType.Red
-                    )
-                    onAcceptClick?.let { acceptClick ->
+            // Mostrar los botones si hay acciones definidas para aceptar o rechazar
+            if (onRejectClick != null || onAcceptClick != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Botón de Rechazar
+                    onRejectClick?.let {
+                        ReusableButton(
+                            text = "Rechazar",
+                            onClick = it,
+                            buttonType = ButtonType.Red
+                        )
+                    }
+                    // Botón de Aceptar
+                    onAcceptClick?.let {
                         ReusableButton(
                             text = "Aceptar",
-                            onClick = acceptClick,
+                            onClick = it,
                             buttonType = ButtonType.Green
                         )
                     }
                 }
-            }
-            onResendClick?.let {
-                ReusableButton(
-                    text = "Reenviar",
-                    onClick = it,
-                    buttonType = ButtonType.Green
-                )
             }
         }
     }

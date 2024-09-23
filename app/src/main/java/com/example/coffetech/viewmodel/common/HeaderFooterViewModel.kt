@@ -31,7 +31,12 @@ class HeaderFooterViewModel : ViewModel() {
         toggleMenu() // Cierra el menú después de navegar
     }
 
-    fun onNotificationsClick() {}
+    fun onNotificationsClick(navController: NavController) {
+        navController.navigate(Routes.NotificationView)
+        toggleMenu() // Cierra el menú después de navegar
+    }
+
+
     fun onHelpClick() {}
 
     fun onLogoutClick(context: Context, navController: NavController) {

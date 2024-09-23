@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.gms.google-services")
+    alias(libs.plugins.google.services) // Cambio aquí
 }
 
 android {
@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.messaging.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,6 +79,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
+
     implementation("com.google.firebase:firebase-analytics")
 
 

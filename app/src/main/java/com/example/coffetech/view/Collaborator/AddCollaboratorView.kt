@@ -37,6 +37,8 @@ import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 @Composable
 fun AddCollaboratorView(
     navController: NavController,
+    farmId: Int,  // Añadir farmId
+    farmName: String,
     viewModel: AddCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -47,6 +49,9 @@ fun AddCollaboratorView(
     val isLoading by viewModel.isLoading.collectAsState()
 
     val isFormSubmitted = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        viewModel.loadRolesFromSharedPreferences(context)
+    }
 
 
     Box(
@@ -111,11 +116,12 @@ fun AddCollaboratorView(
                 RoleAddDropdown(
                     selectedRole = selectedRole,
                     onCollaboratorRoleChange = { viewModel.onCollaboratorRoleChange(it) },
-                    roles = collaboratorRole,
+                    roles = collaboratorRole,  // Lista de roles obtenida del ViewModel
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
                 )
+
 
 
                 // Mostrar mensaje de error si lo hay
@@ -126,14 +132,22 @@ fun AddCollaboratorView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Botón para agregar colaborador
+
                 ReusableButton(
                     text = if (isLoading) "Creando..." else "Crear",
-                    onClick = {},
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green,  // Usar el botón con color rojo
+                    onClick = {
+                        if (viewModel.validateInputs()) {
+                            viewModel.onCreate(navController, context, farmId)  // Enviar farmId
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Green,
                     enabled = !isLoading
                 )
+
+
+
+
 
             }
         }
@@ -142,11 +156,3 @@ fun AddCollaboratorView(
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun AddCollaboratorViewPreview() {
-    val mockNavController = rememberNavController() // MockNavController
-    CoffeTechTheme {
-        AddCollaboratorView(navController = mockNavController)
-    }
-}

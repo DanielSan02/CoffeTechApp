@@ -155,10 +155,14 @@ fun FarmInformationView(
                 // Componente reutilizable de Colaboradores
                 if (userHasPermissionCollaborators){
                     CollaboratorsCard(
-                        collaboratorName = collaboratorName, // Usamos los datos obtenidos del ViewModel
-                        onAddClick = { navController.navigate(Routes.CollaboratorView) },
+                        collaboratorName = collaboratorName,
+                        onAddClick = {
+                            navController.navigate("CollaboratorView/$farmId/$farmName")
+                        }
+                    )
 
-                        )
+
+
                 }
 
 

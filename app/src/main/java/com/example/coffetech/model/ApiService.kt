@@ -316,6 +316,38 @@ data class UpdateFarmResponse(
     val data: FarmResponse
 )
 
+data class CreateInvitationRequest(
+    val email: String,
+    val suggested_role: String,
+    val farm_id: Int
+)
+
+data class CreateInvitationResponse(
+    val status: String,
+    val message: String
+)
+
+data class Notification(
+    val message: String,
+    val date: String,
+    val type: String,
+    val farm_id: Int,
+    val reminder_time: String?,
+    val notifications_id: Int,
+    val user_id: Int,
+    val invitation_id: Int,
+    val notification_type_id: Int?,
+    val is_responded: Boolean
+)
+
+data class NotificationResponse(
+    val status: String,
+    val message: String,
+    val data: List<Notification>
+)
+
+
+
 // API service interface for interacting with backend services
 
 /**
@@ -465,5 +497,24 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: UpdateFarmRequest
     ): Call<UpdateFarmResponse>
+
+    @POST("/invitation/create-invitation")
+    fun createInvitation(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateInvitationRequest
+    ): Call<CreateInvitationResponse>
+
+    @GET("/notification/get-notification")
+    fun getNotifications(
+        @Query("session_token") sessionToken: String
+    ): Call<NotificationResponse>
+
+    @POST("/invitation/respond-invitation/{invitation_id}")
+    fun respondInvitation(
+        @Path("invitation_id") invitationId: Int,
+        @Query("action") action: String,
+        @Query("session_token") sessionToken: String
+    ): Call<ApiResponse<Any>>
+
 
 }

@@ -1,4 +1,6 @@
 package com.example.coffetech.view.Plot
+
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.viewmodel.Plot.EditPhasePlotViewModel
@@ -33,6 +37,7 @@ fun EditPhasePlotView(
     // Obtener los estados del ViewModel
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val hasChanges by viewModel.hasChanges.collectAsState()
 
     Box(
         modifier = Modifier
@@ -54,11 +59,11 @@ fun EditPhasePlotView(
                 // Título de la vista
                 Text(
                     text = "Editar Fase Actual",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = Color(0xFF606C38),  // Color personalizado
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.W600,
+                    fontSize = 25.sp,
+                    color = Color(0xFF49602D),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -94,17 +99,15 @@ fun EditPhasePlotView(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Botón Guardar
-                Button(
-                    onClick = {
-                        // Lógica para guardar los datos
-                    },
+                ReusableButton(
+                    text = if (isLoading) "Guardando..." else "Guardar",
+                    onClick = {},
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))  // Color verde
-                ) {
-                    Text("Guardar")
-                }
+                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Red,
+                    enabled = hasChanges && !isLoading
+                )
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {

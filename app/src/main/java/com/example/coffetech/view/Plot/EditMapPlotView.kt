@@ -1,5 +1,4 @@
 package com.example.coffetech.view.Plot
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,18 +15,27 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import com.example.coffetech.R
+import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.viewmodel.Plot.EditMapPlotViewModel
 
 @Composable
-fun EditLocationView(
+fun EditMapPlotView(
     navController: NavController?, // Lo marcamos como opcional para no necesitar un NavController en Preview
     viewModel: EditMapPlotViewModel = viewModel()
 ) {
     // Estados para manejar los campos de texto
-    var radius by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf("km") } // Unidad por defecto
+    var radius by remember { mutableStateOf("") } // Unidad por defecto
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val hasChanges by viewModel.hasChanges.collectAsState()
+    val selectedUnit by viewModel.selectedUnit.collectAsState()
+    val areaUnits by viewModel.areaUnits.collectAsState()
 
     Box(
         modifier = Modifier
@@ -82,22 +90,28 @@ fun EditLocationView(
                 Spacer(modifier = Modifier.height(16.dp))
 
 
+                UnitDropdown(
+                    selectedUnit = selectedUnit,
+                    onUnitChange = { viewModel.onUnitChange(it) },
+                    units = areaUnits,
+                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                Text("Unidad: $unit") // Muestra la unidad seleccionada
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Botón Guardar
-                Button(
-                    onClick = {
-                        // Lógica para guardar los datos
-                    },
+
+                ReusableButton(
+                    text = if (isLoading) "Guardando..." else "Guardar",
+                    onClick = {},
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF49602D))  // Color verde
-                ) {
-                    Text("Guardar")
-                }
+                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Red,
+                    enabled = hasChanges && !isLoading
+                )
 
             }
         }
@@ -108,8 +122,6 @@ fun EditLocationView(
 @Composable
 fun EditMapPlotViewPreview() {
     CoffeTechTheme {
-        EditLocationView(navController = null)  // Para la previsualización no necesitamos un NavController real
+        EditMapPlotView(navController = null)  // Para la previsualización no necesitamos un NavController real
     }
 }
-
-

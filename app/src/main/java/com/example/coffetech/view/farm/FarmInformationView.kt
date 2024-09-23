@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.*
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
@@ -64,7 +65,7 @@ fun FarmInformationView(
     val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
 // Verificar si el usuario tiene permiso para eliminar la finca
     val userHasPermissionToDelete = viewModel.hasPermission("delete_farm")
-    val userHasPermissionCollaborators = viewModel.hasPermission("agregar_administrador_farm") || viewModel.hasPermission("agregar_operador_farm")
+    val userHasPermissionCollaborators = viewModel.hasPermission("add_operador_farm") || viewModel.hasPermission("agregar_operador_farm")
     val displayedFarmName = if (farmName.length > 21) {
         farmName.take(17) + "..." // Si tiene más de 13 caracteres, corta y añade "..."
     } else {
@@ -155,7 +156,7 @@ fun FarmInformationView(
                 if (userHasPermissionCollaborators){
                     CollaboratorsCard(
                         collaboratorName = collaboratorName, // Usamos los datos obtenidos del ViewModel
-                        onAddClick = { /*viewModel.onAddCollaborator(navController) */},
+                        onAddClick = { navController.navigate(Routes.CollaboratorView) },
 
                         )
                 }

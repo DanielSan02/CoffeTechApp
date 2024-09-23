@@ -43,11 +43,14 @@ data class RegisterResponse(
  *
  * @property email The user's email.
  * @property password The user's password.
+ * @property fcm_token The user's token cloud message firebase
  */
 data class LoginRequest(
     val email: String,
-    val password: String
+    val password: String,
+    val fcm_token: String? = null
 )
+
 
 /**
  * Data class representing the login response from the server.

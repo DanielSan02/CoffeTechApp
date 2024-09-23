@@ -103,11 +103,11 @@ fun CollaboratorView(
 
                 // Conditional UI based on the state of loading or error
                 if (isLoading) {
-                    Text("Cargando fincas...") // Show loading message
+                    Text("Cargando colaboradores...") // Show loading message
                 } else if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red) // Show error message if any
                 } else {
-                    // LazyColumn to display the list of farms
+
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
                     ) {

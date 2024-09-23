@@ -32,14 +32,17 @@ import com.example.coffetech.common.RoleAddDropdown
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
+import com.example.coffetech.viewmodel.Collaborator.EditCollaboratorViewModel
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
 @Composable
-fun AddCollaboratorView(
+fun EditCollaboratorView(
     navController: NavController,
-    viewModel: AddCollaboratorViewModel = viewModel()
+    viewModel: EditCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
+
+    val collaboratorName by viewModel.collaboratorName.collectAsState()
     val collaboratorEmail by viewModel.collaboratorEmail.collectAsState()
     val collaboratorRole by viewModel.collaboratorRole.collectAsState()
     val selectedRole by viewModel.selectedRole.collectAsState()
@@ -81,7 +84,7 @@ fun AddCollaboratorView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Agregar Colaborador",
+                    text = "Editar Colaborador",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
                         // Sobrescribir el tamaño de la fuente
@@ -92,10 +95,23 @@ fun AddCollaboratorView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                ReusableTextField(
+                    value = collaboratorName,
+                    onValueChange = { viewModel.onCollaboratorNameChange(it) },
+                    placeholder = "Nombre colaborador",
+                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
+                    isValid = collaboratorName.isNotEmpty() || !isFormSubmitted.value,
+                    charLimit = 50,
+                    errorMessage = if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Nombre de finca utilizando ReusableTextField
                 ReusableTextField(
                     value = collaboratorEmail,
-                    onValueChange = { viewModel.onCollaboratorEmailChange(it) },
+                    onValueChange = { },
+                    enabled = false,
                     placeholder = "Correo de colaborador",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = collaboratorEmail.isNotEmpty() || !isFormSubmitted.value,
@@ -125,9 +141,9 @@ fun AddCollaboratorView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botón para agregar colaborador
+
                 ReusableButton(
-                    text = if (isLoading) "Creando..." else "Crear",
+                    text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {},
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),
@@ -144,9 +160,9 @@ fun AddCollaboratorView(
 
 @Preview(showBackground = true)
 @Composable
-fun AddCollaboratorViewPreview() {
+fun EditCollaboratorViewPreview() {
     val mockNavController = rememberNavController() // MockNavController
     CoffeTechTheme {
-        AddCollaboratorView(navController = mockNavController)
+        EditCollaboratorView(navController = mockNavController)
     }
 }

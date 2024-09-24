@@ -74,6 +74,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("com.google.android.gms:play-services-maps:18.0.2")
+    implementation("com.google.maps.android:maps-compose:2.8.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1") // Verifica la última versión
+
 
 
 

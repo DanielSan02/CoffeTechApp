@@ -25,6 +25,8 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
+import com.example.coffetech.Routes.Routes
+
 
 @Composable
 fun FarmInformationView(
@@ -138,7 +140,7 @@ fun FarmInformationView(
 
                 // FloatingActionButton para agregar lotes
                 CustomFloatingActionButton(
-                    onAddLoteClick = { viewModel.onAddLote(navController) }
+                    onAddLoteClick = { navController.navigate(Routes.AddLocationPlot) }
                 )
             }
         }

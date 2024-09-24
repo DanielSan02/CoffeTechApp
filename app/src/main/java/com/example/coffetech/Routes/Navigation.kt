@@ -29,6 +29,7 @@ import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
 import com.example.coffetech.view.farm.FarmView
+import com.example.coffetech.view.PlotMap.AddLocationPlot
 
 /**
  * Composable function that sets up the app's navigation using the Navigation component in Jetpack Compose.
@@ -275,5 +276,9 @@ fun AppNavHost(context: Context) {
 
 
 
+
+        composable(Routes.AddLocationPlot) {
+            AddLocationPlot(navController = navController)
+        }
     }
 }

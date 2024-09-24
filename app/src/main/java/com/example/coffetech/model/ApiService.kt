@@ -330,14 +330,14 @@ data class CreateInvitationResponse(
 data class Notification(
     val message: String,
     val date: String,
-    val type: String,
+    val notification_type: String,
     val farm_id: Int,
     val reminder_time: String?,
     val notifications_id: Int,
     val user_id: Int,
     val invitation_id: Int,
     val notification_type_id: Int?,
-    val is_responded: Boolean
+    val status: String
 )
 
 data class NotificationResponse(

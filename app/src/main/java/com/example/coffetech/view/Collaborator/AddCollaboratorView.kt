@@ -110,8 +110,6 @@ fun AddCollaboratorView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-
-
                 // Rol seleccionado
                 RoleAddDropdown(
                     selectedRole = selectedRole,
@@ -121,8 +119,6 @@ fun AddCollaboratorView(
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
                 )
-
-
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {

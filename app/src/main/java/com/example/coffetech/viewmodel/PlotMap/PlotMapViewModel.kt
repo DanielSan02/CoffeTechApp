@@ -11,11 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.State
+
 
 class PlotViewModel : ViewModel() {
     // Estado para el radio del lote
     private val _plotRadius = MutableStateFlow("")
-    val plotRadius: StateFlow<String> = _plotRadius.asStateFlow()
+    val plotRadius: StateFlow<String> = _plotRadius
 
     // Estado para la unidad de medida (metros o kilómetros)
     private val _selectedUnit = MutableStateFlow("metros") // Valor inicial predeterminado
@@ -34,20 +37,25 @@ class PlotViewModel : ViewModel() {
 
     // Estado para los mensajes de error o validación
     private val _errorMessage = MutableStateFlow("")
-    val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
+    val errorMessage: StateFlow<String> = _errorMessage
 
-    // Estado para saber si está en proceso de guardar o cargando
+    // Estado para controlar si se está guardando
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _isFormSubmitted = mutableStateOf(false)
+    val isFormSubmitted: State<Boolean> = _isFormSubmitted
 
     // Función para actualizar el radio del lote
     fun onPlotRadiusChange(newRadius: String) {
         _plotRadius.value = newRadius
+        _errorMessage.value = ""
     }
 
     // Función para actualizar la unidad de medida
     fun onUnitChange(newUnit: String) {
         _selectedUnit.value = newUnit
+
     }
 
     // Función para actualizar la ubicación del usuario (LatLng)
@@ -55,7 +63,7 @@ class PlotViewModel : ViewModel() {
         _location.value = latLng
     }
 
-    // Función para verificar y actualizar el estado de los permisos de ubicación
+    // Función para verificar el estado de los permisos
     fun checkLocationPermission(context: Context): Boolean {
         val isGranted = ContextCompat.checkSelfPermission(
             context,
@@ -65,25 +73,26 @@ class PlotViewModel : ViewModel() {
         return isGranted
     }
 
-    // Actualizar el estado de los permisos
+    // Función para actualizar el estado de los permisos
     fun updateLocationPermissionStatus(isGranted: Boolean) {
         _locationPermissionGranted.value = isGranted
     }
 
-    // Guardar los detalles del lote
-    fun savePlotData() {
-        GlobalScope.launch {
-            if (_plotRadius.value.isEmpty()) {
-                _errorMessage.value = "El radio no puede estar vacío."
-                return@launch
-            }
-
-            _isLoading.value = true
-
-            // Simula una operación de guardado (podrías implementar tu lógica aquí)
-            // Una vez terminado el guardado, puedes resetear los estados si es necesario
-            _isLoading.value = false
-            _errorMessage.value = ""
-        }
+    fun onSubmit() {
+        _isFormSubmitted.value = true
+        // Aquí colocas la lógica para procesar el guardado si no hay errores
     }
+
+    fun setErrorMessage(message: String) {
+        _errorMessage.value = message
+    }
+
+    fun clearErrorMessage() {
+        _errorMessage.value = ""
+    }
+
+    fun savePlotData() {
+        // Lógica para guardar los datos
+    }
+
 }

@@ -274,11 +274,9 @@ fun AppNavHost(context: Context) {
         }
 
 
-
-
-
-        composable(Routes.AddLocationPlot) {
-            AddLocationPlot(navController = navController)
+        composable("${Routes.AddLocationPlot}/{farmId}") { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getString("farmId")?.toIntOrNull() ?: 0
+            AddLocationPlot(navController = navController, farmId = farmId)
         }
     }
 }

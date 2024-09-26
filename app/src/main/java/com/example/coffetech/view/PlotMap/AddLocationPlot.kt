@@ -210,35 +210,35 @@ fun AddLocationPlot(
                                 )
 
 
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                // Campo para el radio del lote
-                                ReusableTextField(
-                                    value = viewModel.plotRadius.collectAsState().value,
-                                    onValueChange = { viewModel.onPlotRadiusChange(it) },
-                                    placeholder = "Radio del lote",
-                                    charLimit = 5,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    isValid = viewModel.plotRadius.collectAsState().value.isNotEmpty() || !viewModel.isFormSubmitted.value,
-                                    errorMessage = if (viewModel.plotRadius.collectAsState().value.isEmpty() && viewModel.isFormSubmitted.value) "El radio no puede estar vacío" else ""
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                // Unidad de medida
-                                UnitDropdown(
-                                    selectedUnit = selectedUnit,
-                                    onUnitChange = { viewModel.onUnitChange(it) },
-                                    units = areaUnits,
-                                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
-                                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                // Mostrar mensaje de error si lo hay
-                                if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
-                                    Text(text = viewModel.errorMessage.collectAsState().value, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-                                }
+//                                Spacer(modifier = Modifier.height(16.dp))
+//
+//                                // Campo para el radio del lote
+//                                ReusableTextField(
+//                                    value = viewModel.plotRadius.collectAsState().value,
+//                                    onValueChange = { viewModel.onPlotRadiusChange(it) },
+//                                    placeholder = "Radio del lote",
+//                                    charLimit = 5,
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    isValid = viewModel.plotRadius.collectAsState().value.isNotEmpty() || !viewModel.isFormSubmitted.value,
+//                                    errorMessage = if (viewModel.plotRadius.collectAsState().value.isEmpty() && viewModel.isFormSubmitted.value) "El radio no puede estar vacío" else ""
+//                                )
+//                                Spacer(modifier = Modifier.height(16.dp))
+//                                // Unidad de medida
+//                                UnitDropdown(
+//                                    selectedUnit = selectedUnit,
+//                                    onUnitChange = { viewModel.onUnitChange(it) },
+//                                    units = areaUnits,
+//                                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+//                                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+//                                    modifier = Modifier.fillMaxWidth()
+//                                )
+//
+//                                Spacer(modifier = Modifier.height(16.dp))
+//
+//                                // Mostrar mensaje de error si lo hay
+//                                if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
+//                                    Text(text = viewModel.errorMessage.collectAsState().value, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+//                                }
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -264,14 +264,7 @@ fun AddLocationPlot(
                                     buttonType = ButtonType.Green,
                                     enabled = true // Siempre habilitado
                                 )
-                                // Button to cancel and return to the farm view
-                                ReusableTextButton(
-                                    navController = navController,
-                                    text = "Volver",
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally),
-                                    destination = Routes.FarmInformationView // Navigates to login screen on cancel
-                                )
+
 
 
                             }
@@ -307,7 +300,7 @@ fun AddLocationPlot(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Botón de "Volver" que redirige a FarmInformationView
+                        // Botón de "Volver" para regresar al FarmInformationView luego de cambiar los permisos en la configuración de la aplicación
                         ReusableTextButton(
                             navController = navController,
                             text = "Volver",

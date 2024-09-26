@@ -52,8 +52,9 @@ fun CollaboratorView(
     val context = LocalContext.current
 
     // Load the farms and roles when the composable is first displayed
-    LaunchedEffect(Unit) {
-        viewModel.loadRolesFromSharedPreferences(context) // Loads roles from SharedPreferences
+    LaunchedEffect(farmId) {
+        viewModel.loadRolesFromSharedPreferences(context)
+        viewModel.loadCollaborators(context, farmId)
     }
 
     // Retrieve the current state from the ViewModel
@@ -84,15 +85,6 @@ fun CollaboratorView(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-
-                Text(
-                    text = "Finca: $farmName",
-                    color = Color.Black,
-                    maxLines = 3, // Limita a una línea
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f), // Hace que el texto ocupe el espacio restante y se alinee a la derecha
-                )
 
                 // Search bar for filtering farms by name
                 ReusableSearchBar(
@@ -132,11 +124,13 @@ fun CollaboratorView(
                             Column {
                                 val cleanedCollaboratorName = collaborator.name.replace(Regex("\\s+"), " ")
                                 val cleanedCollaboratorRole = collaborator.role.replace(Regex("\\s+"), " ")
+                                val cleanedCollaboratorEmail = collaborator.email.replace(Regex("\\s+"), " ")
 
                                 // Card for each farm in the list
                                 CollaboratorInfoCard(
                                     collaboratorName = cleanedCollaboratorName,
                                     collaboratorRole = cleanedCollaboratorRole,
+                                    collaboratorEmail = cleanedCollaboratorEmail,
                                     onEditClick = {
                                         viewModel.onCollaboratorClick(collaborator, navController)
                                     }

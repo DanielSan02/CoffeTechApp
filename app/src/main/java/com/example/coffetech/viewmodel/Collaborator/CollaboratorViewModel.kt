@@ -8,17 +8,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.navigation.NavController
 import com.example.coffetech.utils.SharedPreferencesHelper
 import androidx.compose.runtime.State
+import com.example.coffetech.model.ListCollaboratorResponse
+import com.example.coffetech.model.RetrofitInstance
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 data class Collaborator(
-    val collaborator_id: Int,
+    val user_id: Int,
     val name: String,
-    val role: String, // Agrega también otras propiedades que necesitas
-    val id: String,
     val email: String,
+    val role: String, // Agrega también otras propiedades que necesitas
 )
 
 
@@ -74,7 +80,7 @@ class CollaboratorViewModel : ViewModel() {
     fun selectRole(role: String?) {
         _selectedRole.value = role
         if (role == null) {
-            // Si no se seleccionó ningún rol (es decir, "Todos los roles"), mostrar todas las fincas
+            // Si no se seleccionó ningún rol (es decir, "Todos los roles"), mostrar todos los colaboradores
             _collaborators.value = _allCollaborators
         } else {
             // Filtrar las fincas por el rol seleccionado
@@ -87,6 +93,61 @@ class CollaboratorViewModel : ViewModel() {
     fun setDropdownExpanded(isExpanded: Boolean) {
         _isDropdownExpanded.value = isExpanded
     }
+
+
+    // Función para cargar colaboradores desde el servidor
+    fun loadCollaborators(context: Context, farmId: Int) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val sessionToken = sharedPreferencesHelper.getSessionToken()
+
+        if (sessionToken == null) {
+            errorMessage.value = "No se encontró el token de sesión."
+            Toast.makeText(context, "Error: No se encontró el token de sesión. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        isLoading.value = true
+
+        RetrofitInstance.api.listCollaborators(farmId, sessionToken).enqueue(object : Callback<ListCollaboratorResponse> {
+            override fun onResponse(call: Call<ListCollaboratorResponse>, response: Response<ListCollaboratorResponse>) {
+                isLoading.value = false
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    responseBody?.let {
+                        if (it.status == "success") {
+                            val collaboratorsList = it.data.map { collaboratorResponse ->
+                                Collaborator(
+                                    user_id = collaboratorResponse.user_id,
+                                    name = collaboratorResponse.name,
+                                    email = collaboratorResponse.email,
+                                    role = collaboratorResponse.role
+                                )
+                            }
+
+                            _allCollaborators.clear()
+                            _allCollaborators.addAll(collaboratorsList)
+                            _collaborators.value = collaboratorsList // Mostrar todos los colaboradores al principio
+                        } else {
+                            errorMessage.value = it.message
+                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } else {
+                    errorMessage.value = "Error al obtener los colaboradores."
+                    Log.e("CollaboratorViewModel", "Error en la respuesta del servidor: ${response.errorBody()?.string()}")
+                    Toast.makeText(context, "Error al obtener los colaboradores.", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ListCollaboratorResponse>, t: Throwable) {
+                isLoading.value = false
+                errorMessage.value = "Error de conexión: ${t.message}"
+                Log.e("CollaboratorViewModel", "Error de conexión: ${t.message}")
+                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
 
 
 
@@ -111,8 +172,8 @@ class CollaboratorViewModel : ViewModel() {
 
     fun onCollaboratorClick(collaborator: Collaborator, navController: NavController) {
         // Guarda el ID de la finca seleccionada
-        _selectedCollaboratorId.value = collaborator.collaborator_id
+        _selectedCollaboratorId.value = collaborator.user_id
         // Navega hacia la vista de información de la finca
-        navController.navigate("AddCollaboratorView/${collaborator.collaborator_id}")
+        navController.navigate("EditCollaboratorView/${collaborator.user_id}")
     }
 }

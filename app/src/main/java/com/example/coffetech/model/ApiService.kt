@@ -346,6 +346,35 @@ data class NotificationResponse(
     val data: List<Notification>
 )
 
+/**
+ * Data class representing the list collaborators response from the server.
+ *
+ * @property status The status of the list collaborators request.
+ * @property message The message associated with the list collaborators response.
+ * @property data The list of collaborators returned by the server.
+ */
+data class ListCollaboratorResponse(
+    val status: String,
+    val message: String,
+    val data: List<CollaboratorResponse>
+)
+
+/**
+ * Data class representing an individual farm's details.
+ *
+ * @property farm_id The ID of the farm.
+ * @property name The name of the collaborator.
+ * @property email The email of the collaborator.
+ * @property role The role associated with the collaborator.
+ */
+
+data class CollaboratorResponse(
+    val user_id: Int,
+    val name: String,
+    val email: String,
+    val role: String
+)
+
 
 
 // API service interface for interacting with backend services
@@ -516,5 +545,16 @@ interface ApiService {
         @Query("session_token") sessionToken: String
     ): Call<ApiResponse<Any>>
 
+    /**
+     * Lists all collaborators associated with the user's account.
+     *
+     * @param sessionToken The session token of the user making the request.
+     * @return A [Call] object for the list farm response.
+     */
+    @GET("/collaborators/list-collaborators")
+    fun listCollaborators(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListCollaboratorResponse>
 
 }

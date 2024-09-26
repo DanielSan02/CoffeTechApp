@@ -36,6 +36,11 @@ class EditPhasePlotViewModel : ViewModel() {
     fun onPhaseChange(newPhase: String) {
         _selectedPhase.value = newPhase
     }
+    private val _plotCoffeeVariety = MutableStateFlow<List<String>>(emptyList())
+    val plotCoffeeVariety: StateFlow<List<String>> = _plotCoffeeVariety.asStateFlow()
+
+    private val _selectedVariety = MutableStateFlow("")
+    val selectedVariety: StateFlow<String> = _selectedVariety.asStateFlow()
 
     // Función para actualizar la fecha de inicio
     fun onStartDateChange(newStartDate: String) {
@@ -78,9 +83,16 @@ class EditPhasePlotViewModel : ViewModel() {
         }
     }
 
+
+
+
     // Simulación de una operación de guardado
     private suspend fun simulateSaveOperation() {
         // Simula un tiempo de espera para la operación
         kotlinx.coroutines.delay(2000L)
+
     }
+
+
 }
+

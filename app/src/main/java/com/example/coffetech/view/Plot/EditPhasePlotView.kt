@@ -11,16 +11,19 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.coffetech.R
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.VarietyCoffeeDropdown
 import com.example.coffetech.viewmodel.Plot.EditPhasePlotViewModel
 
 @Composable
@@ -36,6 +39,8 @@ fun EditPhasePlotView(
 
     // Obtener los estados del ViewModel
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
+    val selectedVariety by viewModel.selectedVariety.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val hasChanges by viewModel.hasChanges.collectAsState()
 
@@ -65,14 +70,28 @@ fun EditPhasePlotView(
                     color = Color(0xFF49602D),
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Fase de cultivo",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.W200,
+                    fontSize = 22.sp,
+                    color = Color(0xFF000000),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 // Campo de texto para el nombre del lote
-                ReusableTextField(
-                    value = plotName,
-                    onValueChange = { plotName = it },
-                    placeholder = "Fase del cultivo",
+                VarietyCoffeeDropdown(
+                    selectedVariety = selectedVariety,
+                    onUnitChange = {},
+                    varieties = plotCoffeeVariety,
+                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
                 )
 

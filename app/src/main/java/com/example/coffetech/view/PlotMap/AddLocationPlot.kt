@@ -1,29 +1,31 @@
 package com.example.coffetech.view.PlotMap
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.ui.res.painterResource
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.coffetech.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -36,20 +38,16 @@ import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.PlotMap.PlotViewModel
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import android.app.Activity
-import androidx.core.app.ActivityCompat
-import android.content.Context
-import androidx.compose.runtime.Composable
 import kotlinx.coroutines.launch
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun GoogleMapView(
@@ -58,7 +56,7 @@ fun GoogleMapView(
 ) {
     // Estado de la posición de la cámara del mapa
     val cameraPositionState = rememberCameraPositionState {
-        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(location, 10f)
+        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(location, 15f)
     }
 
     GoogleMap(
@@ -76,9 +74,7 @@ fun GoogleMapView(
     }
 }
 
-
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddLocationPlot(
     navController: NavController,
@@ -89,9 +85,9 @@ fun AddLocationPlot(
     val location by viewModel.location.collectAsState()
     val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
     val plotRadiusValue = viewModel.plotRadius.collectAsState().value.toDoubleOrNull()
-    val snackbarHostState = remember { SnackbarHostState() } // Estado para controlar el Snackbar
-    val coroutineScope = rememberCoroutineScope()  // Para lanzar coroutines
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val currentLocation = location
 
     // Obtener los estados del ViewModel
     val plotRadius by viewModel.plotRadius.collectAsState()
@@ -110,27 +106,29 @@ fun AddLocationPlot(
         if (isGranted) {
             viewModel.updateLocationPermissionStatus(isGranted)
         } else {
-            // Obtener la referencia de la Activity para verificar si los permisos fueron denegados permanentemente
             val activity = context as? Activity
             if (activity != null) {
-                isPermissionDeniedPermanently = !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                isPermissionDeniedPermanently = !ActivityCompat.shouldShowRequestPermissionRationale(
+                    activity,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
             }
 
             coroutineScope.launch {
                 if (isPermissionDeniedPermanently) {
-                    // Mostrar el Snackbar indicando que debe ir a la configuración
                     snackbarHostState.showSnackbar("Se necesitan permisos de localización")
                 } else {
-                    // Mostrar mensaje de que los permisos son necesarios y volver
                     snackbarHostState.showSnackbar("Se necesitan permisos de localización")
-                    navController.popBackStack()  // Regresa a FarmInformationView
+                    navController.popBackStack()
                 }
             }
-
-
         }
     }
 
+    // Crear el cliente de ubicación
+    val fusedLocationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
 
     // Lanzar permisos cada vez que el usuario pulsa el botón, sin importar si ya los denegó
     LaunchedEffect(Unit) {
@@ -139,23 +137,52 @@ fun AddLocationPlot(
         }
     }
 
+    // Obtener la ubicación actual cuando los permisos estén concedidos
+    LaunchedEffect(locationPermissionGranted) {
+        if (locationPermissionGranted) {
+            try {
+                val lastLocation = fusedLocationClient.lastLocation.await()
+                if (lastLocation != null) {
+                    val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    viewModel.onLocationChange(latLng)
+                } else {
+                    val cancellationTokenSource = CancellationTokenSource()
+                    val currentLocation = fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        cancellationTokenSource.token
+                    ).await()
+                    if (currentLocation != null) {
+                        val latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
+                        viewModel.onLocationChange(latLng)
+                    } else {
+                        viewModel.setErrorMessage("No se pudo obtener la ubicación actual.")
+                    }
+                }
+            } catch (e: SecurityException) {
+                viewModel.setErrorMessage("Error de permisos de ubicación.")
+            } catch (e: Exception) {
+                viewModel.setErrorMessage("Error al obtener la ubicación: ${e.message}")
+            }
+        }
+    }
+
     // Estructura de la UI usando Scaffold para manejar el Snackbar
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, // Manejar el Snackbar aquí
-        content = { paddingValues ->  // Usar los valores de padding proporcionados
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        content = { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 if (locationPermissionGranted) {
                     // Mostrar la vista principal solo si los permisos están concedidos
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFF101010)) // Fondo oscuro
+                            .background(Color(0xFF101010))
                             .padding(10.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
+                                .fillMaxWidth(0.95f)
                                 .background(Color.White, RoundedCornerShape(16.dp))
                                 .padding(horizontal = 20.dp, vertical = 16.dp)
                         ) {
@@ -202,43 +229,30 @@ fun AddLocationPlot(
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 // Mostrar el mapa si los permisos están concedidos
-                                GoogleMapView(
-                                    location = location ?: LatLng(0.0, 0.0), // Ubicación inicial predeterminada
-                                    onLocationSelected = { latLng ->
-                                        viewModel.onLocationChange(latLng) // Actualizar en el ViewModel
-                                    }
-                                )
+                                if (currentLocation != null) {
+                                    GoogleMapView(
+                                        location = currentLocation,
+                                        onLocationSelected = { latLng ->
+                                            viewModel.onLocationChange(latLng)
+                                        }
+                                    )
+                                } else {
+                                    // Mostrar un indicador de carga o mensaje
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    )
+                                }
 
+                                Spacer(modifier = Modifier.height(16.dp))
 
-//                                Spacer(modifier = Modifier.height(16.dp))
-//
-//                                // Campo para el radio del lote
-//                                ReusableTextField(
-//                                    value = viewModel.plotRadius.collectAsState().value,
-//                                    onValueChange = { viewModel.onPlotRadiusChange(it) },
-//                                    placeholder = "Radio del lote",
-//                                    charLimit = 5,
-//                                    modifier = Modifier.fillMaxWidth(),
-//                                    isValid = viewModel.plotRadius.collectAsState().value.isNotEmpty() || !viewModel.isFormSubmitted.value,
-//                                    errorMessage = if (viewModel.plotRadius.collectAsState().value.isEmpty() && viewModel.isFormSubmitted.value) "El radio no puede estar vacío" else ""
-//                                )
-//                                Spacer(modifier = Modifier.height(16.dp))
-//                                // Unidad de medida
-//                                UnitDropdown(
-//                                    selectedUnit = selectedUnit,
-//                                    onUnitChange = { viewModel.onUnitChange(it) },
-//                                    units = areaUnits,
-//                                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
-//                                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
-//                                    modifier = Modifier.fillMaxWidth()
-//                                )
-//
-//                                Spacer(modifier = Modifier.height(16.dp))
-//
-//                                // Mostrar mensaje de error si lo hay
-//                                if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
-//                                    Text(text = viewModel.errorMessage.collectAsState().value, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-//                                }
+                                // Mostrar mensaje de error si lo hay
+                                if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
+                                    Text(
+                                        text = viewModel.errorMessage.collectAsState().value,
+                                        color = Color.Red,
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -246,27 +260,23 @@ fun AddLocationPlot(
                                 ReusableButton(
                                     text = if (viewModel.isLoading.collectAsState().value) "Guardando..." else "Guardar",
                                     onClick = {
-                                        viewModel.onSubmit()  // Marca que el formulario ha sido enviado
-                                        viewModel.clearErrorMessage() // Limpiar mensaje de error anterior
+                                        viewModel.onSubmit()
+                                        viewModel.clearErrorMessage()
 
-                                        // Usa el valor obtenido arriba
                                         if (plotRadiusValue == null || plotRadiusValue <= 0 || plotRadiusValue > 10000) {
                                             viewModel.setErrorMessage("El radio debe ser un número mayor a 0 y menor a 10000.")
                                         } else if (selectedUnit.isEmpty()) {
                                             viewModel.setErrorMessage("Seleccione unidad de medida.")
                                         } else {
-                                            viewModel.savePlotData()  // Llamar a la función si las validaciones pasan
+                                            viewModel.savePlotData()
                                         }
                                     },
                                     modifier = Modifier
                                         .size(width = 160.dp, height = 48.dp)
                                         .align(Alignment.CenterHorizontally),
                                     buttonType = ButtonType.Green,
-                                    enabled = true // Siempre habilitado
+                                    enabled = true
                                 )
-
-
-
                             }
                         }
                     }
@@ -313,9 +323,6 @@ fun AddLocationPlot(
         }
     )
 }
-
-
-
 
 @Preview(showBackground = true)
 @Composable

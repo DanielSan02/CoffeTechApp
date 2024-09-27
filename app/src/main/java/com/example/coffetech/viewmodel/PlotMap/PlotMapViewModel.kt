@@ -1,19 +1,16 @@
 package com.example.coffetech.viewmodel.PlotMap
 
-import android.content.Context
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
-
 
 class PlotViewModel : ViewModel() {
     // Estado para el radio del lote
@@ -21,7 +18,7 @@ class PlotViewModel : ViewModel() {
     val plotRadius: StateFlow<String> = _plotRadius
 
     // Estado para la unidad de medida (metros o kilómetros)
-    private val _selectedUnit = MutableStateFlow("metros") // Valor inicial predeterminado
+    private val _selectedUnit = MutableStateFlow("metros")
     val selectedUnit: StateFlow<String> = _selectedUnit.asStateFlow()
 
     private val _areaUnits = MutableStateFlow<List<String>>(listOf("metros", "kilómetros"))
@@ -55,7 +52,6 @@ class PlotViewModel : ViewModel() {
     // Función para actualizar la unidad de medida
     fun onUnitChange(newUnit: String) {
         _selectedUnit.value = newUnit
-
     }
 
     // Función para actualizar la ubicación del usuario (LatLng)
@@ -80,7 +76,6 @@ class PlotViewModel : ViewModel() {
 
     fun onSubmit() {
         _isFormSubmitted.value = true
-        // Aquí colocas la lógica para procesar el guardado si no hay errores
     }
 
     fun setErrorMessage(message: String) {
@@ -94,5 +89,4 @@ class PlotViewModel : ViewModel() {
     fun savePlotData() {
         // Lógica para guardar los datos
     }
-
 }

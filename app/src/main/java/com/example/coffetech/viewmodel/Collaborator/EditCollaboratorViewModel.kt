@@ -62,7 +62,7 @@ class EditCollaboratorViewModel : ViewModel() {
     }
 
     // Función para editar el colaborador
-    fun editCollaborator(context: Context, farmId: Int, collaboratorUserId: Int, navController: NavController) {
+    fun editCollaborator(context: Context, farmId: Int, collaboratorId: Int, navController: NavController) {
         if (!validateInputs()) return
 
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
@@ -78,7 +78,7 @@ class EditCollaboratorViewModel : ViewModel() {
 
         // Crear objeto de solicitud para editar el colaborador
         val request = EditCollaboratorRequest(
-            collaborator_user_id = collaboratorUserId,
+            collaborator_user_id = collaboratorId,
             new_role = selectedRole.value
         )
 

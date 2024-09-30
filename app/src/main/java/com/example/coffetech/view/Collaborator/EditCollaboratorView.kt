@@ -41,6 +41,7 @@ import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 fun EditCollaboratorView(
     navController: NavController,
     farmId: Int,
+    collaboratorId: Int,
     collaboratorName: String,
     collaboratorEmail: String,
     selectedRole: String,
@@ -159,7 +160,7 @@ fun EditCollaboratorView(
                         viewModel.editCollaborator(
                             context = context,
                             farmId = farmId,
-                            collaboratorUserId = collaboratorName.hashCode(), // Reemplaza con el ID real del colaborador
+                            collaboratorId = collaboratorId, // Reemplaza con el ID real del colaborador
                             navController = navController
                         )
                     },
@@ -185,6 +186,7 @@ fun EditCollaboratorViewPreview() {
         EditCollaboratorView(
             navController = mockNavController,
             farmId = 1, // Ejemplo de ID de la finca
+            collaboratorId = 1,
             collaboratorName = "Juan Pérez", // Ejemplo de nombre de colaborador
             collaboratorEmail = "juan.perez@example.com", // Ejemplo de email de colaborador
             selectedRole = "Administrador"

@@ -274,15 +274,17 @@ fun AppNavHost(context: Context) {
         }
 
         composable(
-            route = "EditCollaboratorView/{farmId}/{collaboratorName}/{collaboratorEmail}/{selectedRole}",
+            route = "EditCollaboratorView/{farmId}/{collaboratorId}/{collaboratorName}/{collaboratorEmail}/{selectedRole}",
             arguments = listOf(
                 navArgument("farmId") { type = NavType.IntType },
+                navArgument("collaboratorId") { type = NavType.IntType},
                 navArgument("collaboratorName") { type = NavType.StringType },
                 navArgument("collaboratorEmail") { type = NavType.StringType },
                 navArgument("selectedRole") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val collaboratorId = backStackEntry.arguments?.getInt("collaboratorId") ?: 0
             val collaboratorName = backStackEntry.arguments?.getString("collaboratorName") ?: ""
             val collaboratorEmail = backStackEntry.arguments?.getString("collaboratorEmail") ?: ""
             val selectedRole = backStackEntry.arguments?.getString("selectedRole") ?: ""
@@ -291,6 +293,7 @@ fun AppNavHost(context: Context) {
             EditCollaboratorView(
                 navController = navController,
                 farmId = farmId,
+                collaboratorId = collaboratorId,
                 collaboratorName = collaboratorName,
                 collaboratorEmail= collaboratorEmail,
                 selectedRole = selectedRole

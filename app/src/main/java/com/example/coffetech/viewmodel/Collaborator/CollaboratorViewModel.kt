@@ -134,6 +134,7 @@ class CollaboratorViewModel : ViewModel() {
                                         role = collaboratorResponse.role
                                     )
                                 }
+                                Log.d("CollaboratorViewModel", "Lista de colaboradores recibida: $collaboratorsList")
 
                                 _allCollaborators.clear()
                                 _allCollaborators.addAll(collaboratorsList)
@@ -187,12 +188,13 @@ class CollaboratorViewModel : ViewModel() {
     fun onEditCollaborator(
         navController: NavController,
         farmId: Int,
+        collaboratorId: Int,
         collaboratorName: String,
         collaboratorEmail: String,
         selectedRole: String
     ) {
         navController.navigate(
-            "EditCollaboratorView/$farmId/$collaboratorName/$collaboratorEmail/$selectedRole"
+            "EditCollaboratorView/$farmId/$collaboratorId/$collaboratorName/$collaboratorEmail/$selectedRole"
         )
     }
 }

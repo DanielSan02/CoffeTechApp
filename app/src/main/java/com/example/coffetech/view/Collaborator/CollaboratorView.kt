@@ -123,6 +123,7 @@ fun CollaboratorView(
                     ) {
                         items(collaborators) { collaborator ->
                             Column {
+                                val cleanedCollaboratorId = collaborator.user_id
                                 val cleanedCollaboratorName = collaborator.name.replace(Regex("\\s+"), " ")
                                 val cleanedCollaboratorRole = collaborator.role.replace(Regex("\\s+"), " ")
                                 val cleanedCollaboratorEmail = collaborator.email.replace(Regex("\\s+"), " ")
@@ -136,6 +137,7 @@ fun CollaboratorView(
                                         viewModel.onEditCollaborator(
                                             navController = navController,
                                             farmId = farmId,
+                                            collaboratorId = cleanedCollaboratorId,
                                             collaboratorName = cleanedCollaboratorName,
                                             collaboratorEmail = cleanedCollaboratorEmail,
                                             selectedRole = cleanedCollaboratorRole

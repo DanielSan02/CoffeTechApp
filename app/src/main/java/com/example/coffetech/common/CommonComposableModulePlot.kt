@@ -2,12 +2,15 @@ package com.example.coffetech.common
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -29,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -282,6 +287,73 @@ fun VarietyCoffeeDropdown(
             }
         }
 
+        @Composable
+        fun FloracionesButton(
+            onClick: () -> Unit,
+            modifier: Modifier = Modifier
+        ) {
+            Button(
+                onClick = onClick,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFCC3333) // Red color as per design
+                )
+            ) {
+                Text(
+                    text = "Floraciones",
+                    color = Color.White
+                )
+
+
+            }
+        }
+
+        @Composable
+        fun CircularIconButton(
+            modifier: Modifier = Modifier,
+            iconResId: Int,
+            iconSize: Int = 24,
+            backgroundColor: Color = Color.Gray,
+            iconTint: Color = Color.White,
+            text: String,
+            textColor: Color = Color.Gray,
+            textSize: Int = 12,
+            onClick: () -> Unit
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = modifier.padding(8.dp)
+            ) {
+                // Box containing the icon
+                Box(
+                    modifier = Modifier
+                        .size(56.dp) // Set the desired size for the Box
+                        .clip(CircleShape)
+                        .background(backgroundColor)
+                        .clickable(onClick = onClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Icon inside the Box
+                    Icon(
+                        painter = painterResource(iconResId),
+                        contentDescription = text,
+                        modifier = Modifier.size(iconSize.dp), // Set the size for the icon
+                        tint = iconTint // Change the color of the icon
+                    )
+                }
+                // Text below the Box
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = text,
+                    fontSize = textSize.sp,
+                    color = textColor
+                )
+            }
+        }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },

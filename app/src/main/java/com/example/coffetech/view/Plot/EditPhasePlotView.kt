@@ -63,7 +63,7 @@ fun EditPhasePlotView(
             ) {
                 // Título de la vista
                 Text(
-                    text = "Editar Fase Actual",
+                    text = "Editar fase actual",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.W600,
                     fontSize = 25.sp,
@@ -119,7 +119,7 @@ fun EditPhasePlotView(
 
                 // Botón Guardar
                 ReusableButton(
-                    text = if (isLoading) "Guardando..." else "Guardar",
+                    text = if (isLoading) "Guardando..." else "Siguiente",
                     onClick = {},
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón

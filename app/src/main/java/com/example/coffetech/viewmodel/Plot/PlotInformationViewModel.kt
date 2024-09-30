@@ -66,5 +66,9 @@ class PlotInformationViewModel : ViewModel() {
         navController.navigate("PlotEditView/$coordinatesUbication")
     }
 
-
+    // Nueva función para manejar el click del botón "Floraciones"
+    fun onFloracionesClick(navController: NavController, plotId: Int) {
+        // Navega a la vista de Floraciones con el ID del lote
+        navController.navigate("FloracionesView/$plotId")
+    }
 }

@@ -367,7 +367,7 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.fincas_icon),
+                    painter = painterResource(R.drawable.fincas),
                     contentDescription = "Fincas",
                     tint = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     modifier = Modifier.size(24.dp)
@@ -383,22 +383,36 @@ fun BottomNavigationBar(
 
         Spacer(modifier = Modifier.weight(0.5f))
 
-        Box(
-            modifier = Modifier
-                .offset(y = -8.dp)
-                .clip(CircleShape)
-                .size(56.dp)
-                .background(Color(0xFFB31D34))
-                .clickable(onClick = onCentralButtonClick),
-            contentAlignment = Alignment.Center
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                painter = painterResource(R.drawable.central_icon),
-                contentDescription = "Central Button",
-                modifier = Modifier.size(24.dp),
-                tint = Color.White
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+
+            ) {
+                // Espacio entre el ícono y el texto
+                Spacer(modifier = Modifier.height(2.dp))
+                // Ícono dentro del Box
+                Icon(
+                    painter = painterResource(R.drawable.colaborador), // Tu recurso de ícono
+                    contentDescription = "Colaborador",
+                    modifier = Modifier.size(32.dp), // Ajusta el tamaño del ícono
+                    tint = Color.Gray // Color del ícono gris
+                )
+            }
+
+            // Espacio entre el ícono y el texto
+            Spacer(modifier = Modifier.height(1.dp))
+
+            // Texto debajo del ícono
+            Text(
+                text = "Colaborador",
+                fontSize = 14.sp, // Ajusta el tamaño de la fuente
+                color = Color.Gray // Color del texto gris
             )
         }
+
 
 
         Spacer(modifier = Modifier.weight(0.5f))
@@ -416,13 +430,13 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.reports_icon),
+                    painter = painterResource(R.drawable.labores),
                     contentDescription = "Reportes",
                     tint = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     modifier = Modifier.size(24.dp)
                 )
                 Text(
-                    text = "Reportes",
+                    text = "Labores",
                     color = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.W400
@@ -443,13 +457,13 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.cost_icon),
+                    painter = painterResource(R.drawable.reportes),
                     contentDescription = "Costos",
                     tint = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     modifier = Modifier.size(24.dp)
                 )
                 Text(
-                    text = "Costos",
+                    text = "Reportes",
                     color = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.W400

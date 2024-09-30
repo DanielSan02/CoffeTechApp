@@ -2,12 +2,9 @@ package com.example.coffetech.view.PlotMap
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -19,23 +16,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextButton
-import com.example.coffetech.common.ReusableTextField
-import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.PlotMap.PlotViewModel
 import com.google.android.gms.location.LocationServices
@@ -84,17 +76,12 @@ fun AddLocationPlot(
     val context = LocalContext.current
     val location by viewModel.location.collectAsState()
     val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
-    val plotRadiusValue = viewModel.plotRadius.collectAsState().value.toDoubleOrNull()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val currentLocation = location
+    val latitude by viewModel.latitude.collectAsState()
+    val longitude by viewModel.longitude.collectAsState()
 
-    // Obtener los estados del ViewModel
-    val plotRadius by viewModel.plotRadius.collectAsState()
-    val selectedUnit by viewModel.selectedUnit.collectAsState()
-    val areaUnits by viewModel.areaUnits.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
 
     // Estado para saber si los permisos fueron denegados permanentemente
     var isPermissionDeniedPermanently by remember { mutableStateOf(false) }
@@ -106,6 +93,7 @@ fun AddLocationPlot(
         if (isGranted) {
             viewModel.updateLocationPermissionStatus(isGranted)
         } else {
+            // Obtener la referencia de la Activity para verificar si los permisos fueron denegados permanentemente
             val activity = context as? Activity
             if (activity != null) {
                 isPermissionDeniedPermanently = !ActivityCompat.shouldShowRequestPermissionRationale(
@@ -119,7 +107,7 @@ fun AddLocationPlot(
                     snackbarHostState.showSnackbar("Se necesitan permisos de localización")
                 } else {
                     snackbarHostState.showSnackbar("Se necesitan permisos de localización")
-                    navController.popBackStack()
+                    navController.popBackStack() // Regresa a FarmInformationView
                 }
             }
         }
@@ -229,6 +217,7 @@ fun AddLocationPlot(
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 // Mostrar el mapa si los permisos están concedidos
+                                // Mostrar el mapa si los permisos están concedidos
                                 if (currentLocation != null) {
                                     GoogleMapView(
                                         location = currentLocation,
@@ -236,6 +225,28 @@ fun AddLocationPlot(
                                             viewModel.onLocationChange(latLng)
                                         }
                                     )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    // Mostrar latitud y longitud debajo del mapa
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Latitud: $latitude",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Longitud: $longitude",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                    }
                                 } else {
                                     // Mostrar un indicador de carga o mensaje
                                     CircularProgressIndicator(
@@ -243,7 +254,9 @@ fun AddLocationPlot(
                                     )
                                 }
 
+
                                 Spacer(modifier = Modifier.height(16.dp))
+
 
                                 // Mostrar mensaje de error si lo hay
                                 if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
@@ -262,14 +275,7 @@ fun AddLocationPlot(
                                     onClick = {
                                         viewModel.onSubmit()
                                         viewModel.clearErrorMessage()
-
-                                        if (plotRadiusValue == null || plotRadiusValue <= 0 || plotRadiusValue > 10000) {
-                                            viewModel.setErrorMessage("El radio debe ser un número mayor a 0 y menor a 10000.")
-                                        } else if (selectedUnit.isEmpty()) {
-                                            viewModel.setErrorMessage("Seleccione unidad de medida.")
-                                        } else {
-                                            viewModel.savePlotData()
-                                        }
+//
                                     },
                                     modifier = Modifier
                                         .size(width = 160.dp, height = 48.dp)

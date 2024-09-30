@@ -13,16 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class PlotViewModel : ViewModel() {
-    // Estado para el radio del lote
-    private val _plotRadius = MutableStateFlow("")
-    val plotRadius: StateFlow<String> = _plotRadius
-
-    // Estado para la unidad de medida (metros o kilómetros)
-    private val _selectedUnit = MutableStateFlow("metros")
-    val selectedUnit: StateFlow<String> = _selectedUnit.asStateFlow()
-
-    private val _areaUnits = MutableStateFlow<List<String>>(listOf("metros", "kilómetros"))
-    val areaUnits: StateFlow<List<String>> = _areaUnits.asStateFlow()
 
     // Estado para la ubicación seleccionada en el mapa (LatLng)
     private val _location = MutableStateFlow<LatLng?>(null)
@@ -43,21 +33,18 @@ class PlotViewModel : ViewModel() {
     private val _isFormSubmitted = mutableStateOf(false)
     val isFormSubmitted: State<Boolean> = _isFormSubmitted
 
-    // Función para actualizar el radio del lote
-    fun onPlotRadiusChange(newRadius: String) {
-        _plotRadius.value = newRadius
-        _errorMessage.value = ""
-    }
+    private val _latitude = MutableStateFlow("")
+    val latitude: StateFlow<String> = _latitude.asStateFlow()
 
-    // Función para actualizar la unidad de medida
-    fun onUnitChange(newUnit: String) {
-        _selectedUnit.value = newUnit
-    }
+    private val _longitude = MutableStateFlow("")
+    val longitude: StateFlow<String> = _longitude.asStateFlow()
 
-    // Función para actualizar la ubicación del usuario (LatLng)
-    fun onLocationChange(latLng: LatLng) {
-        _location.value = latLng
-    }
+   // Función para actualizar la ubicación del usuario (LatLng)
+   fun onLocationChange(latLng: LatLng) {
+       _location.value = latLng
+       _latitude.value = latLng.latitude.toString()
+       _longitude.value = latLng.longitude.toString()
+   }
 
     // Función para verificar el estado de los permisos
     fun checkLocationPermission(context: Context): Boolean {

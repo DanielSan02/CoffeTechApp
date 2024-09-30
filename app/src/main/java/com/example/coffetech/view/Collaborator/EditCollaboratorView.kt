@@ -1,5 +1,6 @@
 package com.example.coffetech.view.Collaborator
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,21 +36,30 @@ import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
 import com.example.coffetech.viewmodel.Collaborator.EditCollaboratorViewModel
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
+@SuppressLint("RememberReturnType")
 @Composable
 fun EditCollaboratorView(
     navController: NavController,
+    farmId: Int,
+    collaboratorName: String,
+    collaboratorEmail: String,
+    selectedRole: String,
     viewModel: EditCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
-    val collaboratorName by viewModel.collaboratorName.collectAsState()
-    val collaboratorEmail by viewModel.collaboratorEmail.collectAsState()
-    val collaboratorRole by viewModel.collaboratorRole.collectAsState()
-    val selectedRole by viewModel.selectedRole.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.initializeValues(selectedRole)
+        viewModel.onCollaboratorRoleChange(selectedRole)
+        viewModel.loadRolesFromSharedPreferences(context)
+    }
+
+
+    val currentRole by viewModel.selectedRole.collectAsState()
+    val collaboratorRoles by viewModel.collaboratorRole.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
-    val isFormSubmitted = remember { mutableStateOf(false) }
+    val hasChanges by viewModel.hasChanges.collectAsState()
 
 
     Box(
@@ -97,12 +107,13 @@ fun EditCollaboratorView(
 
                 ReusableTextField(
                     value = collaboratorName,
-                    onValueChange = { viewModel.onCollaboratorNameChange(it) },
+                    onValueChange = {},
+                    enabled = false,
                     placeholder = "Nombre colaborador",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = collaboratorName.isNotEmpty() || !isFormSubmitted.value,
+                    isValid = true,
                     charLimit = 50,
-                    errorMessage = if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
+                    errorMessage = ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -114,9 +125,9 @@ fun EditCollaboratorView(
                     enabled = false,
                     placeholder = "Correo de colaborador",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = collaboratorEmail.isNotEmpty() || !isFormSubmitted.value,
+                    isValid = true,
                     charLimit = 50,
-                    errorMessage = if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
+                    errorMessage =""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -125,9 +136,9 @@ fun EditCollaboratorView(
 
                 // Rol seleccionado
                 RoleAddDropdown(
-                    selectedRole = selectedRole,
-                    onCollaboratorRoleChange = { viewModel.onCollaboratorRoleChange(it) },
-                    roles = collaboratorRole,
+                    selectedRole = currentRole,
+                    onCollaboratorRoleChange = viewModel::onCollaboratorRoleChange,
+                    roles = collaboratorRoles,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
@@ -142,14 +153,22 @@ fun EditCollaboratorView(
                 Spacer(modifier = Modifier.height(16.dp))
 
 
-                ReusableButton(
-                    text = if (isLoading) "Guardando..." else "Guardar",
-                    onClick = {},
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green,  // Usar el botón con color rojo
-                    enabled = !isLoading
-                )
+                // Botón para guardar cambios
+                Button(
+                    onClick = {
+                        viewModel.editCollaborator(
+                            context = context,
+                            farmId = farmId,
+                            collaboratorUserId = collaboratorName.hashCode(), // Reemplaza con el ID real del colaborador
+                            navController = navController
+                        )
+                    },
+                    enabled = hasChanges && !isLoading,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = if (isLoading) "Guardando..." else "Guardar")
+                }
+
 
             }
         }
@@ -163,6 +182,12 @@ fun EditCollaboratorView(
 fun EditCollaboratorViewPreview() {
     val mockNavController = rememberNavController() // MockNavController
     CoffeTechTheme {
-        EditCollaboratorView(navController = mockNavController)
+        EditCollaboratorView(
+            navController = mockNavController,
+            farmId = 1, // Ejemplo de ID de la finca
+            collaboratorName = "Juan Pérez", // Ejemplo de nombre de colaborador
+            collaboratorEmail = "juan.perez@example.com", // Ejemplo de email de colaborador
+            selectedRole = "Administrador"
+        )
     }
 }

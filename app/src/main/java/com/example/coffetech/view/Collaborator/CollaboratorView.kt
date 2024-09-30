@@ -59,6 +59,7 @@ fun CollaboratorView(
 
     // Retrieve the current state from the ViewModel
     val collaborators by viewModel.collaborators.collectAsState()
+    val collaboratorName by viewModel.collaboratorName.collectAsState()
     val query by viewModel.searchQuery
     val selectedRole by viewModel.selectedRole
     val expanded by viewModel.isDropdownExpanded
@@ -132,9 +133,16 @@ fun CollaboratorView(
                                     collaboratorRole = cleanedCollaboratorRole,
                                     collaboratorEmail = cleanedCollaboratorEmail,
                                     onEditClick = {
-                                        viewModel.onCollaboratorClick(collaborator, navController)
+                                        viewModel.onEditCollaborator(
+                                            navController = navController,
+                                            farmId = farmId,
+                                            collaboratorName = cleanedCollaboratorName,
+                                            collaboratorEmail = cleanedCollaboratorEmail,
+                                            selectedRole = cleanedCollaboratorRole
+                                        )
                                     }
                                 )
+
 
                                 Spacer(modifier = Modifier.height(8.dp)) // Space between cards
                             }

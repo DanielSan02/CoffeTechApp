@@ -375,6 +375,19 @@ data class CollaboratorResponse(
     val role: String
 )
 
+// Data class for editing collaborator request
+data class EditCollaboratorRequest(
+    val collaborator_user_id: Int,
+    val new_role: String
+)
+
+// Data class for editing collaborator response
+data class EditCollaboratorResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
+)
+
 
 
 // API service interface for interacting with backend services
@@ -557,4 +570,10 @@ interface ApiService {
         @Query("session_token") sessionToken: String
     ): Call<ListCollaboratorResponse>
 
+    @POST("/collaborators/edit-collaborator-role")
+    fun editCollaboratorRole(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String,
+        @Body request: EditCollaboratorRequest
+    ): Call<EditCollaboratorResponse>
 }

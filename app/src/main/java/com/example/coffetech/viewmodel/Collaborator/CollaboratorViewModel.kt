@@ -41,7 +41,11 @@ class CollaboratorViewModel : ViewModel() {
     private val _searchQuery = mutableStateOf(TextFieldValue(""))
     val searchQuery: MutableState<TextFieldValue> = _searchQuery
 
-    // Estado para el rol seleccionado
+    // Estados de nombre, email, role y otros datos de colaborador
+
+    private val _collaboratorName = MutableStateFlow("")
+    val collaboratorName: StateFlow<String> = _collaboratorName.asStateFlow()
+
     private val _selectedRole = mutableStateOf<String?>(null)
     val selectedRole = _selectedRole
 
@@ -58,7 +62,6 @@ class CollaboratorViewModel : ViewModel() {
 
     // Error
     val errorMessage = mutableStateOf("")
-
 
 
     private fun filterCollaboratorsByRole(role: String) {
@@ -102,53 +105,68 @@ class CollaboratorViewModel : ViewModel() {
 
         if (sessionToken == null) {
             errorMessage.value = "No se encontró el token de sesión."
-            Toast.makeText(context, "Error: No se encontró el token de sesión. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "Error: No se encontró el token de sesión. Por favor, inicia sesión nuevamente.",
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
         isLoading.value = true
 
-        RetrofitInstance.api.listCollaborators(farmId, sessionToken).enqueue(object : Callback<ListCollaboratorResponse> {
-            override fun onResponse(call: Call<ListCollaboratorResponse>, response: Response<ListCollaboratorResponse>) {
-                isLoading.value = false
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    responseBody?.let {
-                        if (it.status == "success") {
-                            val collaboratorsList = it.data.map { collaboratorResponse ->
-                                Collaborator(
-                                    user_id = collaboratorResponse.user_id,
-                                    name = collaboratorResponse.name,
-                                    email = collaboratorResponse.email,
-                                    role = collaboratorResponse.role
-                                )
+        RetrofitInstance.api.listCollaborators(farmId, sessionToken)
+            .enqueue(object : Callback<ListCollaboratorResponse> {
+                override fun onResponse(
+                    call: Call<ListCollaboratorResponse>,
+                    response: Response<ListCollaboratorResponse>
+                ) {
+                    isLoading.value = false
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        responseBody?.let {
+                            if (it.status == "success") {
+                                val collaboratorsList = it.data.map { collaboratorResponse ->
+                                    Collaborator(
+                                        user_id = collaboratorResponse.user_id,
+                                        name = collaboratorResponse.name,
+                                        email = collaboratorResponse.email,
+                                        role = collaboratorResponse.role
+                                    )
+                                }
+
+                                _allCollaborators.clear()
+                                _allCollaborators.addAll(collaboratorsList)
+                                _collaborators.value =
+                                    collaboratorsList // Mostrar todos los colaboradores al principio
+                            } else {
+                                errorMessage.value = it.message
+                                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                             }
-
-                            _allCollaborators.clear()
-                            _allCollaborators.addAll(collaboratorsList)
-                            _collaborators.value = collaboratorsList // Mostrar todos los colaboradores al principio
-                        } else {
-                            errorMessage.value = it.message
-                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                         }
+                    } else {
+                        errorMessage.value = "Error al obtener los colaboradores."
+                        Log.e(
+                            "CollaboratorViewModel",
+                            "Error en la respuesta del servidor: ${response.errorBody()?.string()}"
+                        )
+                        Toast.makeText(
+                            context,
+                            "Error al obtener los colaboradores.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
-                } else {
-                    errorMessage.value = "Error al obtener los colaboradores."
-                    Log.e("CollaboratorViewModel", "Error en la respuesta del servidor: ${response.errorBody()?.string()}")
-                    Toast.makeText(context, "Error al obtener los colaboradores.", Toast.LENGTH_LONG).show()
                 }
-            }
 
-            override fun onFailure(call: Call<ListCollaboratorResponse>, t: Throwable) {
-                isLoading.value = false
-                errorMessage.value = "Error de conexión: ${t.message}"
-                Log.e("CollaboratorViewModel", "Error de conexión: ${t.message}")
-                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
+                override fun onFailure(call: Call<ListCollaboratorResponse>, t: Throwable) {
+                    isLoading.value = false
+                    errorMessage.value = "Error de conexión: ${t.message}"
+                    Log.e("CollaboratorViewModel", "Error de conexión: ${t.message}")
+                    Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG)
+                        .show()
+                }
+            })
     }
-
-
 
 
     // Función para manejar la búsqueda
@@ -166,14 +184,15 @@ class CollaboratorViewModel : ViewModel() {
         }
     }
 
-
-    private val _selectedCollaboratorId = mutableStateOf<Int?>(null)
-    val selectedCollaboratorId: State<Int?> = _selectedCollaboratorId
-
-    fun onCollaboratorClick(collaborator: Collaborator, navController: NavController) {
-        // Guarda el ID de la finca seleccionada
-        _selectedCollaboratorId.value = collaborator.user_id
-        // Navega hacia la vista de información de la finca
-        navController.navigate("EditCollaboratorView/${collaborator.user_id}")
+    fun onEditCollaborator(
+        navController: NavController,
+        farmId: Int,
+        collaboratorName: String,
+        collaboratorEmail: String,
+        selectedRole: String
+    ) {
+        navController.navigate(
+            "EditCollaboratorView/$farmId/$collaboratorName/$collaboratorEmail/$selectedRole"
+        )
     }
 }

@@ -5,35 +5,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import androidx.navigation.NavController
-
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.runtime.mutableStateOf
-import com.example.coffetech.model.CreateFarmRequest
-import com.example.coffetech.model.CreateFarmResponse
+import com.example.coffetech.model.EditCollaboratorRequest
+import com.example.coffetech.model.EditCollaboratorResponse
 import com.example.coffetech.model.RetrofitInstance
 import com.example.coffetech.utils.SharedPreferencesHelper
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
 class EditCollaboratorViewModel : ViewModel() {
 
-    // Estados para los datos
-
-    private val _collaboratorName = MutableStateFlow("")
-    val collaboratorName: StateFlow<String> = _collaboratorName.asStateFlow()
-
-    private val _collaboratorEmail = MutableStateFlow("")
-    val collaboratorEmail: StateFlow<String> = _collaboratorEmail.asStateFlow()
-
-    // Estado del menú de dropdown
-    private val _isDropdownExpanded = mutableStateOf(false)
-    val isDropdownExpanded = _isDropdownExpanded
-
-
+    // Estado del rol seleccionado
     private val _collaboratorRole = MutableStateFlow<List<String>>(emptyList())
     val collaboratorRole: StateFlow<List<String>> = _collaboratorRole.asStateFlow()
 
@@ -46,22 +30,22 @@ class EditCollaboratorViewModel : ViewModel() {
         private set
 
 
-    fun onCollaboratorNameChange(newName: String) {
-        _collaboratorEmail.value = newName
+    // Estado para rastrear si hay cambios pendientes
+    private val _hasChanges = MutableStateFlow(false)
+    val hasChanges: StateFlow<Boolean> = _hasChanges.asStateFlow()
+
+    // Guardar valores iniciales para comparación
+    private var initialSelectedRole = ""
+
+    // Inicializar los valores iniciales
+
+    fun initializeValues(selectedRole: String) {
+        initialSelectedRole = selectedRole
+        _selectedRole.value = selectedRole
     }
 
-    fun onCollaboratorRoleChange(newRole: String) {
-        _selectedRole.value = newRole
-    }
-
+    // Validar la entrada para asegurarse de que el rol sea válido
     private fun validateInputs(): Boolean {
-        if (_collaboratorEmail.value.isBlank()) {
-            errorMessage.value = "El nombre del colaborador no puede estar vacío."
-            return false
-        }
-
-
-        // Validación de la unidad seleccionada
         if (_selectedRole.value == "Seleccione un rol") {
             errorMessage.value = "Debe seleccionar una opción válida para el rol."
             return false
@@ -70,7 +54,72 @@ class EditCollaboratorViewModel : ViewModel() {
         return true
     }
 
+    // Cargar roles desde SharedPreferences
+    fun loadRolesFromSharedPreferences(context: Context) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
+        _collaboratorRole.value = roles
+    }
+
+    // Función para editar el colaborador
+    fun editCollaborator(context: Context, farmId: Int, collaboratorUserId: Int, navController: NavController) {
+        if (!validateInputs()) return
+
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val sessionToken = sharedPreferencesHelper.getSessionToken()
+
+        if (sessionToken == null) {
+            errorMessage.value = "No se encontró el token de sesión."
+            Toast.makeText(context, "Error: No se encontró el token de sesión. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        isLoading.value = true
+
+        // Crear objeto de solicitud para editar el colaborador
+        val request = EditCollaboratorRequest(
+            collaborator_user_id = collaboratorUserId,
+            new_role = selectedRole.value
+        )
+
+        // Llamar a la API para editar el colaborador
+        RetrofitInstance.api.editCollaboratorRole(farmId, sessionToken, request).enqueue(object : Callback<EditCollaboratorResponse> {
+            override fun onResponse(call: Call<EditCollaboratorResponse>, response: Response<EditCollaboratorResponse>) {
+                isLoading.value = false
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    responseBody?.let {
+                        if (it.status == "success") {
+                            Toast.makeText(context, "Colaborador actualizado correctamente.", Toast.LENGTH_LONG).show()
+                            navController.popBackStack() // Regresar a la pantalla anterior
+                        } else {
+                            errorMessage.value = it.message
+                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } else {
+                    errorMessage.value = "Error al actualizar el colaborador."
+                    Toast.makeText(context, "Error al actualizar el colaborador.", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<EditCollaboratorResponse>, t: Throwable) {
+                isLoading.value = false
+                errorMessage.value = "Error de conexión: ${t.message}"
+                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    // Función para manejar el cambio de rol
+    fun onCollaboratorRoleChange(newRole: String) {
+        _selectedRole.value = newRole
+        checkForChanges()
+    }
+
+    // Verificar si hay cambios para habilitar/deshabilitar el botón de guardar
+    private fun checkForChanges() {
+        _hasChanges.value = _selectedRole.value != initialSelectedRole
+    }
 
 }
-
-

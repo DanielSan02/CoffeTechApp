@@ -81,7 +81,7 @@ fun AddLocationPlot(
     val currentLocation = location
     val latitude by viewModel.latitude.collectAsState()
     val longitude by viewModel.longitude.collectAsState()
-
+    val altitude by viewModel.altitude.collectAsState()
 
     // Estado para saber si los permisos fueron denegados permanentemente
     var isPermissionDeniedPermanently by remember { mutableStateOf(false) }
@@ -93,7 +93,6 @@ fun AddLocationPlot(
         if (isGranted) {
             viewModel.updateLocationPermissionStatus(isGranted)
         } else {
-            // Obtener la referencia de la Activity para verificar si los permisos fueron denegados permanentemente
             val activity = context as? Activity
             if (activity != null) {
                 isPermissionDeniedPermanently = !ActivityCompat.shouldShowRequestPermissionRationale(
@@ -160,7 +159,6 @@ fun AddLocationPlot(
         content = { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 if (locationPermissionGranted) {
-                    // Mostrar la vista principal solo si los permisos están concedidos
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -216,8 +214,6 @@ fun AddLocationPlot(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                // Mostrar el mapa si los permisos están concedidos
-                                // Mostrar el mapa si los permisos están concedidos
                                 if (currentLocation != null) {
                                     GoogleMapView(
                                         location = currentLocation,
@@ -228,37 +224,42 @@ fun AddLocationPlot(
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
-                                    // Mostrar latitud y longitud debajo del mapa
+                                    // Mostrar latitud, longitud y altitud debajo del mapa
                                     Column(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
-                                            text = "Latitud: $latitude",
+                                            text = "Latitud: ${latitude.take(10)}",
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp,
                                             color = Color.Black
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Longitud: $longitude",
+                                            text = "Longitud: ${longitude.take(10)}",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = if (altitude != null) "Altitud: $altitude metros" else "Obteniendo altitud...",
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp,
                                             color = Color.Black
                                         )
                                     }
+
+
                                 } else {
-                                    // Mostrar un indicador de carga o mensaje
                                     CircularProgressIndicator(
                                         modifier = Modifier.align(Alignment.CenterHorizontally)
                                     )
                                 }
 
-
                                 Spacer(modifier = Modifier.height(16.dp))
 
-
-                                // Mostrar mensaje de error si lo hay
                                 if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
                                     Text(
                                         text = viewModel.errorMessage.collectAsState().value,
@@ -269,13 +270,11 @@ fun AddLocationPlot(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                // Botón para guardar
                                 ReusableButton(
                                     text = if (viewModel.isLoading.collectAsState().value) "Guardando..." else "Guardar",
                                     onClick = {
                                         viewModel.onSubmit()
                                         viewModel.clearErrorMessage()
-//
                                     },
                                     modifier = Modifier
                                         .size(width = 160.dp, height = 48.dp)
@@ -303,7 +302,6 @@ fun AddLocationPlot(
                         )
                         Button(
                             onClick = {
-                                // Redirigir a la configuración de la aplicación
                                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = Uri.fromParts("package", context.packageName, null)
                                 }
@@ -316,7 +314,6 @@ fun AddLocationPlot(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Botón de "Volver" para regresar al FarmInformationView luego de cambiar los permisos en la configuración de la aplicación
                         ReusableTextButton(
                             navController = navController,
                             text = "Volver",
@@ -329,6 +326,7 @@ fun AddLocationPlot(
         }
     )
 }
+
 
 @Preview(showBackground = true)
 @Composable

@@ -1,13 +1,16 @@
 package com.example.coffetech.view.Collaborator
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -28,10 +31,11 @@ import com.example.coffetech.R
 import com.example.coffetech.common.CollaboratorInfoCard
 import com.example.coffetech.common.FarmItemCard
 import com.example.coffetech.common.FloatingActionButtonGroup
+import com.example.coffetech.common.ReusableDeleteButton
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.common.RoleDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.view.common.HeaderFooterView
+import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.Collaborator.Collaborator
 import com.example.coffetech.viewmodel.Collaborator.CollaboratorViewModel
 
@@ -52,47 +56,36 @@ fun CollaboratorView(
     val context = LocalContext.current
 
     // Load the farms and roles when the composable is first displayed
-    LaunchedEffect(Unit) {
-        viewModel.loadRolesFromSharedPreferences(context) // Loads roles from SharedPreferences
+    LaunchedEffect(farmId) {
+        viewModel.loadRolesFromSharedPreferences(context)
+        viewModel.loadCollaborators(context, farmId)
     }
 
     // Retrieve the current state from the ViewModel
     val collaborators by viewModel.collaborators.collectAsState()
+    val collaboratorName by viewModel.collaboratorName.collectAsState()
     val query by viewModel.searchQuery
     val selectedRole by viewModel.selectedRole
     val expanded by viewModel.isDropdownExpanded
+    //val userHasPermissionToDelete = viewModel.hasPermission("delete_collaborator")
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
     val roles by viewModel.roles.collectAsState()
 
     // Header and Footer layout with content in between
 
-    HeaderFooterView(
+    HeaderFooterSubView(
         title = "Mis Colaboradores",
         currentView = "Fincas",
         navController = navController
     ) {
         // Main content box with the list of farms and floating action button
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFEFEFEF))
-        ) {
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(19.dp)
             ) {
-
-                Text(
-                    text = "Finca: $farmName",
-                    color = Color.Black,
-                    maxLines = 3, // Limita a una línea
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f), // Hace que el texto ocupe el espacio restante y se alinee a la derecha
-                )
 
                 // Search bar for filtering farms by name
                 ReusableSearchBar(
@@ -102,6 +95,21 @@ fun CollaboratorView(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+
+
+                    // Botón de eliminar alineado a la izquierda
+                    Text(
+                        text = "Finca: $farmName",
+                        color = Color.Black,
+                        maxLines = 3, // Limita a una línea
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(x = 10.dp)
+                    )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
 
                 // Dropdown menu for selecting user role
                 RoleDropdown(
@@ -130,17 +138,28 @@ fun CollaboratorView(
                     ) {
                         items(collaborators) { collaborator ->
                             Column {
+                                val cleanedCollaboratorId = collaborator.user_id
                                 val cleanedCollaboratorName = collaborator.name.replace(Regex("\\s+"), " ")
                                 val cleanedCollaboratorRole = collaborator.role.replace(Regex("\\s+"), " ")
+                                val cleanedCollaboratorEmail = collaborator.email.replace(Regex("\\s+"), " ")
 
                                 // Card for each farm in the list
                                 CollaboratorInfoCard(
                                     collaboratorName = cleanedCollaboratorName,
                                     collaboratorRole = cleanedCollaboratorRole,
+                                    collaboratorEmail = cleanedCollaboratorEmail,
                                     onEditClick = {
-                                        viewModel.onCollaboratorClick(collaborator, navController)
+                                        viewModel.onEditCollaborator(
+                                            navController = navController,
+                                            farmId = farmId,
+                                            collaboratorId = cleanedCollaboratorId,
+                                            collaboratorName = cleanedCollaboratorName,
+                                            collaboratorEmail = cleanedCollaboratorEmail,
+                                            selectedRole = cleanedCollaboratorRole
+                                        )
                                     }
                                 )
+
 
                                 Spacer(modifier = Modifier.height(8.dp)) // Space between cards
                             }
@@ -156,10 +175,9 @@ fun CollaboratorView(
                 },
                 mainButtonIcon = painterResource(id = R.drawable.plus_icon),
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
                     .padding(16.dp)
             )
-        }
+
     }
 }
 

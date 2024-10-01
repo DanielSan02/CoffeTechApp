@@ -25,6 +25,7 @@ import com.example.coffetech.view.Auth.RegisterPasswordView
 import com.example.coffetech.view.Auth.StartView
 import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
+import com.example.coffetech.view.Collaborator.EditCollaboratorView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
@@ -273,7 +274,32 @@ fun AppNavHost(context: Context) {
             }
         }
 
+        composable(
+            route = "EditCollaboratorView/{farmId}/{collaboratorId}/{collaboratorName}/{collaboratorEmail}/{selectedRole}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("collaboratorId") { type = NavType.IntType},
+                navArgument("collaboratorName") { type = NavType.StringType },
+                navArgument("collaboratorEmail") { type = NavType.StringType },
+                navArgument("selectedRole") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val collaboratorId = backStackEntry.arguments?.getInt("collaboratorId") ?: 0
+            val collaboratorName = backStackEntry.arguments?.getString("collaboratorName") ?: ""
+            val collaboratorEmail = backStackEntry.arguments?.getString("collaboratorEmail") ?: ""
+            val selectedRole = backStackEntry.arguments?.getString("selectedRole") ?: ""
 
+            // Llama a la vista `EditCollaboratorView` con los parámetros necesarios
+            EditCollaboratorView(
+                navController = navController,
+                farmId = farmId,
+                collaboratorId = collaboratorId,
+                collaboratorName = collaboratorName,
+                collaboratorEmail= collaboratorEmail,
+                selectedRole = selectedRole
+            )
+        }
 
 
 

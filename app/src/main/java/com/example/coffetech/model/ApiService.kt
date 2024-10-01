@@ -330,20 +330,62 @@ data class CreateInvitationResponse(
 data class Notification(
     val message: String,
     val date: String,
-    val type: String,
+    val notification_type: String,
     val farm_id: Int,
     val reminder_time: String?,
     val notifications_id: Int,
     val user_id: Int,
     val invitation_id: Int,
     val notification_type_id: Int?,
-    val is_responded: Boolean
+    val status: String
 )
 
 data class NotificationResponse(
     val status: String,
     val message: String,
     val data: List<Notification>
+)
+
+/**
+ * Data class representing the list collaborators response from the server.
+ *
+ * @property status The status of the list collaborators request.
+ * @property message The message associated with the list collaborators response.
+ * @property data The list of collaborators returned by the server.
+ */
+data class ListCollaboratorResponse(
+    val status: String,
+    val message: String,
+    val data: List<CollaboratorResponse>
+)
+
+/**
+ * Data class representing an individual farm's details.
+ *
+ * @property farm_id The ID of the farm.
+ * @property name The name of the collaborator.
+ * @property email The email of the collaborator.
+ * @property role The role associated with the collaborator.
+ */
+
+data class CollaboratorResponse(
+    val user_id: Int,
+    val name: String,
+    val email: String,
+    val role: String
+)
+
+// Data class for editing collaborator request
+data class EditCollaboratorRequest(
+    val collaborator_user_id: Int,
+    val new_role: String
+)
+
+// Data class for editing collaborator response
+data class EditCollaboratorResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
 )
 
 
@@ -516,5 +558,30 @@ interface ApiService {
         @Query("session_token") sessionToken: String
     ): Call<ApiResponse<Any>>
 
+    /**
+     * Lists all collaborators associated with the user's account.
+     *
+     * @param sessionToken The session token of the user making the request.
+     * @return A [Call] object for the list farm response.
+     */
+    @GET("/collaborators/list-collaborators")
+    fun listCollaborators(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListCollaboratorResponse>
+
+    @POST("/collaborators/edit-collaborator-role")
+    fun editCollaboratorRole(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String,
+        @Body request: EditCollaboratorRequest
+    ): Call<EditCollaboratorResponse>
+
+    @POST("/collaborators/delete-collaborator")
+    fun deleteCollaborator(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String,
+        @Body requestBody: Map<String, Int>
+    ): Call<Void>
 
 }

@@ -95,7 +95,19 @@ fun AddCollaboratorView(
                     modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(45.dp))
+
+                Text(
+                    text = "Correo",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(0.5.dp))
 
                 // Nombre de finca utilizando ReusableTextField
                 ReusableTextField(
@@ -151,6 +163,19 @@ fun AddCollaboratorView(
 
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddCollaboratorViewPreview() {
+    val mockNavController = rememberNavController() // MockNavController
+    CoffeTechTheme {
+        AddCollaboratorView(
+            navController = mockNavController,
+            farmId = 1, // Ejemplo de ID de la finca
+            farmName = "Finca 2" ,
+        )
     }
 }
 

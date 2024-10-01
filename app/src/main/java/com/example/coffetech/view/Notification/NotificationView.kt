@@ -55,14 +55,14 @@ fun NotificationView(
             notifications.isNotEmpty() -> {
                 notifications.forEach { notification ->
                     NotificationCard(
-                        title = when (notification.type) {
+                        title = when (notification.notification_type) {
                             "invitacion" -> "Nueva Invitación"
                             "solicitud" -> "Solicitud Aceptada"
                             else -> "Notificación"
                         },
                         description = notification.message,
                         // Mostrar botones solo si `type` es "invitacion" y `is_responded` es `false`
-                        onRejectClick = if (notification.type == "invitacion" && !notification.is_responded) {
+                        onRejectClick = if (notification.notification_type == "Invitation" && notification.status == "Pendiente") {
                             {
                                 viewModel.respondToInvitation(
                                     context,
@@ -78,7 +78,7 @@ fun NotificationView(
                                 )
                             }
                         } else null,
-                        onAcceptClick = if (notification.type == "invitacion" && !notification.is_responded) {
+                        onAcceptClick = if (notification.notification_type == "Invitation" && notification.status == "Pendiente") {
                             {
                                 viewModel.respondToInvitation(
                                     context,

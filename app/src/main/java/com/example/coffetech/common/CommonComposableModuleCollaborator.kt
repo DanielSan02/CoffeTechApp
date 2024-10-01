@@ -129,6 +129,7 @@ fun RoleAddDropdown(
 fun CollaboratorInfoCard(
     collaboratorName: String,
     collaboratorRole: String,
+    collaboratorEmail: String,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
     showEditButton: Boolean = false // Nuevo parámetro opcional para mostrar el botón
@@ -148,13 +149,13 @@ fun CollaboratorInfoCard(
                 modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
             ) {
                 Text(
-                    text = "Información General",
+                    text = collaboratorName,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
                 Text(
-                    text = collaboratorName,
+                    text = collaboratorRole,
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
@@ -163,7 +164,7 @@ fun CollaboratorInfoCard(
                 )
 
                 Text(
-                    text = collaboratorRole,
+                    text = collaboratorEmail,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )

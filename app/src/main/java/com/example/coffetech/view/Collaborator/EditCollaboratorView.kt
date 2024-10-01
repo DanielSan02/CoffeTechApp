@@ -1,5 +1,6 @@
 package com.example.coffetech.view.Collaborator
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,21 +36,32 @@ import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
 import com.example.coffetech.viewmodel.Collaborator.EditCollaboratorViewModel
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
+@SuppressLint("RememberReturnType")
 @Composable
 fun EditCollaboratorView(
     navController: NavController,
+    farmId: Int,
+    collaboratorId: Int,
+    collaboratorName: String,
+    collaboratorEmail: String,
+    selectedRole: String,
     viewModel: EditCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val showDeleteConfirmation = remember { mutableStateOf(false) }
 
-    val collaboratorName by viewModel.collaboratorName.collectAsState()
-    val collaboratorEmail by viewModel.collaboratorEmail.collectAsState()
-    val collaboratorRole by viewModel.collaboratorRole.collectAsState()
-    val selectedRole by viewModel.selectedRole.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.initializeValues(selectedRole)
+        viewModel.onCollaboratorRoleChange(selectedRole)
+        viewModel.loadRolesFromSharedPreferences(context)
+    }
+
+
+    val currentRole by viewModel.selectedRole.collectAsState()
+    val collaboratorRoles by viewModel.collaboratorRole.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
-    val isFormSubmitted = remember { mutableStateOf(false) }
+    val hasChanges by viewModel.hasChanges.collectAsState()
 
 
     Box(
@@ -97,12 +109,13 @@ fun EditCollaboratorView(
 
                 ReusableTextField(
                     value = collaboratorName,
-                    onValueChange = { viewModel.onCollaboratorNameChange(it) },
+                    onValueChange = {},
+                    enabled = false,
                     placeholder = "Nombre colaborador",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = collaboratorName.isNotEmpty() || !isFormSubmitted.value,
+                    isValid = true,
                     charLimit = 50,
-                    errorMessage = if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
+                    errorMessage = ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -114,9 +127,9 @@ fun EditCollaboratorView(
                     enabled = false,
                     placeholder = "Correo de colaborador",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = collaboratorEmail.isNotEmpty() || !isFormSubmitted.value,
+                    isValid = true,
                     charLimit = 50,
-                    errorMessage = if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
+                    errorMessage =""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -125,9 +138,9 @@ fun EditCollaboratorView(
 
                 // Rol seleccionado
                 RoleAddDropdown(
-                    selectedRole = selectedRole,
-                    onCollaboratorRoleChange = { viewModel.onCollaboratorRoleChange(it) },
-                    roles = collaboratorRole,
+                    selectedRole = currentRole,
+                    onCollaboratorRoleChange = viewModel::onCollaboratorRoleChange,
+                    roles = collaboratorRoles,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
@@ -142,14 +155,108 @@ fun EditCollaboratorView(
                 Spacer(modifier = Modifier.height(16.dp))
 
 
+                // Botón para guardar cambios
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
-                    onClick = {},
+                    onClick = {
+                        viewModel.editCollaborator(
+                            context = context,
+                            farmId = farmId,
+                            collaboratorId = collaboratorId, // Reemplaza con el ID real del colaborador
+                            navController = navController
+                        )
+                    },
                     modifier = Modifier
+                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
                         .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green,  // Usar el botón con color rojo
-                    enabled = !isLoading
+                    buttonType = ButtonType.Green,
+                    enabled = hasChanges && !isLoading
                 )
+
+                // Botón para eliminar el colaborador
+                Spacer(modifier = Modifier.height(16.dp)) // Espaciado entre botones
+
+                ReusableButton(
+                    text = if (isLoading) "Cargando..." else "Eliminar",
+                    onClick = {showDeleteConfirmation.value = true},
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .size(width = 160.dp, height = 48.dp)
+                        .align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Red,
+                )
+
+                //Confirmación para eliminar colaborador
+                if (showDeleteConfirmation.value) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.White)
+                    ) {
+                        AlertDialog(
+                            modifier = Modifier
+                                .background(Color.White),
+                            onDismissRequest = { showDeleteConfirmation.value = false },
+                            title = {
+                                Text(
+                                    text = "¡Esta acción es irreversible!",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                )
+                            },
+                            text = {
+                                // Contenedor para el contenido del diálogo
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp), // Espacio alrededor del contenido
+                                    horizontalAlignment = Alignment.CenterHorizontally // Centrar el contenido
+                                ) {
+                                    // Descripción centrada
+                                    Text(
+                                        text = "Este colaborador se eliminará permanentemente de tu lote. ¿Deseas continuar?",
+                                        color = Color.Black,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            },
+                            confirmButton = {
+                                // Botón para eliminar centrado
+                                ReusableButton(
+                                    text = if (isLoading) "Eliminando..." else "Eliminar",
+                                    onClick = {
+                                        viewModel.deleteCollaborator(
+                                            context = context,
+                                            farmId = farmId,
+                                            collaboratorId = collaboratorId,
+                                            navController = navController
+                                        )
+                                        showDeleteConfirmation.value = false
+                                    },
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(0.7f),
+                                    buttonType = ButtonType.Red,
+                                )
+                            },
+                            dismissButton = {
+                                // Botón cancelar
+                                ReusableButton(
+                                    text = "Cancelar",
+                                    onClick = { showDeleteConfirmation.value = false },
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(0.7f),
+                                    buttonType = ButtonType.Green,
+                                )
+                            },
+                            shape = RoundedCornerShape(16.dp) // Esquinas redondeadas del diálogo
+                        )
+                    }
+                }
+
 
             }
         }
@@ -163,6 +270,13 @@ fun EditCollaboratorView(
 fun EditCollaboratorViewPreview() {
     val mockNavController = rememberNavController() // MockNavController
     CoffeTechTheme {
-        EditCollaboratorView(navController = mockNavController)
+        EditCollaboratorView(
+            navController = mockNavController,
+            farmId = 1, // Ejemplo de ID de la finca
+            collaboratorId = 1,
+            collaboratorName = "Juan Pérez", // Ejemplo de nombre de colaborador
+            collaboratorEmail = "juan.perez@example.com", // Ejemplo de email de colaborador
+            selectedRole = "Administrador"
+        )
     }
 }

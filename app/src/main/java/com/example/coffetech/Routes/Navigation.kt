@@ -166,7 +166,13 @@ fun AppNavHost(context: Context) {
             val farmArea = backStackEntry.arguments?.getString("farmArea") ?: ""
             val unitOfMeasure = backStackEntry.arguments?.getString("unitOfMeasure") ?: ""
 
-            FarmEditView(navController = navController, farmId = farmId, farmName = farmName, farmArea = farmArea, unitOfMeasure = unitOfMeasure)
+            FarmEditView(
+                navController = navController,
+                farmId = farmId,
+                farmName = farmName,
+                farmArea = farmArea,
+                unitOfMeasure = unitOfMeasure
+            )
         }
 
         /**
@@ -176,9 +182,6 @@ fun AppNavHost(context: Context) {
             val farmId = backStackEntry.arguments?.getString("farmId")?.toIntOrNull() ?: 0
             FarmInformationView(navController = navController, farmId = farmId)
         }
-
-
-
 
 
         /**
@@ -273,12 +276,11 @@ fun AppNavHost(context: Context) {
                 // Prevents back navigation gesture here
             }
         }
-
         composable(
             route = "EditCollaboratorView/{farmId}/{collaboratorId}/{collaboratorName}/{collaboratorEmail}/{selectedRole}",
             arguments = listOf(
                 navArgument("farmId") { type = NavType.IntType },
-                navArgument("collaboratorId") { type = NavType.IntType},
+                navArgument("collaboratorId") { type = NavType.IntType },
                 navArgument("collaboratorName") { type = NavType.StringType },
                 navArgument("collaboratorEmail") { type = NavType.StringType },
                 navArgument("selectedRole") { type = NavType.StringType }
@@ -303,8 +305,9 @@ fun AppNavHost(context: Context) {
 
 
 
-        composable(Routes.AddLocationPlot) {
-            AddLocationPlot(navController = navController)
+        composable("${Routes.AddLocationPlot}/{farmId}") { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getString("farmId")?.toIntOrNull() ?: 0
+            AddLocationPlot(navController = navController, farmId = farmId)
         }
 
         composable("PlotInformationView/{plotId}") { backStackEntry ->

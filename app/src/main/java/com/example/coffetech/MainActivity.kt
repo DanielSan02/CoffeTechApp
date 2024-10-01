@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
     // Obtener la instancia del ViewModel usando la propiedad delegada by viewModels()
     private val commonDataViewModel: CommonDataViewModel by viewModels()
 
-    // Llamada para solicitar permisos
+    // Solicitud permisos de notificación
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -30,7 +30,15 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
+    // Solicitud de permisos de localización
+    private val requestLocationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.d("MainActivity", "Permiso de localización concedido")
+            } else {
+                Log.d("MainActivity", "Permiso de localización denegado")
+            }
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,6 +46,7 @@ class MainActivity : ComponentActivity() {
         // Llamar a la función que verifica la versión y actualiza los datos si es necesario
         commonDataViewModel.updateDataIfVersionChanged(this)
 
+        requestPermissionsIfNeeded()
         // Solicitar permiso para notificaciones si es necesario (Android 13 o superior)
         requestNotificationPermissionIfNeeded()
 
@@ -51,6 +60,21 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun requestPermissionsIfNeeded() {
+        // Solicitar permiso de notificaciones si es necesario
+        requestNotificationPermissionIfNeeded()
+
+        // Solicitar permiso de localización si es necesario
+        if (androidx.core.content.ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            requestLocationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
 
     private fun requestNotificationPermissionIfNeeded() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33)

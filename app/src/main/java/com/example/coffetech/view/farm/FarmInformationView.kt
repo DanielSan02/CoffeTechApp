@@ -176,9 +176,10 @@ fun FarmInformationView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // FloatingActionButton para agregar lotes
+                // FloatingActionButton para agregar lotes y lleva el farmId para que el botón volver
+                // de AddLocationPlot conozca el farmId correcto al cual regresar
                 CustomFloatingActionButton(
-                    onAddLoteClick = { navController.navigate(Routes.AddLocationPlot) }
+                    onAddLoteClick = { navController.navigate("${Routes.AddLocationPlot}/$farmId") }
                 )
             }
         }

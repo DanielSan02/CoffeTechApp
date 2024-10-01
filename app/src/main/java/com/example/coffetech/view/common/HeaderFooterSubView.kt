@@ -1,4 +1,4 @@
-package com.example.coffetech.view.common
+    package com.example.coffetech.view.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

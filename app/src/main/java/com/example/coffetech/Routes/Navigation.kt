@@ -23,6 +23,7 @@ import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
 import com.example.coffetech.view.Auth.RegisterPasswordView
 import com.example.coffetech.view.Auth.StartView
+import com.example.coffetech.view.Plot.PlotInformationView
 import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
@@ -89,7 +90,6 @@ fun AppNavHost(context: Context) {
                 // Prevents back navigation gesture here
             }
         }
-
 
         /**
          * Composable destination for the ForgotPasswordView.
@@ -305,6 +305,11 @@ fun AppNavHost(context: Context) {
 
         composable(Routes.AddLocationPlot) {
             AddLocationPlot(navController = navController)
+        }
+
+        composable("PlotInformationView/{plotId}") { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getString("plotId")?.toIntOrNull() ?: 0
+            PlotInformationView(navController = navController, plotId = plotId)
         }
     }
 }

@@ -48,6 +48,7 @@ fun EditCollaboratorView(
     viewModel: EditCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val showDeleteConfirmation = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.initializeValues(selectedRole)
@@ -155,7 +156,8 @@ fun EditCollaboratorView(
 
 
                 // Botón para guardar cambios
-                Button(
+                ReusableButton(
+                    text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
                         viewModel.editCollaborator(
                             context = context,
@@ -164,10 +166,95 @@ fun EditCollaboratorView(
                             navController = navController
                         )
                     },
-                    enabled = hasChanges && !isLoading,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text(text = if (isLoading) "Guardando..." else "Guardar")
+                    modifier = Modifier
+                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Green,
+                    enabled = hasChanges && !isLoading
+                )
+
+                // Botón para eliminar el colaborador
+                Spacer(modifier = Modifier.height(16.dp)) // Espaciado entre botones
+
+                ReusableButton(
+                    text = if (isLoading) "Cargando..." else "Eliminar",
+                    onClick = {showDeleteConfirmation.value = true},
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .size(width = 160.dp, height = 48.dp)
+                        .align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Red,
+                )
+
+                //Confirmación para eliminar colaborador
+                if (showDeleteConfirmation.value) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.White)
+                    ) {
+                        AlertDialog(
+                            modifier = Modifier
+                                .background(Color.White),
+                            onDismissRequest = { showDeleteConfirmation.value = false },
+                            title = {
+                                Text(
+                                    text = "¡Esta acción es irreversible!",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                )
+                            },
+                            text = {
+                                // Contenedor para el contenido del diálogo
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp), // Espacio alrededor del contenido
+                                    horizontalAlignment = Alignment.CenterHorizontally // Centrar el contenido
+                                ) {
+                                    // Descripción centrada
+                                    Text(
+                                        text = "Este colaborador se eliminará permanentemente de tu lote. ¿Deseas continuar?",
+                                        color = Color.Black,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            },
+                            confirmButton = {
+                                // Botón para eliminar centrado
+                                ReusableButton(
+                                    text = if (isLoading) "Eliminando..." else "Eliminar",
+                                    onClick = {
+                                        viewModel.deleteCollaborator(
+                                            context = context,
+                                            farmId = farmId,
+                                            collaboratorId = collaboratorId,
+                                            navController = navController
+                                        )
+                                        showDeleteConfirmation.value = false
+                                    },
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(0.7f),
+                                    buttonType = ButtonType.Red,
+                                )
+                            },
+                            dismissButton = {
+                                // Botón cancelar
+                                ReusableButton(
+                                    text = "Cancelar",
+                                    onClick = { showDeleteConfirmation.value = false },
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(0.7f),
+                                    buttonType = ButtonType.Green,
+                                )
+                            },
+                            shape = RoundedCornerShape(16.dp) // Esquinas redondeadas del diálogo
+                        )
+                    }
                 }
 
 

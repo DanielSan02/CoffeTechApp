@@ -122,4 +122,41 @@ class EditCollaboratorViewModel : ViewModel() {
         _hasChanges.value = _selectedRole.value != initialSelectedRole
     }
 
+    fun deleteCollaborator(context: Context, farmId: Int, collaboratorId: Int, navController: NavController) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val sessionToken = sharedPreferencesHelper.getSessionToken()
+
+        if (sessionToken == null) {
+            errorMessage.value = "No se encontró el token de sesión."
+            Toast.makeText(context, "Error: No se encontró el token de sesión. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        isLoading.value = true
+
+        // Crear objeto de solicitud para eliminar el colaborador
+        val requestBody = mapOf("collaborator_user_id" to collaboratorId)
+
+        // Llamar a la API para eliminar el colaborador
+        RetrofitInstance.api.deleteCollaborator(farmId, sessionToken, requestBody).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                isLoading.value = false
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Colaborador eliminado correctamente.", Toast.LENGTH_LONG).show()
+                    navController.popBackStack() // Regresar a la pantalla anterior
+                } else {
+                    errorMessage.value = "Error al eliminar el colaborador."
+                    Toast.makeText(context, "Error al eliminar el colaborador.", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                isLoading.value = false
+                errorMessage.value = "Error de conexión: ${t.message}"
+                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+
 }

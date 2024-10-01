@@ -41,6 +41,10 @@ class CollaboratorViewModel : ViewModel() {
     private val _searchQuery = mutableStateOf(TextFieldValue(""))
     val searchQuery: MutableState<TextFieldValue> = _searchQuery
 
+
+    private val _permissions = MutableStateFlow<List<String>>(emptyList())
+    val permissions: StateFlow<List<String>> = _permissions.asStateFlow()
+
     // Estados de nombre, email, role y otros datos de colaborador
 
     private val _collaboratorName = MutableStateFlow("")
@@ -95,6 +99,22 @@ class CollaboratorViewModel : ViewModel() {
     // Función para manejar el cambio del estado del menú desplegable
     fun setDropdownExpanded(isExpanded: Boolean) {
         _isDropdownExpanded.value = isExpanded
+    }
+
+    // Función para verificar si el rol tiene un permiso específico
+    fun hasPermission(permission: String): Boolean {
+        return _permissions.value.contains(permission)
+    }
+
+    // Función para cargar los permisos basados en el rol seleccionado
+    fun loadRolePermissions(context: Context, selectedRoleName: String) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val roles = sharedPreferencesHelper.getRoles()
+
+        // Buscar el rol seleccionado y obtener sus permisos
+        roles?.find { it.name == selectedRoleName }?.let { role ->
+            _permissions.value = role.permissions.map { it.name }
+        }
     }
 
 

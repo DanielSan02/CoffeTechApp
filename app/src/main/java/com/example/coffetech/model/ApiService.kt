@@ -576,4 +576,12 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: EditCollaboratorRequest
     ): Call<EditCollaboratorResponse>
+
+    @POST("/collaborators/delete-collaborator")
+    fun deleteCollaborator(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String,
+        @Body requestBody: Map<String, Int>
+    ): Call<Void>
+
 }

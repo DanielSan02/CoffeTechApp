@@ -1,6 +1,8 @@
 package com.example.coffetech.common
 
 import Farm
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -34,14 +37,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -153,7 +160,7 @@ fun ReusableTextField(
     maxHeight: Dp = 1000.dp,
     margin: Dp = 8.dp,
     errorMessage: String = "",
-    charLimit: Int = 40, // Límite de caracteres por defecto a 100
+    charLimit: Int = 100, // Límite de caracteres por defecto a 100
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -266,7 +273,7 @@ fun ReusableTittleSmall(
 fun ReusableDescriptionText(
     text: String,
     modifier: Modifier = Modifier,
-    textAlign: TextAlign = TextAlign.Center,
+    textAlign: TextAlign = TextAlign.Start, // Alinear a la izquierda para el Row
     maxWidth: Dp = 300.dp // Ancho máximo configurable
 ) {
     Text(
@@ -274,8 +281,74 @@ fun ReusableDescriptionText(
         style = MaterialTheme.typography.bodyLarge,
         textAlign = textAlign,
         modifier = modifier
-            .fillMaxWidth() // Hace que el componente ocupe todo el ancho disponible
+            .wrapContentWidth() // En lugar de fillMaxWidth(), envuelve el contenido
             .widthIn(max = maxWidth) // Establece el ancho máximo del texto
+    )
+}
+
+@Composable
+fun ReusableDescriptionMediumText(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Start, // Alinear a la izquierda para el Row
+    maxWidth: Dp = 300.dp // Ancho máximo configurable
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        textAlign = textAlign,
+        modifier = modifier
+            .wrapContentWidth() // En lugar de fillMaxWidth(), envuelve el contenido
+            .widthIn(max = maxWidth) // Establece el ancho máximo del texto
+    )
+}
+
+
+
+@Composable
+fun TermsAndConditionsText() {
+    val context = LocalContext.current
+
+    // Accedemos a los atributos del estilo de texto que queremos usar
+    val bodyMediumStyle = MaterialTheme.typography.bodyMedium
+
+    // Construimos el texto anotado con el estilo aplicado
+    val annotatedText = buildAnnotatedString {
+        withStyle(style = SpanStyle(
+            fontSize = bodyMediumStyle.fontSize,
+            fontWeight = bodyMediumStyle.fontWeight ?: FontWeight.Normal,
+            fontFamily = bodyMediumStyle.fontFamily ?: FontFamily.Default,
+            color = Color.Gray // Color del texto regular
+        )) {
+            append("He leído y acepto los ")
+        }
+
+        // Aplicamos el estilo para la parte clickable
+        pushStringAnnotation(tag = "URL", annotation = "https://static9.depositphotos.com/1052426/1206/i/450/depositphotos_12068697-stock-photo-ginger-kitty.jpg")
+        withStyle(style = SpanStyle(
+            fontSize = bodyMediumStyle.fontSize,
+            fontWeight = bodyMediumStyle.fontWeight ?: FontWeight.Bold,
+            fontFamily = bodyMediumStyle.fontFamily ?: FontFamily.Default,
+            color = Color.Black, // Color para el enlace
+            textDecoration = TextDecoration.Underline
+        )) {
+            append("Términos y Condiciones y Aviso de Privacidad")
+        }
+        pop()
+    }
+
+    // Texto clicable
+    ClickableText(
+        text = annotatedText,
+        onClick = { offset ->
+            annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                .firstOrNull()?.let { annotation ->
+                    // Abre la URL externa
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
+                    context.startActivity(intent)
+                }
+        },
+        modifier = Modifier.padding(start = 8.dp)
     )
 }
 

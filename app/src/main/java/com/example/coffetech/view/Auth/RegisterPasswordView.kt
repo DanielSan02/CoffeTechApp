@@ -1,13 +1,15 @@
+// RegisterScreen.kt (View)
+
 package com.example.coffetech.view.Auth
 
+import ReusableInfoIcon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,8 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,28 +36,31 @@ import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.ReusableTittleLarge
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.Auth.LoginViewModel
+import com.example.coffetech.viewmodel.Auth.RegisterPasswordViewModel
+import com.example.coffetech.viewmodel.Auth.RegisterViewModel
 
 /**
- * Composable function that renders the login screen.
- * This screen allows the user to input their email and password, and log into the app.
+ * Composable function that renders the registration screen.
+ * It allows the user to input their name, email, and password to create an account.
  *
  * @param modifier A [Modifier] for adjusting the layout or appearance of the view.
  * @param navController The [NavController] used for navigation between screens.
- * @param viewModel The [LoginViewModel] used to manage the state and logic for login.
+ * @param viewModel The [RegisterViewModel] used to manage the state and logic for the registration process.
  */
 @Composable
-fun LoginView(
+fun RegisterPasswordView(
     modifier: Modifier = Modifier,
     navController: NavController,
-    viewModel: LoginViewModel = viewModel()
+    name: String,
+    email: String,
+    viewModel: RegisterPasswordViewModel = viewModel()
 ) {
-    val email by viewModel.email
+
     val password by viewModel.password
+    val confirmPassword by viewModel.confirmPassword
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-    val keyboardController = LocalSoftwareKeyboardController.current
     val isLoading by viewModel.isLoading
 
     BoxWithConstraints( // Detectamos el tamaño disponible
@@ -78,17 +81,17 @@ fun LoginView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Displays the app logo
+            // Displays the app logo con tamaño dinámico
             LogoImage(modifier = Modifier.size(logoSize))
 
-            // Displays a welcome message
+            // Large header text for registration
             ReusableTittleLarge(
-                text = "!Bienvenido!",
+                text = "Crea tu contraseña",
                 modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
             )
 
 
-                // Contenedor que envuelve tanto los TextFields
+                // Contenedor que envuelve tanto el Row como los TextFields
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.9f) // Ajusta esto para controlar el ancho de todo el contenido
@@ -100,20 +103,35 @@ fun LoginView(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        ReusableDescriptionText(text = "Por favor ingresa tus datos")
-                        Spacer(modifier = Modifier.height(16.dp))
-                        // Input fields for email and password
-                        ReusableTextField(
-                            value = email,
-                            onValueChange = { viewModel.onEmailChange(it) },
-                            placeholder = "Correo Electrónico"
-                        )
+                        // Row para el texto y el ícono
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically, // Alinea verticalmente al centro
+                            horizontalArrangement = Arrangement.Center // Alinea horizontalmente al centro
+                        ) {
+                            ReusableDescriptionText(
+                                text = "Crea tu contraseña",
+                                modifier = Modifier.padding(end = 16.dp) // Opcional: Añade un pequeño espaciado entre el texto y el ícono
+                            )
+                            ReusableInfoIcon(modifier = Modifier.size(24.dp)) // Tamaño del ícono ajustado
+                        }
 
+                        // Campos de texto
                         ReusableTextField(
                             value = password,
                             onValueChange = { viewModel.onPasswordChange(it) },
                             placeholder = "Contraseña",
-                            isPassword = true
+                            isPassword = true,
+                            modifier = Modifier.fillMaxWidth() // Ocupa el mismo ancho que el Row
+                        )
+
+                        ReusableTextField(
+                            value = confirmPassword,
+                            onValueChange = { viewModel.onConfirmPasswordChange(it) },
+                            placeholder = "Confirmar Contraseña",
+                            isPassword = true,
+                            modifier = Modifier.fillMaxWidth() // Ocupa el mismo ancho que el Row
                         )
 
                         // Display an error message if one exists
@@ -122,33 +140,37 @@ fun LoginView(
                                 text = errorMessage,
                                 color = Color.Red,
                                 modifier = Modifier
-                                    .fillMaxWidth(0.9f)
+                                    .fillMaxWidth(0.9f) // Asegura que el mensaje de error use el mismo ancho que los TextFields
                                     .padding(10.dp)
                             )
                         }
-                        // Botón para recuperación de contraseña
-                        ReusableTextButton(
-                            navController = navController,
-                            text = "Olvidé la contraseña",
-                            destination = Routes.ForgotPasswordView
-                        )
 
-                        // Botón de inicio de sesión
+                        // Otros componentes, como el botón de registro...
                         ReusableButton(
-                            text = if (isLoading) "Iniciando sesión..." else "Iniciar sesión",
-                            onClick = { viewModel.loginUser(navController, context) },
+                            text = if (isLoading) "Registrandose..." else "Registrarse",
+                            onClick = { viewModel.registerUser(navController, context, name, email) },
                             buttonType = ButtonType.Green,
                             enabled = !isLoading,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
+                        )
+
+                        // Botón para volver
+                        ReusableTextButton(
+                            navController = navController,
+                            destination = "${Routes.RegisterView}?name=$name&email=$email",  // Pasar el nombre y email como parámetros en la ruta
+                            text = "volver",
+                            maxWidth = 400.dp
                         )
 
 
 
-                        // Botón para registrarse
+
+                        // Botón para iniciar sesión
                         ReusableTextButton(
                             navController = navController,
-                            text = "¿No tienes cuenta? Registrate",
-                            destination = Routes.RegisterView
+                            text = "¿Ya tienes cuenta? Inicia sesión",
+                            maxWidth = 400.dp,
+                            destination = Routes.LoginView
                         )
                     }
                 }
@@ -157,14 +179,22 @@ fun LoginView(
     }
 
 
+
 /**
- * Preview function for the LoginView.
- * It simulates the login screen in a preview environment to visualize the layout.
+ * Preview function for the RegisterView.
+ * It simulates the registration screen in a preview environment to visualize the layout.
  */
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun RegisterPasswordScreenPreview() {
     CoffeTechTheme {
-        LoginView(navController = NavController(LocalContext.current))
+        val name = "John Doe" // Ejemplo de nombre
+        val email = "john.doe@example.com" // Ejemplo de correo
+        RegisterPasswordView(
+            navController = NavController(LocalContext.current),
+            name = name,
+            email = email
+        )
     }
 }
+

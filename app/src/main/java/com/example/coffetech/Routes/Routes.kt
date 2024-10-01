@@ -3,6 +3,7 @@
 package com.example.coffetech.Routes
 
 import androidx.compose.foundation.interaction.DragInteraction
+import com.example.coffetech.viewmodel.Collaborator.Collaborator
 
 object Routes {
     const val LoginView = "loginScreen"
@@ -19,6 +20,10 @@ object Routes {
     const val StartView = "startView"
     const val ProfileView = "profileView"
     const val ChangePasswordView ="changePasswordView"
+    const val RegisterPasswordView = "registerPasswordView"
+    const val CollaboratorView = "collaboratorView"
+    const val NotificationView = "notificationView"
+    const val AddCollaboratorView = "addCollaboratorView"
+    const val AddLocationPlot = "addLocationPlot"
     const val PlotInformationView ="PlotInformationView"
 }
-

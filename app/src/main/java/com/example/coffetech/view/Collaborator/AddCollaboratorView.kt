@@ -1,4 +1,4 @@
-package com.example.coffetech.view.farm
+package com.example.coffetech.view.Collaborator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,30 +28,31 @@ import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
+import com.example.coffetech.common.RoleAddDropdown
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
 @Composable
-fun CreateFarmView(
+fun AddCollaboratorView(
     navController: NavController,
-    viewModel: CreateFarmViewModel = viewModel()
+    farmId: Int,  // Añadir farmId
+    farmName: String,
+    viewModel: AddCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val farmName by viewModel.farmName.collectAsState()
-    val farmArea by viewModel.farmArea.collectAsState()
-    val selectedUnit by viewModel.selectedUnit.collectAsState()
-    val areaUnits by viewModel.areaUnits.collectAsState()
+    val collaboratorEmail by viewModel.collaboratorEmail.collectAsState()
+    val collaboratorRole by viewModel.collaboratorRole.collectAsState()
+    val selectedRole by viewModel.selectedRole.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val isFormSubmitted = remember { mutableStateOf(false) }
-
-
-    // Cargar unidades de medida al iniciar
     LaunchedEffect(Unit) {
-        viewModel.loadUnitMeasuresFromSharedPreferences(context)
+        viewModel.loadRolesFromSharedPreferences(context)
     }
+
 
     Box(
         modifier = Modifier
@@ -85,10 +86,10 @@ fun CreateFarmView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Crear Finca",
+                    text = "Agregar Colaborador",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-              // Sobrescribir el tamaño de la fuente
+                        // Sobrescribir el tamaño de la fuente
                         color = Color(0xFF49602D)      // Sobrescribir el color
                     ),
                     modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
@@ -98,39 +99,29 @@ fun CreateFarmView(
 
                 // Nombre de finca utilizando ReusableTextField
                 ReusableTextField(
-                    value = farmName,
-                    onValueChange = { viewModel.onFarmNameChange(it) },
-                    placeholder = "Nombre de finca",
+                    value = collaboratorEmail,
+                    onValueChange = { viewModel.onCollaboratorEmailChange(it) },
+                    placeholder = "Correo de colaborador",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = farmName.isNotEmpty() || !isFormSubmitted.value,
+                    isValid = collaboratorEmail.isNotEmpty() || !isFormSubmitted.value,
                     charLimit = 50,
-                    errorMessage = if (farmName.isEmpty() && isFormSubmitted.value) "El nombre de la finca no puede estar vacío" else ""
+                    errorMessage = if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Área de la finca utilizando ReusableTextField
-                ReusableTextField(
-                    value = farmArea,
-                    onValueChange = { viewModel.onFarmAreaChange(it) },
-                    placeholder = "Área de finca",
-                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = farmArea.isNotEmpty() || !isFormSubmitted.value,
-                    charLimit = 5,
-                    errorMessage = if (farmArea.isEmpty() && isFormSubmitted.value) "El área de la finca no puede estar vacía" else ""
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
 
-                // Unidad de medida
-                UnitDropdown(
-                    selectedUnit = selectedUnit,
-                    onUnitChange = { viewModel.onUnitChange(it) },
-                    units = areaUnits,
+                // Rol seleccionado
+                RoleAddDropdown(
+                    selectedRole = selectedRole,
+                    onCollaboratorRoleChange = { viewModel.onCollaboratorRoleChange(it) },
+                    roles = collaboratorRole,  // Lista de roles obtenida del ViewModel
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
                 )
+
 
 
                 // Mostrar mensaje de error si lo hay
@@ -140,25 +131,23 @@ fun CreateFarmView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botón para crear finca
+                // Botón para agregar colaborador
+
                 ReusableButton(
                     text = if (isLoading) "Creando..." else "Crear",
                     onClick = {
-                        isFormSubmitted.value = true
-                        val trimmedFarmName = farmName.trim()  // Eliminar espacios antes de enviar
-                        val trimmedFarmArea = farmArea.trim()  // Eliminar espacios antes de enviar
-
-                        if (trimmedFarmName.isNotEmpty() && trimmedFarmArea.isNotEmpty()) {
-                            viewModel.onFarmNameChange(trimmedFarmName)  // Guardar la versión recortada
-                            viewModel.onFarmAreaChange(trimmedFarmArea)  // Guardar la versión recortada
-                            viewModel.onCreate(navController, context)   // Enviar los datos
+                        if (viewModel.validateInputs()) {
+                            viewModel.onCreate(navController, context, farmId)  // Enviar farmId
                         }
                     },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green,  // Usar el botón con color rojo
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    buttonType = ButtonType.Green,
                     enabled = !isLoading
                 )
+
+
+
+
 
             }
         }
@@ -167,11 +156,3 @@ fun CreateFarmView(
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun CreateFarmViewPreview() {
-    val mockNavController = rememberNavController() // MockNavController
-    CoffeTechTheme {
-        CreateFarmView(navController = mockNavController)
-    }
-}

@@ -2,6 +2,7 @@
 
 package com.example.coffetech.navigation
 
+import NotificationView
 import android.content.Context // Importar el Context correcto
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -20,12 +21,16 @@ import com.example.coffetech.view.Auth.VerifyAccountView
 import com.example.coffetech.view.Auth.ChangePasswordView
 import com.example.coffetech.view.Auth.NewPasswordView
 import com.example.coffetech.view.Auth.ProfileView
+import com.example.coffetech.view.Auth.RegisterPasswordView
 import com.example.coffetech.view.Auth.StartView
 import com.example.coffetech.view.Plot.PlotInformationView
+import com.example.coffetech.view.Collaborator.AddCollaboratorView
+import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
 import com.example.coffetech.view.farm.FarmView
+import com.example.coffetech.view.PlotMap.AddLocationPlot
 
 /**
  * Composable function that sets up the app's navigation using the Navigation component in Jetpack Compose.
@@ -68,8 +73,18 @@ fun AppNavHost(context: Context) {
         /**
          * Composable destination for the RegisterView.
          */
-        composable(Routes.RegisterView) {
-            RegisterView(navController = navController)
+
+
+        composable(
+            route = "${Routes.RegisterView}?name={name}&email={email}",
+            arguments = listOf(
+                navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                navArgument("email") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            RegisterView(navController = navController, name = name, email = email)
             BackHandler {
                 // Prevents back navigation gesture here
             }
@@ -203,6 +218,67 @@ fun AppNavHost(context: Context) {
             BackHandler {
                 // Prevents back navigation gesture here
             }
+        }
+
+        composable(
+            route = "${Routes.RegisterPasswordView}/{name}/{email}",
+            arguments = listOf(
+                navArgument("name") { type = NavType.StringType },
+                navArgument("email") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            RegisterPasswordView(navController = navController, name = name, email = email)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+
+        composable(Routes.NotificationView) {
+            NotificationView(navController = navController)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+        composable(
+            route = "${Routes.CollaboratorView}/{farmId}/{farmName}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("farmName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            CollaboratorView(navController = navController, farmId = farmId, farmName = farmName)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+        composable(
+            route = "${Routes.AddCollaboratorView}/{farmId}/{farmName}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("farmName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            AddCollaboratorView(navController = navController, farmId = farmId, farmName = farmName)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
+        }
+
+
+
+
+
+        composable(Routes.AddLocationPlot) {
+            AddLocationPlot(navController = navController)
         }
 
         composable("PlotInformationView/{plotId}") { backStackEntry ->

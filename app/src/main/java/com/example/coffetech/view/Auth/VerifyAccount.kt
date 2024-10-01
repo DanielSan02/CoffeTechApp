@@ -68,7 +68,7 @@ fun VerifyAccountView(
             ReusableTittleLarge(text = "Verifica tu cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))
 
             // Description for entering the verification code
-            ReusableDescriptionText(text = "Por favor, introduce el código para verificar tu correo")
+            ReusableDescriptionText(text = "Por favor, introduce el código que te acabamos de enviar al correo para verificar tu cuenta")
 
             Spacer(modifier = Modifier.height(16.dp))
             // Input field for the user to enter the verification token
@@ -89,7 +89,7 @@ fun VerifyAccountView(
 
             // Display an error message if one exists
             if (errorMessage.isNotEmpty()) {
-                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(10.dp))
             }
         }
     }

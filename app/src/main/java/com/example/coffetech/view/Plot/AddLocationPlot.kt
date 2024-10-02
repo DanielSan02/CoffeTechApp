@@ -1,4 +1,4 @@
-package com.example.coffetech.view.PlotMap
+package com.example.coffetech.view.Plot
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -29,7 +29,7 @@ import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.PlotMap.PlotViewModel
+import com.example.coffetech.viewmodel.Plot.PlotViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker

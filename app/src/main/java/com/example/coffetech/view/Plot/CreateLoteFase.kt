@@ -60,7 +60,13 @@ fun CreateLoteFaseView(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            )
+
+
+
+            {
+
+
                 // Título de la vista
                 Text(
                     text = "Crear Lote",

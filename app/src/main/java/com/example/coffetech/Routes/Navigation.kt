@@ -26,11 +26,12 @@ import com.example.coffetech.view.Auth.StartView
 import com.example.coffetech.view.Plot.PlotInformationView
 import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
+import com.example.coffetech.view.Plot.AddLocationPlot
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
 import com.example.coffetech.view.farm.FarmView
-import com.example.coffetech.view.PlotMap.AddLocationPlot
+
 
 /**
  * Composable function that sets up the app's navigation using the Navigation component in Jetpack Compose.

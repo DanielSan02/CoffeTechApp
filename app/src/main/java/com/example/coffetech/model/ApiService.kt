@@ -585,3 +585,24 @@ interface ApiService {
     ): Call<Void>
 
 }
+
+data class OpenElevationResponse(
+    val results: List<ElevationResult>
+)
+
+data class ElevationResult(
+    val elevation: Double,
+    val location: Location
+)
+
+data class Location(
+    val latitude: Double,
+    val longitude: Double
+)
+
+interface OpenElevationService {
+    @GET("/api/v1/lookup")
+    suspend fun getElevation(
+        @Query("locations") locations: String
+    ): OpenElevationResponse
+}

@@ -1,39 +1,42 @@
 package com.example.coffetech.viewmodel.PlotMap
 
-import android.content.Context
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.coffetech.model.OpenElevationService
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
-
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class PlotViewModel : ViewModel() {
-    // Estado para el radio del lote
-    private val _plotRadius = MutableStateFlow("")
-    val plotRadius: StateFlow<String> = _plotRadius
-
-    // Estado para la unidad de medida (metros o kilómetros)
-    private val _selectedUnit = MutableStateFlow("metros") // Valor inicial predeterminado
-    val selectedUnit: StateFlow<String> = _selectedUnit.asStateFlow()
-
-    private val _areaUnits = MutableStateFlow<List<String>>(listOf("metros", "kilómetros"))
-    val areaUnits: StateFlow<List<String>> = _areaUnits.asStateFlow()
 
     // Estado para la ubicación seleccionada en el mapa (LatLng)
     private val _location = MutableStateFlow<LatLng?>(null)
     val location: StateFlow<LatLng?> = _location.asStateFlow()
 
+    // Estado para la altitud
+    private val _altitude = MutableStateFlow<Double?>(null)
+    val altitude: StateFlow<Double?> = _altitude.asStateFlow()
+
     // Estado para los permisos de localización
     private val _locationPermissionGranted = MutableStateFlow(false)
     val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted.asStateFlow()
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.open-elevation.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val service = retrofit.create(OpenElevationService::class.java)
 
     // Estado para los mensajes de error o validación
     private val _errorMessage = MutableStateFlow("")
@@ -46,21 +49,23 @@ class PlotViewModel : ViewModel() {
     private val _isFormSubmitted = mutableStateOf(false)
     val isFormSubmitted: State<Boolean> = _isFormSubmitted
 
-    // Función para actualizar el radio del lote
-    fun onPlotRadiusChange(newRadius: String) {
-        _plotRadius.value = newRadius
-        _errorMessage.value = ""
-    }
+    private val _latitude = MutableStateFlow("")
+    val latitude: StateFlow<String> = _latitude.asStateFlow()
 
-    // Función para actualizar la unidad de medida
-    fun onUnitChange(newUnit: String) {
-        _selectedUnit.value = newUnit
-
-    }
+    private val _longitude = MutableStateFlow("")
+    val longitude: StateFlow<String> = _longitude.asStateFlow()
 
     // Función para actualizar la ubicación del usuario (LatLng)
     fun onLocationChange(latLng: LatLng) {
         _location.value = latLng
+        _latitude.value = latLng.latitude.toString()
+        _longitude.value = latLng.longitude.toString()
+
+        // Obtener altitud para la nueva ubicación
+        viewModelScope.launch {
+            val elevation = fetchElevation(latLng)
+            _altitude.value = elevation
+        }
     }
 
     // Función para verificar el estado de los permisos
@@ -80,7 +85,6 @@ class PlotViewModel : ViewModel() {
 
     fun onSubmit() {
         _isFormSubmitted.value = true
-        // Aquí colocas la lógica para procesar el guardado si no hay errores
     }
 
     fun setErrorMessage(message: String) {
@@ -95,4 +99,19 @@ class PlotViewModel : ViewModel() {
         // Lógica para guardar los datos
     }
 
+    suspend fun fetchElevation(latLng: LatLng): Double? {
+        return try {
+            val response = service.getElevation("${latLng.latitude},${latLng.longitude}")
+            if (response.results.isNotEmpty()) {
+                response.results[0].elevation
+            } else {
+                _errorMessage.value = "No se encontraron resultados."
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _errorMessage.value = "Excepción: ${e.message}"
+            null
+        }
+    }
 }

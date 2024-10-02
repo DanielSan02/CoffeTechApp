@@ -3,17 +3,27 @@ package com.example.coffetech.viewmodel.Plot
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.view.WindowInsetsAnimation
+import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import com.example.coffetech.Routes.Routes
+import com.example.coffetech.model.CreateFarmResponse
+import com.example.coffetech.model.CreatePlotRequest
 import com.example.coffetech.model.OpenElevationService
+import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Response
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -114,4 +124,52 @@ class PlotViewModel : ViewModel() {
             null
         }
     }
+
+    fun onCreatePlot(navController: NavController, context: Context, farmId: Int, plotName: String, coffeeVarietyName: String) {
+        if (latitude.value.isBlank() || longitude.value.isBlank() || plotName.isBlank()) {
+            _errorMessage.value = "Todos los campos deben estar completos."
+            return
+        }
+
+        _isLoading.value = true
+
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val sessionToken = sharedPreferencesHelper.getSessionToken() ?: run {
+            _errorMessage.value = "No se encontró el token de sesión."
+            Toast.makeText(context, "Error: No se encontró el token de sesión.", Toast.LENGTH_LONG).show()
+            _isLoading.value = false
+            return
+        }
+
+        val request = CreatePlotRequest(
+            name = plotName,
+            coffee_variety_name = coffeeVarietyName,
+            latitude = latitude.value,
+            longitude = longitude.value,
+            altitude = altitude.value.toString(),
+            farm_id = farmId
+        )
+
+        RetrofitInstance.api.createPlot(sessionToken, request).enqueue(object : retrofit2.Callback<CreateFarmResponse> {
+            override fun onResponse(call: Call<CreateFarmResponse>, response: retrofit2.Response<CreateFarmResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Lote creado exitosamente", Toast.LENGTH_LONG).show()
+                    // Navegar de vuelta a la pantalla de información de la finca
+                    navController.navigate("farmInformationView/$farmId") {
+                        popUpTo("farmInformationView/$farmId") { inclusive = true }
+                    }
+                } else {
+                    _errorMessage.value = "Error al crear el lote."
+                }
+            }
+
+            override fun onFailure(call: Call<CreateFarmResponse>, t: Throwable) {
+                _isLoading.value = false
+                _errorMessage.value = "Error de conexión: ${t.message}"
+            }
+        })
+    }
+
+
 }

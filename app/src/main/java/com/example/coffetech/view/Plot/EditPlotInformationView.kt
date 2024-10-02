@@ -101,14 +101,14 @@ fun EditPlotInformationView(
 
 
                 // Variedad cafe
-                VarietyCoffeeDropdown(
+               /* VarietyCoffeeDropdown(
                     selectedVariety = selectedVariety,
                     onUnitChange = {},
                     varieties = plotCoffeeVariety,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
-                )
+                )*/
 
 
                 // Mostrar mensaje de error si lo hay

@@ -35,13 +35,19 @@ import com.example.coffetech.viewmodel.Plot.PlotInformationViewModel
 fun PlotInformationView(
     navController: NavController,
     plotId: Int,
+    plotName: String,
+    coffeeVariety: String,
+    latitude: String,
+    longitude: String,
+    altitude: String,
+    farmName: String,
     viewModel: PlotInformationViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val sessionToken = remember { SharedPreferencesHelper(context).getSessionToken() }
 
     // Obtain the states from ViewModel
-    val plotName by viewModel.plotName.collectAsState()
+
     val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -75,7 +81,7 @@ fun PlotInformationView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Finca: Nombre de lote",
+                    text = "Finca: $farmName",
                     color = Color.Black,
                     maxLines = 3,
                     modifier = Modifier
@@ -90,8 +96,8 @@ fun PlotInformationView(
 
             // General Information Card
             GeneralPlotInfoCard(
-                plotName = displayedFarmName,
-                plotCoffeeVariety = plotCoffeeVariety,
+                plotName = plotName,
+                plotCoffeeVariety = coffeeVariety,
                 onEditClick = { viewModel.onEditPlot(navController, plotId, plotName, plotCoffeeVariety) },
             )
 
@@ -99,7 +105,9 @@ fun PlotInformationView(
 
             // Ubication Card
             PlotUbicationCard(
-                coordinatesUbication = coordinatesUbication,
+                latitude = latitude,
+                longitude = longitude,
+                altitude = altitude,
                 onEditClick = { viewModel.onEditUbication(navController, coordinatesUbication) },
             )
 
@@ -161,7 +169,13 @@ fun PlotInformationViewPreview() {
     CoffeTechTheme {
         PlotInformationView(
             navController = NavController(LocalContext.current),
-            plotId = 1
+            plotId=1,
+            plotName="lote 1",
+            coffeeVariety="caturro",
+            latitude="",
+            longitude="",
+            altitude="",
+            farmName="Hola",
         )
     }
 }

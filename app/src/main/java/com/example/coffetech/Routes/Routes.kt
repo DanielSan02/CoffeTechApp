@@ -25,6 +25,7 @@ object Routes {
     const val NotificationView = "notificationView"
     const val AddCollaboratorView = "addCollaboratorView"
     const val EditCollaboratorView ="editCollaboratorView"
-    const val AddLocationPlot = "addLocationPlot"
+    const val CreateMapPlotView = "createMapPlotView("
     const val PlotInformationView ="PlotInformationView"
+    const val CreatePlotInformationView = "createPlotInformationView"
 }

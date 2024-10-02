@@ -2,6 +2,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.coffetech.model.ApiResponse
+import com.example.coffetech.model.CoffeeVariety
 import com.example.coffetech.model.Role
 import com.example.coffetech.model.UnitMeasure
 import com.example.coffetech.utils.SharedPreferencesHelper
@@ -28,6 +29,7 @@ class CommonDataViewModel : ViewModel() {
             // Actualizar roles y unidades de medida si la versión ha cambiado
             fetchRolesAndStore(sharedPreferencesHelper)
             fetchUnitMeasuresAndStore(sharedPreferencesHelper)
+            fetchCoffeeVarietiesAndStore(sharedPreferencesHelper)
 
             // Guardar el nuevo código de versión
             sharedPreferencesHelper.saveVersionCode(currentVersionCode)
@@ -73,4 +75,27 @@ class CommonDataViewModel : ViewModel() {
             }
         })
     }
+    private fun fetchCoffeeVarietiesAndStore(sharedPreferencesHelper: SharedPreferencesHelper) {
+        RetrofitInstance.api.getCoffeeVarieties().enqueue(object : Callback<ApiResponse<List<CoffeeVariety>>> {
+            override fun onResponse(call: Call<ApiResponse<List<CoffeeVariety>>>, response: Response<ApiResponse<List<CoffeeVariety>>>) {
+                if (response.isSuccessful && response.body()?.data != null) {
+                    val coffeeVarieties = response.body()?.data!!
+
+                    // Extraer los nombres de las variedades de café para almacenarlos
+                    val varietyNames = coffeeVarieties.map { it.name }
+
+                    // Guardar las variedades de café en SharedPreferences
+                    sharedPreferencesHelper.saveCoffeeVarieties(varietyNames)
+                    Log.d("fetchCoffeeVarieties", "Variedades de café almacenadas correctamente")
+                } else {
+                    Log.e("fetchCoffeeVarieties", "Error: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponse<List<CoffeeVariety>>>, t: Throwable) {
+                Log.e("fetchCoffeeVarieties", "Network Error: ${t.localizedMessage}")
+            }
+        })
+    }
+
 }

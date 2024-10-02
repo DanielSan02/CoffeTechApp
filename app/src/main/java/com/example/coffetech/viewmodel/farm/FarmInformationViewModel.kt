@@ -17,6 +17,8 @@ import retrofit2.Response
 
 
 import android.util.Log // Importa la clase Log
+import com.example.coffetech.model.ListPlotsResponse
+import com.example.coffetech.model.Plot
 import com.example.coffetech.utils.SharedPreferencesHelper
 
 class FarmInformationViewModel : ViewModel() {
@@ -57,6 +59,13 @@ class FarmInformationViewModel : ViewModel() {
 
     private val _collaboratorName = MutableStateFlow("Colaborador de Ejemplo")
     val collaboratorName: StateFlow<String> = _collaboratorName.asStateFlow()
+
+
+    private val _lotes = MutableStateFlow<List<Plot>>(emptyList())
+    val lotes: StateFlow<List<Plot>> = _lotes.asStateFlow()
+
+
+
 
     fun onEditFarm(navController: NavController, farmId: Int, farmName: String, farmArea: Double, unitOfMeasure: String) {
         navController.navigate("FarmEditView/$farmId/$farmName/$farmArea/$unitOfMeasure")
@@ -140,15 +149,6 @@ class FarmInformationViewModel : ViewModel() {
         })
     }
 
-    // Estado para la lista de lotes (esto parece ser datos simulados, podrías cambiarlo cuando trabajes con datos reales)
-    private val _lotes = MutableStateFlow(
-        listOf(
-            "Lote 1" to "Descripción de Lote 1",
-            "Lote 2" to "Descripción de Lote 2"
-        )
-    )
-
-    val lotes: StateFlow<List<Pair<String, String>>> = _lotes.asStateFlow()
 
     /**
      * Sets an error message to be displayed in the UI.
@@ -159,4 +159,29 @@ class FarmInformationViewModel : ViewModel() {
         _errorMessage.value = message
         Log.e("FarmInfoViewModel", "Error set: $message")
     }
+
+    fun loadPlots(farmId: Int, sessionToken: String) {
+        _isLoading.value = true
+
+        RetrofitInstance.api.listPlots(farmId, sessionToken).enqueue(object : Callback<ListPlotsResponse> {
+            override fun onResponse(call: Call<ListPlotsResponse>, response: Response<ListPlotsResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    response.body()?.data?.let { data ->
+                        _lotes.value = data.plots
+                    } ?: run {
+                        _errorMessage.value = "No se encontraron lotes."
+                    }
+                } else {
+                    _errorMessage.value = "Error al cargar los lotes: ${response.message()}"
+                }
+            }
+
+            override fun onFailure(call: Call<ListPlotsResponse>, t: Throwable) {
+                _isLoading.value = false
+                _errorMessage.value = "Error de conexión: ${t.message}"
+            }
+        })
+    }
 }
+

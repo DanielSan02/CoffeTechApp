@@ -6,6 +6,8 @@ import NotificationView
 import android.content.Context // Importar el Context correcto
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,11 +29,13 @@ import com.example.coffetech.view.Plot.PlotInformationView
 import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
-import com.example.coffetech.view.Plot.AddLocationPlot
+import com.example.coffetech.view.Plot.CreateMapPlotView
+import com.example.coffetech.view.Plot.CreatePlotInformationView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
 import com.example.coffetech.view.farm.FarmView
+import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
 
 
 /**
@@ -306,14 +310,78 @@ fun AppNavHost(context: Context) {
 
 
 
-        composable("${Routes.AddLocationPlot}/{farmId}") { backStackEntry ->
-            val farmId = backStackEntry.arguments?.getString("farmId")?.toIntOrNull() ?: 0
-            AddLocationPlot(navController = navController, farmId = farmId)
+        composable(
+            route = "createPlotInformationView/{farmId}?plotName={plotName}&selectedVariety={selectedVariety}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType; defaultValue = "" },
+                navArgument("selectedVariety") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
+            CreatePlotInformationView(
+                navController = navController,
+                farmId = farmId,
+                plotName = plotName,
+                selectedVariety = selectedVariety
+            )
         }
 
-        composable("PlotInformationView/{plotId}") { backStackEntry ->
-            val plotId = backStackEntry.arguments?.getString("plotId")?.toIntOrNull() ?: 0
-            PlotInformationView(navController = navController, plotId = plotId)
+        composable(
+            route = "createMapPlotView/{farmId}/{plotName}/{selectedVariety}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("selectedVariety") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
+
+            CreateMapPlotView(
+                navController = navController,
+                farmId = farmId,
+                plotName = plotName,
+                selectedVariety = selectedVariety
+            )
         }
-    }
-}
+
+
+        composable(
+            route = "PlotInformationView/{plotId}/{plotName}/{coffeeVariety}/{latitude}/{longitude}/{altitude}/{farmName}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("coffeeVariety") { type = NavType.StringType },
+                navArgument("latitude") { type = NavType.StringType },
+                navArgument("longitude") { type = NavType.StringType },
+                navArgument("altitude") { type = NavType.StringType },
+                navArgument("farmName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val coffeeVariety = backStackEntry.arguments?.getString("coffeeVariety") ?: ""
+            val latitude = backStackEntry.arguments?.getString("latitude") ?: ""
+            val longitude = backStackEntry.arguments?.getString("longitude") ?: ""
+            val altitude = backStackEntry.arguments?.getString("altitude") ?: ""
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+
+            PlotInformationView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                coffeeVariety = coffeeVariety,
+                latitude = latitude,
+                longitude = longitude,
+                altitude = altitude,
+                farmName = farmName
+            )
+        }
+
+
+
+}}

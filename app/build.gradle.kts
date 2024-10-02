@@ -12,7 +12,7 @@ android {
         applicationId = "com.example.coffetech"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2 // Este es el código de versión
+        versionCode = 3 // Este es el código de versión
         versionName = "2.1.1"  // Este es el nombre de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.zIndex
 import com.example.coffetech.R
+import com.example.coffetech.model.Plot
 
 //FARM INFORMATION COMMONS COMPOSABLES---------------------------------
 //FARM INFORMATION COMMONS COMPOSABLES---------------------------------
@@ -257,8 +258,9 @@ fun LoteItemCard(
 
 @Composable
 fun LotesList(
-    lotes: List<Pair<String, String>>, // Lista de lotes (nombre, descripción)
-    modifier: Modifier = Modifier
+    lotes: List<Plot>, // Lista de objetos Lote
+    modifier: Modifier = Modifier,
+    onLoteClick: (Plot) -> Unit // Nueva función para manejar el clic en cada lote
 ) {
     Column(
         modifier = modifier
@@ -275,13 +277,17 @@ fun LotesList(
         lotes.forEach { lote ->
             Spacer(modifier = Modifier.height(8.dp))
             LoteItemCard(
-                loteName = lote.first,
-                loteDescription = lote.second,
-                modifier = Modifier.fillMaxWidth()
+                loteName = lote.name,
+                loteDescription = lote.coffee_variety_name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onLoteClick(lote) } // Pasa el objeto Lote al hacer clic
             )
         }
     }
 }
+
+
 
 @Composable
 fun FarmItemCard(

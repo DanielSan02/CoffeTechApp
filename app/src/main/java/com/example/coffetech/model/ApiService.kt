@@ -388,6 +388,66 @@ data class EditCollaboratorResponse(
     val data: Any? = null
 )
 
+data class CoffeeVariety(
+    val coffee_variety_id: Int,
+    val name: String
+)
+
+// Definir la estructura de Permiso
+data class Permission(
+    val permission_id: Int,
+    val name: String,
+    val description: String
+)
+
+// Actualización de Role para incluir la lista de permisos
+data class Role(
+    val role_id: Int,
+    val name: String,
+    val permissions: List<Permission> // Lista de permisos asociados al rol
+)
+
+
+data class UnitMeasure(
+    val unit_of_measure_id: Int,
+    val name: String,
+    val abbreviation: String,
+    val unit_of_measure_type: UnitMeasureType
+)
+
+data class UnitMeasureType(
+    val unit_of_measure_type_id: Int,
+    val name: String
+)
+
+data class CreatePlotRequest(
+    val name: String,
+    val coffee_variety_name: String,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String,
+    val farm_id: Int
+)
+
+
+data class Plot(
+    val plot_id: Int,
+    val name: String,
+    val coffee_variety_name: String,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String
+)
+
+data class ListPlotsResponse(
+    val status: String,
+    val message: String,
+    val data: PlotsData
+)
+
+data class PlotsData(
+    val plots: List<Plot>
+)
 
 
 // API service interface for interacting with backend services
@@ -508,6 +568,10 @@ interface ApiService {
      * @param request The request payload containing farm details.
      * @return A [Call] object for the create farm response.
      */
+
+    @GET("/utils/list-coffee-varieties")
+    fun getCoffeeVarieties(): Call<ApiResponse<List<CoffeeVariety>>>
+
     @POST("/farm/create-farm")
     fun createFarm(
         @Query("session_token") sessionToken: String,
@@ -583,6 +647,19 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body requestBody: Map<String, Int>
     ): Call<Void>
+
+    @POST("/plots/create-plot")
+    fun createPlot(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreatePlotRequest
+    ): Call<CreateFarmResponse>
+
+    @GET("/plots/list-plots/{farm_id}")
+    fun listPlots(
+        @Path("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListPlotsResponse>
+
 
 }
 

@@ -5,10 +5,9 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.ui.res.painterResource
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.coffetech.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
@@ -68,11 +68,14 @@ fun GoogleMapView(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+
 @Composable
-fun AddLocationPlot(
+fun CreateMapPlotView(
     navController: NavController,
     farmId: Int,
+    plotName: String,
+    selectedVariety: String,
     viewModel: PlotViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -153,6 +156,13 @@ fun AddLocationPlot(
                 viewModel.setErrorMessage("Error al obtener la ubicación: ${e.message}")
             }
         }
+    }
+
+    // Interceptar el botón de back para navegar con los datos
+    BackHandler {
+        navController.navigate(
+            "createPlotInformationView/$farmId?plotName=${Uri.encode(plotName)}&selectedVariety=${Uri.encode(selectedVariety)}"
+        )
     }
 
     // Estructura de la UI usando Scaffold para manejar el Snackbar
@@ -253,7 +263,6 @@ fun AddLocationPlot(
                                         )
                                     }
 
-
                                 } else {
                                     CircularProgressIndicator(
                                         modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -275,14 +284,29 @@ fun AddLocationPlot(
                                 ReusableButton(
                                     text = if (viewModel.isLoading.collectAsState().value) "Guardando..." else "Guardar",
                                     onClick = {
-                                        viewModel.onSubmit()
-                                        viewModel.clearErrorMessage()
+                                        viewModel.onCreatePlot(
+                                            navController = navController,
+                                            context = context,
+                                            farmId = farmId,
+                                            plotName = plotName,
+                                            coffeeVarietyName = selectedVariety
+                                        )
                                     },
                                     modifier = Modifier
                                         .size(width = 160.dp, height = 48.dp)
                                         .align(Alignment.CenterHorizontally),
                                     buttonType = ButtonType.Green,
                                     enabled = true
+                                )
+
+
+                                ReusableTextButton(
+                                    navController = navController,
+                                    destination = "createPlotInformationView/$farmId?plotName=${Uri.encode(plotName)}&selectedVariety=${Uri.encode(selectedVariety)}",
+                                    text = "Volver",
+                                    modifier = Modifier
+                                        .size(width = 160.dp, height = 48.dp)
+                                        .align(Alignment.CenterHorizontally)
                                 )
                             }
                         }
@@ -329,13 +353,16 @@ fun AddLocationPlot(
     )
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun AddLocationPlotPreview() {
     CoffeTechTheme {
-        AddLocationPlot(
+        CreateMapPlotView(
             navController = NavController(LocalContext.current),
-            farmId = 1
+            farmId = 1,
+            plotName= "",
+            selectedVariety= ""
         )
     }
 }

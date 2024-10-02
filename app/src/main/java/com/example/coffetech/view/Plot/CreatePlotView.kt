@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
@@ -65,6 +66,19 @@ fun CreatePlotView(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Botón de cerrar o volver (BackButton)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    BackButton(
+                        navController = navController,
+                        modifier = Modifier.size(32.dp) // Tamaño más manejable
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp)) // Espacio entre el botón y el título
+
                 // Título de la pantalla
                 Text(
                     text = "Crear Lote",
@@ -133,11 +147,14 @@ fun CreatePlotView(
                 // Botón Guardar
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Siguiente",
-                    onClick = { viewModel.savePhase() }, // Asignar acción de guardar
+                    onClick = {
+                        // Asignar acción de guardar y navegar
+                        viewModel.saveAndNavigateToPlotMap(navController, farmId = 1) // Pasa el farmId correspondiente
+                    },
                     modifier = Modifier
-                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .size(width = 160.dp, height = 48.dp)
                         .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green, // Cambiar a un tipo de botón verde
+                    buttonType = ButtonType.Green,
                     enabled = hasChanges && !isLoading
                 )
             }
@@ -145,12 +162,15 @@ fun CreatePlotView(
     }
 }
 
+// Mueve la función Preview fuera de la función CreatePlotView
 @Preview(showBackground = true)
 @Composable
 fun CreatePlotViewPreview() {
+    val navController = rememberNavController() // Usar rememberNavController para la vista previa
+
     CoffeTechTheme {
         CreatePlotView(
-            navController = NavController(LocalContext.current)
+            navController = navController
         )
     }
 }

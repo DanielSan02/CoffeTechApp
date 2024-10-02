@@ -1,4 +1,4 @@
-package com.example.coffetech.view.PlotMap
+package com.example.coffetech.view.Plot
 
 import android.Manifest
 import android.app.Activity
@@ -6,7 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.ui.res.painterResource
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.coffetech.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,9 +31,9 @@ import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.PlotMap.PlotViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.example.coffetech.viewmodel.Plot.PlotViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.GoogleMap
@@ -326,7 +328,6 @@ fun AddLocationPlot(
         }
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable

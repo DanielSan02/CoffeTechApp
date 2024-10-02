@@ -106,6 +106,9 @@ fun GeneralPlotInfoCard(
 }
 
 
+
+
+
 @Composable
 fun PlotFaseCard(
     faseName: String,

@@ -57,7 +57,7 @@ fun PlotInformationView(
     }
 
     // Main View
-    HeaderFooterSubView(
+        HeaderFooterSubView(
         title = "Información de Lote",
         currentView = "Fincas",
         navController = navController

@@ -1,4 +1,4 @@
-package com.example.coffetech.viewmodel.PlotMap
+package com.example.coffetech.viewmodel.Plot
 
 import android.Manifest
 import android.content.Context

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,7 +31,6 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
-
 
 
 @Composable
@@ -61,19 +61,17 @@ fun FarmInformationView(
     val lotes by viewModel.lotes.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    //val searchQuery by viewModel.searchQuery.collectAsState()
 
     // Verificar si el usuario tiene permiso para editar la finca
     val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
-// Verificar si el usuario tiene permiso para eliminar la finca
+    // Verificar si el usuario tiene permiso para eliminar la finca
     val userHasPermissionToDelete = viewModel.hasPermission("delete_farm")
     val userHasPermissionCollaborators = viewModel.hasPermission("add_operador_farm") || viewModel.hasPermission("agregar_operador_farm")
     val displayedFarmName = if (farmName.length > 21) {
-        farmName.take(17) + "..." // Si tiene más de 13 caracteres, corta y añade "..."
+        farmName.take(17) + "..." // Si tiene más de 21 caracteres, corta y añade "..."
     } else {
-        farmName // Si es menor o igual a 13 caracteres, lo dejamos como está
+        farmName // Si es menor o igual a 21 caracteres, lo dejamos como está
     }
-
 
     // Vista principal
     HeaderFooterSubView(
@@ -81,14 +79,14 @@ fun FarmInformationView(
         currentView = "Fincas",
         navController = navController
     ) {
+        // Agregar scroll vertical a la columna principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFEFEFEF))
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState()) // Hacer la columna scrolleable verticalmente
         ) {
-
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -99,7 +97,7 @@ fun FarmInformationView(
                 Text(
                     text = "Finca: $farmName",
                     color = Color.Black,
-                    maxLines = 3, // Limita a una línea
+                    maxLines = 3, // Limita a tres líneas
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f), // Hace que el texto ocupe el espacio restante y se alinee a la derecha
@@ -116,30 +114,20 @@ fun FarmInformationView(
                     )
                 }
             }
-            // Barra de búsqueda reutilizable
-            /*ReusableSearchBar(
-                query = TextFieldValue(searchQuery),
-                onQueryChanged = { viewModel.onSearchQueryChanged(it.text) },
-                text = "Buscar lote por nombre"
-            )*/
-
 
             if (isLoading) {
                 // Mostrar un indicador de carga
                 CircularProgressIndicator()
                 Text(
                     text = "Cargando datos de la finca...",
-                    color =Color.Black,
+                    color = Color.Black,
                 )
             } else if (errorMessage.isNotEmpty()) {
                 // Mostrar el error si ocurrió algún problema
                 Text(text = errorMessage, color = Color.Red)
             } else {
-
-
                 // Mostrar el rol seleccionado
                 SelectedRoleDisplay(roleName = selectedRole ?: "Sin rol")
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,22 +140,17 @@ fun FarmInformationView(
                     showEditButton = userHasPermissionToEdit // Solo muestra el botón si tiene el permiso
                 )
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Componente reutilizable de Colaboradores
-                if (userHasPermissionCollaborators){
+                if (userHasPermissionCollaborators) {
                     CollaboratorsCard(
                         collaboratorName = collaboratorName,
                         onAddClick = {
                             navController.navigate("CollaboratorView/$farmId/$farmName")
                         }
                     )
-
-
-
                 }
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -185,6 +168,7 @@ fun FarmInformationView(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

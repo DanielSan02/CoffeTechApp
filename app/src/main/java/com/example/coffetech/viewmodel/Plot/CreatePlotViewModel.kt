@@ -2,6 +2,7 @@ package com.example.coffetech.viewmodel.Plot
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,8 +53,8 @@ class CreatePlotViewModel : ViewModel() {
         _hasChanges.value = true
     }
 
-    // Función para guardar los datos del lote
-    fun savePhase() {
+    // Función para guardar los datos del lote y navegar a "AddLocationPlot"
+    fun saveAndNavigateToPlotMap(navController: NavController, farmId: Int) {
         viewModelScope.launch {
             // Validar los campos antes de continuar
             if (_plotName.value.isBlank() || _selectedVariety.value.isBlank()) {
@@ -68,12 +69,18 @@ class CreatePlotViewModel : ViewModel() {
             _isLoading.value = true
 
             try {
-                // Simula la operación de guardado (reemplazar con lógica real)
+                // Simula la operación de guardada
                 simulateSaveOperation()
 
                 // Marcar como éxito
                 _errorMessage.value = "Datos guardados exitosamente"
                 _hasChanges.value = false
+
+                // Navegar a la vista "AddLocationPlot" con los datos necesarios
+                navController.navigate(
+                    "addLocationPlot/$farmId/${_plotName.value}/${_selectedVariety.value}"
+                )
+
             } catch (e: Exception) {
                 // En caso de error, mostrar el mensaje correspondiente
                 _errorMessage.value = "Error al guardar los datos"
@@ -84,8 +91,12 @@ class CreatePlotViewModel : ViewModel() {
         }
     }
 
-
-
+    // Función para manejar la acción de volver con datos actualizados
+    fun updateDataOnReturn(name: String, variety: String) {
+        _plotName.value = name
+        _selectedVariety.value = variety
+        _hasChanges.value = true // Marcar que hay cambios
+    }
 
     // Simulación de una operación de guardado
     private suspend fun simulateSaveOperation() {
@@ -93,6 +104,3 @@ class CreatePlotViewModel : ViewModel() {
         kotlinx.coroutines.delay(2000L)
     }
 }
-
-
-

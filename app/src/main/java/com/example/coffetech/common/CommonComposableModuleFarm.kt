@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -164,55 +165,41 @@ fun GeneralInfoCard(
     }
 }
 
-
 @Composable
-fun CollaboratorsCard(
-    collaboratorName: String,
-    onAddClick: () -> Unit,
+fun ActionCard(
+    buttonText: String, // Nuevo parámetro para el texto del botón
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(16.dp))
-            .padding(16.dp)
+            .height(159.dp)
+            .padding(8.dp)
+            .background(Color(0xFFE52542), shape = RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick) // Hacer el botón clickable
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column {
-                Text(
-                    text = "Colaboradores",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = collaboratorName,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
-            }
-            IconButton(
-                onClick = onAddClick,
-                modifier = Modifier
-                    .size(20.dp)
-                    .offset(x = -10.dp)
-                    .background(Color(0xFFB31D34), shape = CircleShape,)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.plus_icon),
-                    contentDescription = "Agregar Colaborador",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
+
+        Icon(
+            painter = painterResource(id = R.drawable.arrow_forward_icon),
+            contentDescription = "Icono de acción",
+            tint = Color.White,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(20.dp)
+        )
+
+
+        Text(
+            text = buttonText,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
+
 
 @Composable
 fun CustomFloatingActionButton(

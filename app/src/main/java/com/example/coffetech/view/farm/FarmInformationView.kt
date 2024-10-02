@@ -104,6 +104,7 @@ fun FarmInformationView(
                     // Mostrar el error si ocurrió algún problema
                     Text(text = errorMessage, color = Color.Red)
                 } else {
+
                     // Mostrar el rol seleccionado
                     Text(text = "Rol: ${selectedRole ?: "Sin rol"}", color = Color.Black)
 
@@ -120,13 +121,29 @@ fun FarmInformationView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Componente reutilizable de Colaboradores
-                    if (userHasPermissionCollaborators) {
-                        CollaboratorsCard(
-                            collaboratorName = collaboratorName,
-                            onAddClick = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(159.dp), // Altura de 159dp como en el diseño
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        ActionCard(
+                            buttonText = "Colaboradores", // Texto para el primer botón
+                            onClick = {
                                 navController.navigate("CollaboratorView/$farmId/$farmName")
-                            }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 7.5.dp) // Mitad del padding para separar los botones
+                        )
+                        ActionCard(
+                            buttonText = "Reportes", // Texto para el segundo botón
+                            onClick = {
+                                // Acción para el botón de reportes
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 7.5.dp) // Mitad del padding para separar los botones
                         )
                     }
 

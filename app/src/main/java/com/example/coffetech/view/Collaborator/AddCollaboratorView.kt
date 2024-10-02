@@ -83,12 +83,12 @@ fun AddCollaboratorView(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Agregar Colaborador",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                    style = MaterialTheme.typography.titleLarge.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
                         // Sobrescribir el tamaño de la fuente
                         color = Color(0xFF49602D)      // Sobrescribir el color
                     ),
@@ -107,7 +107,7 @@ fun AddCollaboratorView(
                     modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
                 )
 
-                Spacer(modifier = Modifier.height(0.5.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Nombre de finca utilizando ReusableTextField
                 ReusableTextField(
@@ -121,6 +121,18 @@ fun AddCollaboratorView(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Rol Asignado",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Rol seleccionado
                 RoleAddDropdown(

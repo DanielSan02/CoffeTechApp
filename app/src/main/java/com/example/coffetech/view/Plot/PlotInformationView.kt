@@ -57,7 +57,7 @@ fun PlotInformationView(
     }
 
     // Main View
-        HeaderFooterSubView(
+    HeaderFooterSubView(
         title = "Información de Lote",
         currentView = "Fincas",
         navController = navController
@@ -105,40 +105,40 @@ fun PlotInformationView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // "Floraciones" Button
-            Button(
+            // "Floraciones" Action Card
+            ActionCard(
+                buttonText = "Floraciones",
                 onClick = {
-                    // Handle click action, navigate to another view if needed
+                    // Manejar acción de clic para Floraciones
                     viewModel.onFloracionesClick(navController, plotId)
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFCC3333) // Red color as per design
-                ),
-                shape = RoundedCornerShape(16.dp) // Agrega bordes redondeados si lo deseas
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Texto "Floraciones" alineado a la izquierda
-                    Text(
-                        text = "Floraciones",
-                        color = Color.White,
-                        modifier = Modifier
-                            .weight(1f) // Ocupa el espacio disponible
-                            .padding(start = 16.dp) // Ajusta el padding izquierdo si es necesario
-                    )
+                    .width(345.dp) //
+                    .height(77.dp) //
+                    .background(color = Color.Red, shape = RoundedCornerShape(30.dp)) // Aplicar color de fondo y bordes redondeados
+            )
+
+// Espaciador entre tarjetas
+            Spacer(modifier = Modifier.height(8.dp))
+
+// "Labores culturales" Action Card
+            ActionCard(
+                buttonText = "Labores Culturales",
+                onClick = {
+                    // Manejar acción de clic para Labores Culturales
+                    viewModel.onLaboresCulturalesClick(navController, plotId)
+                },
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .width(345.dp) //
+                    .height(77.dp) //
+                    .background(color = Color.Red, shape = RoundedCornerShape(30.dp)) // Aplicar color de fondo y bordes redondeados
+            )
 
 
-                }
-            }
 
-
-            // Spacer for spacing between button and detections history
+            // Spacer for spacing between cards and detections history
             Spacer(modifier = Modifier.height(100.dp))
 
             // Título de la sección de historial de detecciones
@@ -149,8 +149,7 @@ fun PlotInformationView(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Aquí puedes agregar la implementación de las tarjetas de historial de detecciones
-            // Como un Row o LazyRow para mostrar las tarjetas
+
         }
     }
 }

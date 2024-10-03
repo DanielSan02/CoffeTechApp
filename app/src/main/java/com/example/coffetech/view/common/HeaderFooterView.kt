@@ -367,7 +367,7 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.menu_2),
+                    painter = painterResource(R.drawable.vector_4_),
                     contentDescription = "Fincas",
                     tint = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     modifier = Modifier.size(24.dp)
@@ -423,7 +423,7 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.menu_5),
+                    painter = painterResource(R.drawable.vector_6_),
                     contentDescription = "Costos",
                     tint = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
                     modifier = Modifier.size(24.dp)

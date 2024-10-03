@@ -232,6 +232,50 @@ fun PlotUbicationCard(
     }
 }
 
+
+
+
+
+@Composable
+fun ActionCard(
+    buttonText: String, // Nuevo parámetro para el texto del botón
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(159.dp)
+            .padding(8.dp)
+            .background(Color(0xFFE52542), shape = RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick) // Hacer el botón clickable
+    ) {
+
+        Icon(
+            painter = painterResource(id = R.drawable.vector_3_),
+            contentDescription = "Icono de acción",
+            tint = Color.White,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(20.dp)
+        )
+
+
+        Text(
+            text = buttonText,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+
+
+
+
+
 @Composable
 fun VarietyCoffeeDropdown(
     selectedVariety: String,
@@ -290,29 +334,7 @@ fun VarietyCoffeeDropdown(
             }
         }
 
-        @Composable
-        fun FloracionesButton(
-            onClick: () -> Unit,
-            modifier: Modifier = Modifier
-        ) {
-            Button(
-                onClick = onClick,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFCC3333) // Red color as per design
-                )
-            ) {
-                Text(
-                    text = "Floraciones",
-                    color = Color.White
-                )
 
-
-            }
-        }
 
         @Composable
         fun CircularIconButton(

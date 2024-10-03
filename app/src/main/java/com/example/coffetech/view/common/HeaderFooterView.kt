@@ -320,16 +320,16 @@ fun BottomNavigationBar(
     BottomAppBar(
         modifier = modifier
             .fillMaxWidth()
-            .height(74.dp),
+            .height(100.dp),
         containerColor = Color.White,
-        contentPadding = PaddingValues(horizontal = 10.dp)
+        contentPadding = PaddingValues(horizontal = 6.dp)
     ) {
         IconButton(
             onClick = onHomeClick,
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 9.dp)
-                .size(74.dp)
+                .size(90.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -343,12 +343,12 @@ fun BottomNavigationBar(
                     painter = painterResource(R.drawable.home_icon),
                     contentDescription = "Inicio",
                     tint = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(35.dp)
                 )
                 Text(
                     text = "Inicio",
                     color = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.W400
                 )
             }
@@ -359,7 +359,7 @@ fun BottomNavigationBar(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 8.dp)
-                .size(74.dp)
+                .size(90.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -367,15 +367,15 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.menu_2),
+                    painter = painterResource(R.drawable.central_icon),
                     contentDescription = "Fincas",
                     tint = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(35.dp)
                 )
                 Text(
                     text = "Fincas",
                     color = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.W400
                 )
             }
@@ -387,7 +387,7 @@ fun BottomNavigationBar(
             onClick = onReportsClick,
             modifier = Modifier
                 .weight(1f)
-                .size(74.dp)
+                .size(90.dp)
                 .padding(vertical = 8.dp)
         ) {
             Column(
@@ -396,15 +396,15 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.vector),
+                    painter = painterResource(R.drawable.labor_icon),
                     contentDescription = "Reportes",
                     tint = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(35.dp)
                 )
                 Text(
                     text = "Labores",
                     color = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.W400
                 )
             }
@@ -415,7 +415,7 @@ fun BottomNavigationBar(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 8.dp)
-                .size(74.dp)
+                .size(90.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -423,15 +423,15 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.menu_5),
+                    painter = painterResource(R.drawable.reports_icon),
                     contentDescription = "Costos",
                     tint = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(35.dp)
                 )
                 Text(
                     text = "Reportes",
                     color = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.W400
                 )
             }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -88,7 +89,31 @@ fun CreatePlotInformationView(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Crear Lote",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF49602D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(45.dp))
+
+                Text(
+                    text = "Nombre",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Campo de texto para el nombre del lote
                 ReusableTextField(
@@ -99,6 +124,18 @@ fun CreatePlotInformationView(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Variedad de Café",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Dropdown para seleccionar variedad de café
                 VarietyCoffeeDropdown(

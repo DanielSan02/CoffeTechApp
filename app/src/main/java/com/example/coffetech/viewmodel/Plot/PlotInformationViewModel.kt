@@ -30,6 +30,9 @@ class PlotInformationViewModel : ViewModel() {
     private val _plotCoffeeVariety = MutableStateFlow("")
     val plotCoffeeVariety: StateFlow<String> = _plotCoffeeVariety.asStateFlow()
 
+    private val _selectedVariety = MutableStateFlow("")
+    val selectedVariety: StateFlow<String> = _selectedVariety.asStateFlow()
+
 
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
@@ -54,8 +57,14 @@ class PlotInformationViewModel : ViewModel() {
     val coordinatesUbication: StateFlow<String> = _coordinatesUbication.asStateFlow()
 
 
-    fun onEditPlot(navController: NavController, plotId: Int, plotName: String,plotCoffeeVariety: String) {
-        navController.navigate("PlotEditView/$plotId/$plotName/$plotCoffeeVariety")
+    fun onEditPlot(
+        navController: NavController,
+        plotId: Int,
+        plotName: String,
+        selectedVariety: String
+    ) {
+        navController.navigate(
+            "EditPlotInformationView/$plotId/$plotName/$selectedVariety")
     }
 
     fun onEditFase(navController: NavController, faseName: String, initialDate: String, endDate: String) {

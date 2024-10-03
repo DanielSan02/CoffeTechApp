@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontVariation.weight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +38,7 @@ fun PlotInformationView(
     plotId: Int,
     plotName: String,
     coffeeVariety: String,
+    selectedVariety: String,
     latitude: String,
     longitude: String,
     altitude: String,
@@ -49,6 +51,7 @@ fun PlotInformationView(
     // Obtain the states from ViewModel
 
     val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
+    val selectedVariety by viewModel.selectedVariety.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val faseName by viewModel.faseName.collectAsState()
@@ -98,7 +101,12 @@ fun PlotInformationView(
             GeneralPlotInfoCard(
                 plotName = plotName,
                 plotCoffeeVariety = coffeeVariety,
-                onEditClick = { viewModel.onEditPlot(navController, plotId, plotName, plotCoffeeVariety) },
+                onEditClick = { viewModel.onEditPlot(
+                    navController= navController,
+                    plotId = plotId,
+                    plotName = plotName,
+                    selectedVariety = selectedVariety
+                ) },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -113,41 +121,18 @@ fun PlotInformationView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // "Floraciones" Button
-            Button(
-                onClick = {
-                    // Handle click action, navigate to another view if needed
-                    viewModel.onFloracionesClick(navController, plotId)
-                },
+            ActionCard(
+                buttonText = "Floraciones", // Texto para el segundo botón
+                onClick = {/*Navegacion a floraciones*/},
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFCC3333) // Red color as per design
-                ),
-                shape = RoundedCornerShape(16.dp) // Agrega bordes redondeados si lo deseas
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Texto "Floraciones" alineado a la izquierda
-                    Text(
-                        text = "Floraciones",
-                        color = Color.White,
-                        modifier = Modifier
-                            .weight(1f) // Ocupa el espacio disponible
-                            .padding(start = 16.dp) // Ajusta el padding izquierdo si es necesario
-                    )
-
-
-                }
-            }
+                    .width(198.dp)
+                    .height(159.dp)
+                    .padding(start = 2.5.dp)
+            )
 
 
             // Spacer for spacing between button and detections history
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
             // Título de la sección de historial de detecciones
             Text(
@@ -172,6 +157,7 @@ fun PlotInformationViewPreview() {
             plotId=1,
             plotName="lote 1",
             coffeeVariety="caturro",
+            selectedVariety = "caturro",
             latitude="",
             longitude="",
             altitude="",

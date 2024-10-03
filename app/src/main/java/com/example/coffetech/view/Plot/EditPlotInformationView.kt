@@ -34,6 +34,9 @@ import com.example.coffetech.viewmodel.farm.FarmEditViewModel
 @Composable
 fun EditPlotInformationView(
     navController: NavController,
+    plotId: Int,
+    plotName: String,
+    selectedVariety: String,
     viewModel: EditPlotInformationViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -101,14 +104,14 @@ fun EditPlotInformationView(
 
 
                 // Variedad cafe
-               /* VarietyCoffeeDropdown(
+                VarietyCoffeeDropdown(
                     selectedVariety = selectedVariety,
-                    onUnitChange = {},
+                    onVarietyChange = {},
                     varieties = plotCoffeeVariety,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
-                )*/
+                )
 
 
                 // Mostrar mensaje de error si lo hay
@@ -140,7 +143,10 @@ fun EditPlotInformationView(
 fun EditPlotInformationViewPreview() {
     CoffeTechTheme {
         EditPlotInformationView(
-            navController = NavController(LocalContext.current)
+            navController = NavController(LocalContext.current),
+            plotId = 1,
+            plotName = "Lote 1",
+            selectedVariety = "Caturra"
         )
     }
 }

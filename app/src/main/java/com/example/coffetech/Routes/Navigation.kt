@@ -31,6 +31,7 @@ import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
 import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
+import com.example.coffetech.view.Plot.EditPlotInformationView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
@@ -375,6 +376,7 @@ fun AppNavHost(context: Context) {
                 plotId = plotId,
                 plotName = plotName,
                 coffeeVariety = coffeeVariety,
+                selectedVariety = coffeeVariety,
                 latitude = latitude,
                 longitude = longitude,
                 altitude = altitude,
@@ -382,6 +384,25 @@ fun AppNavHost(context: Context) {
             )
         }
 
+        composable(
+            route = "${Routes.EditPlotInformationView}/{plotId}/{plotName}/{selectedVariety}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("selectedVariety") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
+
+            EditPlotInformationView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                selectedVariety = selectedVariety
+            )
+        }
 
 
 }}

@@ -348,8 +348,7 @@ fun BottomNavigationBar(
                 Text(
                     text = "Inicio",
                     color = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
@@ -375,8 +374,7 @@ fun BottomNavigationBar(
                 Text(
                     text = "Fincas",
                     color = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
@@ -404,8 +402,7 @@ fun BottomNavigationBar(
                 Text(
                     text = "Labores",
                     color = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
@@ -431,8 +428,7 @@ fun BottomNavigationBar(
                 Text(
                     text = "Reportes",
                     color = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }

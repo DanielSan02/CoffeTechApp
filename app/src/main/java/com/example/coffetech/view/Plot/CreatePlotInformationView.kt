@@ -178,7 +178,7 @@ fun CreatePlotInformationView(
 // Mueve la función Preview fuera de la función CreatePlotView
 @Preview(showBackground = true)
 @Composable
-fun CreatePlotViewPreview() {
+fun CreatePlotInformationViewPreview() {
     val navController = rememberNavController() // Usar rememberNavController para la vista previa
 
     CoffeTechTheme {

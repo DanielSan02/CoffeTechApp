@@ -105,6 +105,7 @@ fun PlotInformationView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            
             // "Floraciones" Action Card
             ActionCard(
                 buttonText = "Floraciones",

@@ -98,6 +98,7 @@ class CreatePlotViewModel : ViewModel() {
         _hasChanges.value = true // Marcar que hay cambios
     }
 
+
     // Simulación de una operación de guardado
     private suspend fun simulateSaveOperation() {
         // Simula un tiempo de espera para la operación

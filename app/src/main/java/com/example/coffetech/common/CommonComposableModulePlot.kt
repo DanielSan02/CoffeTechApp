@@ -308,6 +308,7 @@ fun VarietyCoffeeDropdown(
                 ),
                 contentPadding = PaddingValues(start = 10.dp, end = 4.dp)
             ) {
+
                 Row(
                     modifier = Modifier
                         .background(Color.White)

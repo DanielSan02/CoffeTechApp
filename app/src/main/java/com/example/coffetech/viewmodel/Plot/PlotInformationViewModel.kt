@@ -19,6 +19,7 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 
 class PlotInformationViewModel : ViewModel() {
 
+
     // Estados de nombre, área, y otros datos de la finca
     private val _plotName = MutableStateFlow("")
     val plotName: StateFlow<String> = _plotName.asStateFlow()

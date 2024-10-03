@@ -259,6 +259,7 @@ fun AppNavHost(context: Context) {
             }
         }
 
+
         composable(
             route = "${Routes.AddCollaboratorView}/{farmId}/{farmName}",
             arguments = listOf(

@@ -119,7 +119,7 @@ class PlotInformationViewModel : ViewModel() {
 
             override fun onFailure(call: Call<GetPlotResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
             }
         })
     }

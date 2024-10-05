@@ -143,7 +143,7 @@ class FarmInformationViewModel : ViewModel() {
 
             override fun onFailure(call: Call<GetFarmResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
                 Log.e("FarmInfoViewModel", "API call failed for farmId: $farmId, Error: ${t.message}", t)
             }
         })
@@ -179,7 +179,7 @@ class FarmInformationViewModel : ViewModel() {
 
             override fun onFailure(call: Call<ListPlotsResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
             }
         })
     }

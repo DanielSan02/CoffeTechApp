@@ -181,9 +181,9 @@ class CollaboratorViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<ListCollaboratorResponse>, t: Throwable) {
                     isLoading.value = false
-                    errorMessage.value = "Error de conexión: ${t.message}"
-                    Log.e("CollaboratorViewModel", "Error de conexión: ${t.message}")
-                    Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG)
+                    errorMessage.value = "Error de conexión"
+                    Log.e("CollaboratorViewModel", "Error de conexión")
+                    Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG)
                         .show()
                 }
             })

@@ -186,7 +186,7 @@ class EditPlotInformationViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<UpdatePlotGeneralInfoResponse>, t: Throwable) {
                     _isLoading.value = false
-                    _errorMessage.value = "Error de conexión: ${t.message}"
+                    _errorMessage.value = "Error de conexión"
                     Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
                     onError(_errorMessage.value)
                 }

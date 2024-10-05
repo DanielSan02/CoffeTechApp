@@ -75,8 +75,8 @@ class HeaderFooterViewModel : ViewModel() {
             }
 
             override fun onFailure(call: Call<LogoutResponse>, t: Throwable) {
-                Log.e("HeaderFooterViewModel", "Fallo en la conexión: ${t.message}")
-                Toast.makeText(context, "Error de conexión al cerrar sesión", Toast.LENGTH_LONG).show()
+                Log.e("HeaderFooterViewModel", "Fallo en la conexión")
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG).show()
             }
         })
     }

@@ -166,7 +166,7 @@ class PlotViewModel : ViewModel() {
 
             override fun onFailure(call: Call<CreateFarmResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
             }
         })
     }

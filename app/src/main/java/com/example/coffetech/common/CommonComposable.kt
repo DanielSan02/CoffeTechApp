@@ -165,12 +165,17 @@ fun ReusableTextField(
     var passwordVisible by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
+    // Expresión regular que detecta emojis y los filtra
+    val emojiRegex = "[\\p{So}\\p{Cn}]".toRegex() // Detecta emojis y caracteres no definidos
+
     Column {
         TextField(
             value = value.take(charLimit), // Limita la cantidad de caracteres a charLimit
             onValueChange = {
-                if (it.length <= charLimit) {
-                    onValueChange(it) // Solo permite cambios si no excede el límite
+                // Filtra los emojis de la cadena ingresada
+                val filteredText = it.replace(emojiRegex, "")
+                if (filteredText.length <= charLimit) {
+                    onValueChange(filteredText) // Solo permite cambios si no excede el límite
                 }
             },
             placeholder = { Text(placeholder) },
@@ -235,6 +240,7 @@ fun ReusableTextField(
         }
     }
 }
+
 
 
 

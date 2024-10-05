@@ -1,29 +1,23 @@
-package com.example.coffetech.viewmodel.Plot
+// En com.example.coffetech.viewmodel.Plot.PlotInformationViewModel
 
-
-import android.content.Context
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.example.coffetech.model.GetFarmResponse
+import com.example.coffetech.model.GetPlotResponse
+import com.example.coffetech.model.Plot
 import com.example.coffetech.model.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
-
-import android.util.Log // Importa la clase Log
-import com.example.coffetech.utils.SharedPreferencesHelper
-
 class PlotInformationViewModel : ViewModel() {
+    private val TAG = "PlotInformationViewModel"
 
-
-    // Estados de nombre, área, y otros datos de la finca
+    // Estados existentes
     private val _plotName = MutableStateFlow("")
     val plotName: StateFlow<String> = _plotName.asStateFlow()
 
@@ -33,14 +27,11 @@ class PlotInformationViewModel : ViewModel() {
     private val _selectedVariety = MutableStateFlow("")
     val selectedVariety: StateFlow<String> = _selectedVariety.asStateFlow()
 
-
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    // Estados de fase actual, nombre de fase , fecha inicial y fecha final
 
     private val _faseName = MutableStateFlow("")
     val faseName: StateFlow<String> = _faseName.asStateFlow()
@@ -51,20 +42,23 @@ class PlotInformationViewModel : ViewModel() {
     private val _endDate = MutableStateFlow("")
     val endDate: StateFlow<String> = _endDate.asStateFlow()
 
-    // Estados de ubicacion de la finca
-
     private val _coordinatesUbication = MutableStateFlow("")
     val coordinatesUbication: StateFlow<String> = _coordinatesUbication.asStateFlow()
 
+    // Nuevo estado para el plot
+    private val _plot = MutableStateFlow<Plot?>(null)
+    val plot: StateFlow<Plot?> = _plot.asStateFlow()
 
+    // Funciones para navegar
     fun onEditPlot(
         navController: NavController,
         plotId: Int,
         plotName: String,
         selectedVariety: String
     ) {
-        navController.navigate(
-            "EditPlotInformationView/$plotId/$plotName/$selectedVariety")
+        Log.d(TAG, "Navegando a EditPlotInformationView con plotId: $plotId, plotName: $plotName, selectedVariety: $selectedVariety")
+
+        navController.navigate("EditPlotInformationView/$plotId/$plotName/$selectedVariety")
     }
 
     fun onEditFase(navController: NavController, faseName: String, initialDate: String, endDate: String) {
@@ -75,9 +69,58 @@ class PlotInformationViewModel : ViewModel() {
         navController.navigate("PlotEditView/$coordinatesUbication")
     }
 
-    // Nueva función para manejar el click del botón "Floraciones"
     fun onFloracionesClick(navController: NavController, plotId: Int) {
-        // Navega a la vista de Floraciones con el ID del lote
         navController.navigate("FloracionesView/$plotId")
+    }
+
+    // Nueva función para actualizar el mensaje de error
+    fun setErrorMessage(message: String) {
+        _errorMessage.value = message
+    }
+
+    // Función para obtener el plot
+    fun getPlot(plotId: Int, sessionToken: String) {
+        _isLoading.value = true
+        RetrofitInstance.api.getPlot(plotId, sessionToken).enqueue(object : Callback<GetPlotResponse> {
+            override fun onResponse(call: Call<GetPlotResponse>, response: Response<GetPlotResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    responseBody?.let {
+                        if (it.status == "success") {
+                            _plot.value = it.data.plot
+                            _plotName.value = it.data.plot.name
+                            _plotCoffeeVariety.value = it.data.plot.coffee_variety_name
+                            _coordinatesUbication.value = "${it.data.plot.latitude},${it.data.plot.longitude}"
+                            // Actualiza otros estados según sea necesario
+                        } else {
+                            _errorMessage.value = it.message
+                        }
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    errorBody?.let {
+                        try {
+                            val errorJson = JSONObject(it)
+                            val errorMessage = if (errorJson.has("message")) {
+                                errorJson.getString("message")
+                            } else {
+                                "Error desconocido al obtener el lote."
+                            }
+                            _errorMessage.value = errorMessage
+                        } catch (e: Exception) {
+                            _errorMessage.value = "Error al procesar la respuesta del servidor."
+                        }
+                    } ?: run {
+                        _errorMessage.value = "Respuesta vacía del servidor."
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<GetPlotResponse>, t: Throwable) {
+                _isLoading.value = false
+                _errorMessage.value = "Error de conexión: ${t.message}"
+            }
+        })
     }
 }

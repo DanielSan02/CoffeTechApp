@@ -449,6 +449,47 @@ data class PlotsData(
     val plots: List<Plot>
 )
 
+// En com.example.coffetech.model
+
+data class GetPlotResponse(
+    val status: String,
+    val message: String,
+    val data: PlotDataWrapper
+)
+
+data class PlotDataWrapper(
+    val plot: Plot
+)
+
+
+// En com.example.coffetech.model
+
+/**
+ * Solicitud para actualizar la información general de un lote.
+ *
+ * @property plot_id El ID del lote a actualizar.
+ * @property name El nuevo nombre del lote.
+ * @property coffee_variety_name La nueva variedad de café del lote.
+ */
+data class UpdatePlotGeneralInfoRequest(
+    val plot_id: Int,
+    val name: String,
+    val coffee_variety_name: String
+)
+
+/**
+ * Respuesta de la API para la actualización de la información general de un lote.
+ *
+ * @property status El estado de la operación ("success" o "error").
+ * @property message El mensaje asociado a la respuesta.
+ * @property data Los datos actualizados del lote.
+ */
+data class UpdatePlotGeneralInfoResponse(
+    val status: String,
+    val message: String,
+    val data: Plot? = null
+)
+
 
 // API service interface for interacting with backend services
 
@@ -659,6 +700,27 @@ interface ApiService {
         @Path("farm_id") farmId: Int,
         @Query("session_token") sessionToken: String
     ): Call<ListPlotsResponse>
+
+
+    @GET("/plots/get-plot/{plot_id}")
+    fun getPlot(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetPlotResponse>
+
+
+    /**
+     * Actualiza la información general de un lote.
+     *
+     * @param sessionToken El token de sesión del usuario.
+     * @param request El cuerpo de la solicitud con los datos a actualizar.
+     * @return Un [Call] con la respuesta de la actualización.
+     */
+    @POST("/plots/update-plot-general-info")
+    fun updatePlotGeneralInfo(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdatePlotGeneralInfoRequest
+    ): Call<UpdatePlotGeneralInfoResponse>
 
 
 }

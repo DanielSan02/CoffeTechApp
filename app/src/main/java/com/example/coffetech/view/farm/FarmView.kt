@@ -89,8 +89,8 @@ fun FarmView(
 
                 // Dropdown menu for selecting user role
                 RoleDropdown(
-                    selectedRole = selectedRole, // Can be null
-                    onRoleChange = { viewModel.selectRole(it) }, // Role change handler
+                    selectedRole = selectedRole,
+                    onRoleChange = { viewModel.selectRole(it) },
                     roles = roles,
                     expanded = expanded,
                     onExpandedChange = { viewModel.setDropdownExpanded(it) },

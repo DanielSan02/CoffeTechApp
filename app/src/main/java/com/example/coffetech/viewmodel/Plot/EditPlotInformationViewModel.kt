@@ -143,53 +143,42 @@ class EditPlotInformationViewModel : ViewModel() {
                     _isLoading.value = false
                     if (response.isSuccessful) {
                         val responseBody = response.body()
-                        responseBody?.let {
-                            if (it.status == "success") {
-                                Toast.makeText(navController.context, it.message, Toast.LENGTH_LONG).show()
-                                _hasChanges.value = false
-                                onSuccess()
-                            } else {
-                                _errorMessage.value = it.message
-                                Toast.makeText(navController.context, it.message, Toast.LENGTH_LONG).show()
-                                onError(it.message)
-                            }
-                        } ?: run {
-                            _errorMessage.value = "Respuesta vacía del servidor."
-                            Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
+                        if (responseBody?.status == "success") {
+                            Toast.makeText(navController.context, "Lote actualizado exitosamente.", Toast.LENGTH_LONG).show()
+                            _hasChanges.value = false
+                            onSuccess()
+                        } else if (responseBody?.status == "error") {
+                            val errorMsg = responseBody.message ?: "Error desconocido."
+                            _errorMessage.value = errorMsg
+                            Toast.makeText(navController.context, errorMsg, Toast.LENGTH_LONG).show()
+                            onError(errorMsg)
+                        } else {
+                            _errorMessage.value = "Respuesta inesperada del servidor."
+                            Toast.makeText(navController.context, "Respuesta inesperada del servidor.", Toast.LENGTH_LONG).show()
                             onError(_errorMessage.value)
                         }
                     } else {
+                        // Manejar errores de respuesta no exitosa
                         val errorBody = response.errorBody()?.string()
-                        errorBody?.let {
-                            try {
-                                val errorJson = JSONObject(it)
-                                val errorMsg = if (errorJson.has("message")) {
-                                    errorJson.getString("message")
-                                } else {
-                                    "Error desconocido al actualizar el lote."
-                                }
-                                _errorMessage.value = errorMsg
-                                Toast.makeText(navController.context, errorMsg, Toast.LENGTH_LONG).show()
-                                onError(errorMsg)
-                            } catch (e: Exception) {
-                                _errorMessage.value = "Error al procesar la respuesta del servidor."
-                                Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
-                                onError(_errorMessage.value)
-                            }
-                        } ?: run {
-                            _errorMessage.value = "Respuesta vacía del servidor."
-                            Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
-                            onError(_errorMessage.value)
+                        val errorMsg = if (errorBody != null) {
+                            JSONObject(errorBody).optString("message", "Error desconocido.")
+                        } else {
+                            "Error desconocido."
                         }
+                        _errorMessage.value = errorMsg
+                        Toast.makeText(navController.context, errorMsg, Toast.LENGTH_LONG).show()
+                        onError(errorMsg)
                     }
                 }
 
                 override fun onFailure(call: Call<UpdatePlotGeneralInfoResponse>, t: Throwable) {
                     _isLoading.value = false
-                    _errorMessage.value = "Error de conexión"
-                    Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
-                    onError(_errorMessage.value)
+                    val connectionErrorMsg = "Error de conexión"
+                    _errorMessage.value = connectionErrorMsg
+                    Toast.makeText(navController.context, connectionErrorMsg, Toast.LENGTH_LONG).show()
+                    onError(connectionErrorMsg)
                 }
             })
     }
+
 }

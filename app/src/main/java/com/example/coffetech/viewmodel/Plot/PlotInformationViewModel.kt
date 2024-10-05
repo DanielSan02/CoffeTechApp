@@ -81,6 +81,8 @@ class PlotInformationViewModel : ViewModel() {
     // Función para obtener el plot
     fun getPlot(plotId: Int, sessionToken: String) {
         _isLoading.value = true
+        _errorMessage.value = ""  // Limpiar cualquier mensaje de error anterior
+
         RetrofitInstance.api.getPlot(plotId, sessionToken).enqueue(object : Callback<GetPlotResponse> {
             override fun onResponse(call: Call<GetPlotResponse>, response: Response<GetPlotResponse>) {
                 _isLoading.value = false
@@ -123,4 +125,5 @@ class PlotInformationViewModel : ViewModel() {
             }
         })
     }
+
 }

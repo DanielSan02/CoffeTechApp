@@ -128,6 +128,7 @@ class PlotViewModel : ViewModel() {
     fun onCreatePlot(navController: NavController, context: Context, farmId: Int, plotName: String, coffeeVarietyName: String) {
         if (latitude.value.isBlank() || longitude.value.isBlank() || plotName.isBlank()) {
             _errorMessage.value = "Todos los campos deben estar completos."
+            Toast.makeText(context, "Error: Todos los campos deben estar completos.", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -154,22 +155,35 @@ class PlotViewModel : ViewModel() {
             override fun onResponse(call: Call<CreateFarmResponse>, response: retrofit2.Response<CreateFarmResponse>) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "Lote creado exitosamente", Toast.LENGTH_LONG).show()
-                    // Navegar de vuelta a la pantalla de información de la finca
-                    navController.navigate("farmInformationView/$farmId") {
-                        popUpTo("farmInformationView/$farmId") { inclusive = true }
+                    val responseBody = response.body()
+                    if (responseBody?.status == "success") {
+                        Toast.makeText(context, "Lote creado exitosamente", Toast.LENGTH_LONG).show()
+                        navController.navigate("farmInformationView/$farmId") {
+                            popUpTo("farmInformationView/$farmId") { inclusive = true }
+                        }
+                    } else if (responseBody?.status == "error") {
+                        val errorMsg = responseBody.message ?: "Error desconocido."
+                        _errorMessage.value = errorMsg
+                        Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                    } else {
+                        _errorMessage.value = "Respuesta inesperada del servidor."
+                        Toast.makeText(context, "Respuesta inesperada del servidor.", Toast.LENGTH_LONG).show()
                     }
                 } else {
                     _errorMessage.value = "Error al crear el lote."
+                    Toast.makeText(context, "Error al crear el lote.", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<CreateFarmResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión"
+                val connectionErrorMsg = "Error de conexión"
+                _errorMessage.value = connectionErrorMsg
+                Toast.makeText(context, connectionErrorMsg, Toast.LENGTH_LONG).show()
             }
         })
     }
+
 
 
 }

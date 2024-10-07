@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.*
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
@@ -69,7 +70,8 @@ fun PlotInformationView(
         HeaderFooterSubView(
         title = "Información de Lote",
         currentView = "Fincas",
-        navController = navController
+        navController = navController,
+        onBackClick = { navController.navigate(Routes.FarmInformationView) },
     ) {
         Column(
             modifier = Modifier

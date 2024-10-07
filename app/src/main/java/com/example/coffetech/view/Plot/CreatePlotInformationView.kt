@@ -94,7 +94,7 @@ fun CreatePlotInformationView(
                 Text(
                     text = "Crear Lote",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                    style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
                         // Sobrescribir el tamaño de la fuente
                         color = Color(0xFF49602D)      // Sobrescribir el color
                     ),

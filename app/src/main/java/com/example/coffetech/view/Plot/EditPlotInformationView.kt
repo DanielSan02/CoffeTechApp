@@ -85,12 +85,24 @@ fun EditPlotInformationView(
                     text = "Editar Información",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.W600,
-                    fontSize = 25.sp,
+                    fontSize = 34.sp,
                     color = Color(0xFF49602D),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Nombre",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Nombre de lote
                 ReusableTextField(
@@ -101,6 +113,19 @@ fun EditPlotInformationView(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = "Variedad",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
 
 
                 // Variedad cafe

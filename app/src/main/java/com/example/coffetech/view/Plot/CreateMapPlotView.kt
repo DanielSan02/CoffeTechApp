@@ -207,19 +207,19 @@ fun CreateMapPlotView(
                                     text = "Crear Lote",
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.W600,
-                                    fontSize = 25.sp,
+                                    fontSize = 30.sp,
                                     color = Color(0xFF49602D),
                                     modifier = Modifier.fillMaxWidth()
                                 )
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(30.dp))
 
                                 // Título para ubicación
                                 Text(
                                     text = "Ubicación",
                                     textAlign = TextAlign.Start,
                                     fontWeight = FontWeight.W500,
-                                    fontSize = 20.sp,
+                                    fontSize = 22.sp,
                                     color = Color(0xFF49602D),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -305,7 +305,7 @@ fun CreateMapPlotView(
                                     destination = "createPlotInformationView/$farmId?plotName=${Uri.encode(plotName)}&selectedVariety=${Uri.encode(selectedVariety)}",
                                     text = "Volver",
                                     modifier = Modifier
-                                        .size(width = 160.dp, height = 48.dp)
+                                        .size(width = 160.dp, height = 54.dp)
                                         .align(Alignment.CenterHorizontally)
                                 )
                             }

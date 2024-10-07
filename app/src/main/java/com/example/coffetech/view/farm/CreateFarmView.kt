@@ -87,7 +87,7 @@ fun CreateFarmView(
                 Text(
                     text = "Crear Finca",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                    style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
               // Sobrescribir el tamaño de la fuente
                         color = Color(0xFF49602D)      // Sobrescribir el color
                     ),
@@ -145,6 +145,19 @@ fun CreateFarmView(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Unidad de Medida",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
 
                 // Unidad de medida
                 UnitDropdown(

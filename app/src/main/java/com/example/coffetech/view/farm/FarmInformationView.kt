@@ -79,7 +79,8 @@ fun FarmInformationView(
     HeaderFooterSubView(
         title = "Mi Finca",
         currentView = "Fincas",
-        navController = navController
+        navController = navController,
+        onBackClick = { navController.navigate(Routes.FarmView) },
     ) {
         Box(
             modifier = Modifier

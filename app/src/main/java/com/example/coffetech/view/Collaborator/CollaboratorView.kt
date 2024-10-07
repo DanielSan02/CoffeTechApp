@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.R
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.CollaboratorInfoCard
 import com.example.coffetech.common.FarmItemCard
 import com.example.coffetech.common.FloatingActionButtonGroup
@@ -77,7 +78,8 @@ fun CollaboratorView(
     HeaderFooterSubView(
         title = "Mis Colaboradores",
         currentView = "Fincas",
-        navController = navController
+        navController = navController,
+        onBackClick = { navController.navigate(Routes.FarmInformationView) },
     ) {
         // Main content box with the list of farms and floating action button
 

@@ -53,8 +53,10 @@ fun HeaderFooterSubView(
     modifier: Modifier = Modifier,
     title: String,
     navController: NavController,
+    onBackClick: () -> Unit = {},
     currentView: String = "",
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
+
 ) {
     val headerFooterSubViewModel: HeaderFooterViewModel = viewModel()
     val context = LocalContext.current
@@ -67,9 +69,9 @@ fun HeaderFooterSubView(
         topBar = {
             // Top bar with a back arrow and a title
             TopBarWithBackArrow(
-                onBackClick = { navController.navigate(Routes.FarmView) },
                 title = title,
                 backgroundColor = Color.White,
+                onBackClick = onBackClick
             )
         },
         bottomBar = {
@@ -109,10 +111,13 @@ fun HeaderFooterViewSubPreview() {
     HeaderFooterSubView(
         title = "Nombre de finca",
         currentView = "Fincas",
-        navController = navController
+        navController = navController,
     ) {
         // Example content in the main area
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
             Text("Contenido Principal")
         }
     }

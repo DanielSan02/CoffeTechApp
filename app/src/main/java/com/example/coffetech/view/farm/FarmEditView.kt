@@ -92,7 +92,7 @@ fun FarmEditView(
 
                 // Título de la pantalla
                 Text(
-                    text = "Información de la finca",
+                    text = " Editar información de finca",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
                         // Sobrescribir el tamaño de la fuente
@@ -142,12 +142,13 @@ fun FarmEditView(
 
                 // Área de la finca y unidad
                 ReusableTextField(
-                    value = farmAreaState,
+                    value = farmAreaState.toDoubleOrNull()?.toInt().toString(), // Mostrar solo la parte entera
                     onValueChange = { viewModel.onFarmAreaChange(it) },
                     placeholder = "Área de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmAreaState.isNotEmpty(),
                     charLimit= 5,
+                    isNumeric = true,
                     errorMessage = if (farmAreaState.isEmpty()) "El área de la finca no puede estar vacía" else ""
                 )
 

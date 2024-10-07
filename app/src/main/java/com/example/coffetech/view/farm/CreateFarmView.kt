@@ -141,6 +141,7 @@ fun CreateFarmView(
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmArea.isNotEmpty() || !isFormSubmitted.value,
                     charLimit = 5,
+                    isNumeric = true,
                     errorMessage = if (farmArea.isEmpty() && isFormSubmitted.value) "El área de la finca no puede estar vacía" else ""
                 )
 

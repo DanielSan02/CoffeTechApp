@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +57,7 @@ fun EditPlotInformationView(
     val isLoading by viewModel.isLoading.collectAsState()
     val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
     val hasChanges by viewModel.hasChanges.collectAsState()
+    val isFormSubmitted = remember { mutableStateOf(false) }
 
     // Inicializar el ViewModel con los valores recibidos
     LaunchedEffect(Unit) {
@@ -119,7 +122,11 @@ fun EditPlotInformationView(
                     value = currentPlotName,
                     onValueChange = { viewModel.onPlotNameChange(it) },
                     placeholder = "Nombre del lote",
-                    modifier = Modifier.fillMaxWidth()
+                    charLimit = 50,
+                    isValid = currentPlotName.isNotEmpty() || !isFormSubmitted.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    errorMessage = if (currentPlotName.isEmpty() && isFormSubmitted.value) "El nombre del lote no puede estar vacío" else ""
+
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -162,15 +169,14 @@ fun EditPlotInformationView(
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
+                        isFormSubmitted.value = true
                         viewModel.saveChanges(
                             plotId = plotId,
                             navController = navController,
                             onSuccess = {
-                                Toast.makeText(context, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show()
                                 navController.popBackStack()
                             },
                             onError = { error ->
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                             }
                         )
                     },

@@ -28,6 +28,7 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun FarmInformationView(
@@ -120,11 +121,12 @@ fun FarmInformationView(
                     Spacer(modifier = Modifier.height(16.dp))
 
 
+                    val farmAreaInt by viewModel.farmArea.map { it.toInt().toString() }.collectAsState("")
 
                     // Componente reutilizable de Información General
                     GeneralInfoCard(
                         farmName = displayedFarmName,
-                        farmArea = farmArea,
+                        farmArea = farmAreaInt,
                         farmUnitMeasure = unitOfMeasure,
                         onEditClick = { viewModel.onEditFarm(navController, farmId, farmName, farmArea, unitOfMeasure) },
                         showEditButton = userHasPermissionToEdit // Solo muestra el botón si tiene el permiso

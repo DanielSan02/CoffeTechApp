@@ -96,7 +96,7 @@ fun SelectedRoleDisplay(
 @Composable
 fun GeneralInfoCard(
     farmName: String,
-    farmArea: Double,
+    farmArea: String,
     farmUnitMeasure: String,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -132,7 +132,7 @@ fun GeneralInfoCard(
                 )
 
                 Text(
-                    text = String.format("%.2f", farmArea),
+                    text = farmArea,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )

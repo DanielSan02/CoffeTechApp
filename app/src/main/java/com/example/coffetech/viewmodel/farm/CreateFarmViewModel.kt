@@ -38,6 +38,8 @@ class CreateFarmViewModel : ViewModel() {
     var isLoading = MutableStateFlow(false)
         private set
 
+
+
     fun onFarmNameChange(newName: String) {
         _farmName.value = newName
     }
@@ -66,15 +68,20 @@ class CreateFarmViewModel : ViewModel() {
             return false
         }
 
-        val area = _farmArea.value.toDoubleOrNull()
-        if (area == null || area <= 0 || area > 10000) {
-            errorMessage.value = "El área debe ser un número mayor a 0 y menor a 10000."
+        val areaString = _farmArea.value
+        val area = areaString.toIntOrNull()
+        if (area == null) {
+            errorMessage.value = "El área debe ser un número entero válido."
+            return false
+        }
+        if (area <= 0 || area > 10000) {
+            errorMessage.value = "El área debe ser mayor a 0 y menor o igual a 10,000."
             return false
         }
 
         // Validación de la unidad seleccionada
-        if (_selectedUnit.value == "Seleccione unidad de medida") {
-            errorMessage.value = "Debe seleccionar una opción válida para la unidad de medida."
+        if (_selectedUnit.value == "Seleccione una opción") {
+            errorMessage.value = "Debe seleccionar una la unidad de medida."
             return false
         }
 

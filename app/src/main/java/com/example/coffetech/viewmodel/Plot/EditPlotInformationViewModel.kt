@@ -109,7 +109,7 @@ class EditPlotInformationViewModel : ViewModel() {
         if (_plotName.value.isBlank() || _selectedVariety.value.isBlank()) {
             _errorMessage.value = "Todos los campos son obligatorios."
             Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
-            onError(_errorMessage.value)
+
             return
         }
 
@@ -119,7 +119,7 @@ class EditPlotInformationViewModel : ViewModel() {
         if (sessionToken.isNullOrEmpty()) {
             _errorMessage.value = "Token de sesión no encontrado. Por favor, inicia sesión nuevamente."
             Toast.makeText(navController.context, _errorMessage.value, Toast.LENGTH_LONG).show()
-            onError(_errorMessage.value)
+
             return
         }
 
@@ -151,11 +151,11 @@ class EditPlotInformationViewModel : ViewModel() {
                             val errorMsg = responseBody.message ?: "Error desconocido."
                             _errorMessage.value = errorMsg
                             Toast.makeText(navController.context, errorMsg, Toast.LENGTH_LONG).show()
-                            onError(errorMsg)
+
                         } else {
                             _errorMessage.value = "Respuesta inesperada del servidor."
                             Toast.makeText(navController.context, "Respuesta inesperada del servidor.", Toast.LENGTH_LONG).show()
-                            onError(_errorMessage.value)
+
                         }
                     } else {
                         // Manejar errores de respuesta no exitosa
@@ -167,7 +167,7 @@ class EditPlotInformationViewModel : ViewModel() {
                         }
                         _errorMessage.value = errorMsg
                         Toast.makeText(navController.context, errorMsg, Toast.LENGTH_LONG).show()
-                        onError(errorMsg)
+
                     }
                 }
 
@@ -176,7 +176,7 @@ class EditPlotInformationViewModel : ViewModel() {
                     val connectionErrorMsg = "Error de conexión"
                     _errorMessage.value = connectionErrorMsg
                     Toast.makeText(navController.context, connectionErrorMsg, Toast.LENGTH_LONG).show()
-                    onError(connectionErrorMsg)
+                    //onError(connectionErrorMsg)
                 }
             })
     }

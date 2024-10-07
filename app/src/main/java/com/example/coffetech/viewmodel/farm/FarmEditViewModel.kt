@@ -51,7 +51,7 @@ class FarmEditViewModel : ViewModel() {
     // Inicializar los valores iniciales
     fun initializeValues(farmName: String, farmArea: String, selectedUnit: String) {
         initialFarmName = farmName
-        initialFarmArea = farmArea
+        initialFarmArea = farmArea.toDoubleOrNull()?.toInt()?.toString() ?: "0" // Convertir a entero y luego a String
         initialSelectedUnit = selectedUnit
 
         // Establecer los valores iniciales en los estados del ViewModel

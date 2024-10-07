@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -161,25 +163,35 @@ fun ReusableTextField(
     margin: Dp = 8.dp,
     errorMessage: String = "",
     charLimit: Int = 100, // Límite de caracteres por defecto a 100
+    isNumeric: Boolean = false // Nuevo parámetro para el teclado numérico
+
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     // Expresión regular que detecta emojis y los filtra
     val emojiRegex = "[\\p{So}\\p{Cn}]".toRegex() // Detecta emojis y caracteres no definidos
+    val numericRegex = "[^0-9]".toRegex()
 
     Column {
         TextField(
             value = value.take(charLimit), // Limita la cantidad de caracteres a charLimit
             onValueChange = {
-                // Filtra los emojis de la cadena ingresada
-                val filteredText = it.replace(emojiRegex, "")
+                var filteredText = it.replace(emojiRegex, "") // Filtra los emojis
+
+                if (isNumeric) {
+                    filteredText = filteredText.replace(numericRegex, "") // Filtra caracteres no numéricos
+                }
+
                 if (filteredText.length <= charLimit) {
                     onValueChange(filteredText) // Solo permite cambios si no excede el límite
                 }
             },
             placeholder = { Text(placeholder) },
             enabled = enabled,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = if (isNumeric) KeyboardType.Number else KeyboardType.Text
+            ),
             visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,

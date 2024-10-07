@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,9 +42,11 @@ fun CreatePlotInformationView(
 ) {
     val currentPlotName by viewModel.plotName.collectAsState()
     val currentSelectedVariety by viewModel.selectedVariety.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
+
+    // Variable para indicar si el formulario fue enviado
+    val isFormSubmitted = remember { mutableStateOf(false) }
 
     // Cargar las variedades de café
     val context = LocalContext.current
@@ -94,11 +98,10 @@ fun CreatePlotInformationView(
                 Text(
                     text = "Crear Lote",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF49602D)      // Sobrescribir el color
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = Color(0xFF49602D)
                     ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(45.dp))
@@ -106,11 +109,10 @@ fun CreatePlotInformationView(
                 Text(
                     text = "Nombre",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF3F3D3D)
                     ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -120,7 +122,10 @@ fun CreatePlotInformationView(
                     value = currentPlotName,
                     onValueChange = { viewModel.onPlotNameChange(it) },
                     placeholder = "Nombre del lote",
-                    modifier = Modifier.fillMaxWidth()
+                    charLimit = 50,
+                    isValid = currentPlotName.isNotEmpty() || !isFormSubmitted.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    errorMessage = if (currentPlotName.isEmpty() && isFormSubmitted.value) "El nombre del lote no puede estar vacío" else ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -128,11 +133,10 @@ fun CreatePlotInformationView(
                 Text(
                     text = "Variedad de Café",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF3F3D3D)
                     ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -147,12 +151,16 @@ fun CreatePlotInformationView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Mostrar mensaje de error si lo hay
-                if (errorMessage.isNotEmpty()) {
-                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                // Mensaje de error para la variedad de café
+                if (currentSelectedVariety.isEmpty() && isFormSubmitted.value) {
+                    Text(
+                        text = "Debe seleccionar una variedad de café",
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -160,7 +168,10 @@ fun CreatePlotInformationView(
                 ReusableButton(
                     text = "Siguiente",
                     onClick = {
-                        viewModel.saveAndNavigateToPlotMap(navController, farmId)
+                        isFormSubmitted.value = true  // Marcar como enviado
+                        if (currentPlotName.isNotEmpty() && currentSelectedVariety.isNotEmpty()) {
+                            viewModel.saveAndNavigateToPlotMap(navController, farmId)
+                        }
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -171,6 +182,7 @@ fun CreatePlotInformationView(
         }
     }
 }
+
 
 
 

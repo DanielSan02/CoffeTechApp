@@ -142,6 +142,7 @@ class FarmInformationViewModel : ViewModel() {
                         responseBody.data?.farm?.let { farm ->
                             _farmName.value = farm.name
                             _farmArea.value = farm.area
+
                             _unitOfMeasure.value = farm.unit_of_measure
                             _selectedRole.value = farm.role
                             _status.value = farm.status

@@ -36,12 +36,38 @@ class CreatePlotInformationViewModel(
     fun onPlotNameChange(newName: String) {
         _plotName.value = newName
         savedStateHandle["plotName"] = newName // Guardamos en SavedStateHandle
+        if (newName.isNotBlank()) {
+            _errorMessage.value = "" // Limpiar el mensaje de error si se ingresa un nombre válido
+        }
     }
 
     fun onVarietyChange(newVariety: String) {
         _selectedVariety.value = newVariety
         savedStateHandle["selectedVariety"] = newVariety // Guardamos en SavedStateHandle
     }
+
+    fun validateInputs(): Boolean {
+        if (_plotName.value.isBlank()) {
+            _errorMessage.value = "El nombre del lote no puede estar vacío."
+            return false
+        }
+        return true
+    }
+
+    fun saveAndNavigateToPlotMap(navController: NavController, farmId: Int) {
+        if (!validateInputs()) {
+            return
+        }
+
+        // Si la validación es exitosa, limpia el mensaje de error
+        _errorMessage.value = ""
+
+        // Navegar pasando farmId, plotName y selectedVariety codificados en la URL
+        navController.navigate(
+            "createMapPlotView/$farmId/${Uri.encode(_plotName.value)}/${Uri.encode(_selectedVariety.value)}"
+        )
+    }
+
 
     // Cargar las variedades de café desde SharedPreferences o cualquier otra fuente
     fun loadCoffeeVarieties(context: Context) {
@@ -54,16 +80,5 @@ class CreatePlotInformationViewModel(
         }
     }
 
-    // Función para navegar a CreateMapPlotView
-    fun saveAndNavigateToPlotMap(navController: NavController, farmId: Int) {
-        if (_plotName.value.isBlank() || _selectedVariety.value.isBlank()) {
-            _errorMessage.value = "Todos los campos son obligatorios"
-            return
-        }
 
-        // Navegar pasando farmId, plotName y selectedVariety codificados en la URL
-        navController.navigate(
-            "createMapPlotView/$farmId/${Uri.encode(_plotName.value)}/${Uri.encode(_selectedVariety.value)}"
-        )
-    }
 }

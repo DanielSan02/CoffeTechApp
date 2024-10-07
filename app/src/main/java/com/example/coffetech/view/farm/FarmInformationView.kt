@@ -1,12 +1,11 @@
 package com.example.coffetech.view.farm
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,21 +17,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.*
-import com.example.coffetech.model.Plot
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
-
 
 @Composable
 fun FarmInformationView(
@@ -60,9 +55,10 @@ fun FarmInformationView(
     val unitOfMeasure by viewModel.unitOfMeasure.collectAsState()
     val selectedRole by viewModel.selectedRole.collectAsState()
     val collaboratorName by viewModel.collaboratorName.collectAsState()
-    val lotes by viewModel.lotes.collectAsState() // Aquí están los lotes cargados
+    val lotes by viewModel.lotes.collectAsState() // Aquí están los lotes filtrados
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val searchQuery by viewModel.searchQuery // Obtener la consulta de búsqueda como TextFieldValue
 
     // Verificar permisos del usuario
     val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
@@ -96,10 +92,14 @@ fun FarmInformationView(
             ) {
                 if (isLoading) {
                     // Mostrar un indicador de carga
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Cargando datos de la finca...",
                         color = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 } else if (errorMessage.isNotEmpty()) {
                     // Mostrar el error si ocurrió algún problema
@@ -107,9 +107,19 @@ fun FarmInformationView(
                 } else {
 
                     // Mostrar el rol seleccionado
-                    Text(text = "Rol: ${selectedRole ?: "Sin rol"}", color = Color.Black)
-
+                    Text(text = "Su rol es: ${selectedRole.ifEmpty { "Sin rol" }}", color = Color.Black)
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    // Search bar para filtrar lotes por nombre
+                    ReusableSearchBar(
+                        query = searchQuery,
+                        onQueryChanged = { viewModel.onSearchQueryChanged(it) },
+                        text = "Buscar lote por nombre",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+
 
                     // Componente reutilizable de Información General
                     GeneralInfoCard(
@@ -152,7 +162,7 @@ fun FarmInformationView(
 
                     // Lista de Lotes usando el LotesList personalizado
                     LotesList(
-                        lotes = lotes, // Pasamos directamente la lista de objetos Plot
+                        lotes = lotes, // Utilizar la lista filtrada de lotes
                         modifier = Modifier.fillMaxWidth(),
                         onLoteClick = { lote ->
                             navController.navigate(
@@ -160,8 +170,6 @@ fun FarmInformationView(
                             )
                         }
                     )
-
-
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -177,7 +185,6 @@ fun FarmInformationView(
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
             )
-
         }
     }
 }

@@ -106,7 +106,8 @@ fun ProfileView(
                     onValueChange = { viewModel.onNameChange(it) },
                     placeholder = "Nombre:",
                     charLimit = 50,
-                    margin = 0.dp
+                    modifier = Modifier.fillMaxWidth(),
+                            margin = 0.dp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -122,6 +123,7 @@ fun ProfileView(
                     onValueChange = { },
                     placeholder = "Correo",
                     enabled = false,
+                    modifier = Modifier.fillMaxWidth(),
                     margin = 0.dp
                 )
                 Spacer(modifier = Modifier.height(16.dp))

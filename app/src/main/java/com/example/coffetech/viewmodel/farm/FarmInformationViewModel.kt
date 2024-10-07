@@ -1,40 +1,28 @@
 package com.example.coffetech.viewmodel.farm
 
 import android.content.Context
-import androidx.compose.runtime.MutableState
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.coffetech.model.GetFarmResponse
+import com.example.coffetech.model.ListPlotsResponse
+import com.example.coffetech.model.Plot
 import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
-
-
-import android.util.Log // Importa la clase Log
-import android.widget.Toast
-import com.example.coffetech.model.ListPlotsResponse
-import com.example.coffetech.model.Plot
-import com.example.coffetech.utils.SharedPreferencesHelper
-import org.json.JSONObject
+import androidx.compose.ui.text.input.TextFieldValue
 
 class FarmInformationViewModel : ViewModel() {
 
-    // Estado de búsqueda
-    private val _searchQuery = mutableStateOf("")
-    val searchQuery: MutableState<String> = _searchQuery
-
-    fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
-        Log.d("FarmInfoViewModel", "Search query changed: $query")
-    }
-
-        // Estados de nombre, área, y otros datos de la finca
+    // Estados de nombre, área, y otros datos de la finca
     private val _farmName = MutableStateFlow("")
     val farmName: StateFlow<String> = _farmName.asStateFlow()
 
@@ -62,17 +50,45 @@ class FarmInformationViewModel : ViewModel() {
     private val _collaboratorName = MutableStateFlow("Colaborador de Ejemplo")
     val collaboratorName: StateFlow<String> = _collaboratorName.asStateFlow()
 
+    // Lista completa de lotes sin filtrar
+    private val _allLotes = MutableStateFlow<List<Plot>>(emptyList())
 
-    private val _lotes = MutableStateFlow<List<Plot>>(emptyList())
-    val lotes: StateFlow<List<Plot>> = _lotes.asStateFlow()
+    // Estado de búsqueda usando TextFieldValue
+    private val _searchQuery = mutableStateOf(TextFieldValue(""))
+    val searchQuery = _searchQuery
 
+    // Lista de lotes filtrados según la búsqueda
+    private val _filteredLotes = MutableStateFlow<List<Plot>>(emptyList())
+    val lotes: StateFlow<List<Plot>> = _filteredLotes.asStateFlow()
 
+    /**
+     * Maneja el cambio de la consulta de búsqueda.
+     *
+     * @param query El nuevo valor de búsqueda como TextFieldValue.
+     */
+    fun onSearchQueryChanged(query: TextFieldValue) {
+        _searchQuery.value = query
+        Log.d("FarmInfoViewModel", "Search query changed: ${query.text}")
+        filterLotes() // Filtra los lotes cada vez que cambia la consulta de búsqueda
+    }
 
+    /**
+     * Filtra los lotes basados en la consulta de búsqueda.
+     */
+    private fun filterLotes() {
+        val queryText = _searchQuery.value.text
+        if (queryText.isEmpty()) {
+            _filteredLotes.value = _allLotes.value
+        } else {
+            _filteredLotes.value = _allLotes.value.filter { lote ->
+                lote.name.contains(queryText, ignoreCase = true)
+            }
+        }
+    }
 
     fun onEditFarm(navController: NavController, farmId: Int, farmName: String, farmArea: Double, unitOfMeasure: String) {
         navController.navigate("FarmEditView/$farmId/$farmName/$farmArea/$unitOfMeasure")
     }
-
 
     fun onAddCollaborator(navController: NavController) {
         Log.d("FarmInfoViewModel", "Navigating to CollaboratorView")
@@ -83,7 +99,6 @@ class FarmInformationViewModel : ViewModel() {
         Log.d("FarmInfoViewModel", "Navigating to AddLoteView")
         navController.navigate("AddLoteView")
     }
-
 
     // Función para verificar si el rol tiene un permiso específico
     fun hasPermission(permission: String): Boolean {
@@ -102,10 +117,11 @@ class FarmInformationViewModel : ViewModel() {
     }
 
     /**
-     * Loads the farm details from the backend by making an API request.
+     * Carga los detalles de la finca desde el backend haciendo una solicitud API.
      *
-     * @param farmId The ID of the farm to fetch details for.
-     * @param sessionToken The session token for authorization.
+     * @param farmId El ID de la finca para la cual se obtienen los detalles.
+     * @param sessionToken El token de sesión para la autorización.
+     * @param context El contexto para mostrar Toasts en caso de errores.
      */
     fun loadFarmData(farmId: Int, sessionToken: String, context: Context) {
         if (sessionToken.isEmpty()) {
@@ -156,22 +172,24 @@ class FarmInformationViewModel : ViewModel() {
                 Log.e("FarmInfoViewModel", "API call failed for farmId: $farmId, Error: ${t.message}", t)
             }
         })
-
-
-
-}
-
+    }
 
     /**
-     * Sets an error message to be displayed in the UI.
+     * Establece un mensaje de error para ser mostrado en la UI.
      *
-     * @param message The error message to set.
+     * @param message El mensaje de error a establecer.
      */
     fun setErrorMessage(message: String) {
         _errorMessage.value = message
         Log.e("FarmInfoViewModel", "Error set: $message")
     }
 
+    /**
+     * Carga los lotes desde el backend y aplica el filtrado inicial.
+     *
+     * @param farmId El ID de la finca.
+     * @param sessionToken El token de sesión para la autorización.
+     */
     fun loadPlots(farmId: Int, sessionToken: String) {
         _isLoading.value = true
         _errorMessage.value = ""  // Limpiar cualquier mensaje de error anterior
@@ -183,7 +201,8 @@ class FarmInformationViewModel : ViewModel() {
                     val responseBody = response.body()
                     responseBody?.let {
                         if (it.status == "success") {
-                            _lotes.value = it.data.plots
+                            _allLotes.value = it.data.plots // Almacena todos los lotes
+                            filterLotes() // Aplica el filtro inicial (sin búsqueda)
                         } else if (it.status == "error") {
                             val errorMsg = it.message ?: "Error desconocido al cargar los lotes."
                             _errorMessage.value = errorMsg
@@ -217,6 +236,4 @@ class FarmInformationViewModel : ViewModel() {
             }
         })
     }
-
 }
-

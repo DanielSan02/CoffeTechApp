@@ -85,7 +85,9 @@ fun ChangePasswordView(
                 onValueChange = { viewModel.onCurrentPasswordChange(it) },
                 placeholder = "Contraseña actual",
                 isPassword = true,
-            )
+                modifier = Modifier.fillMaxWidth(),
+
+                )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -100,8 +102,10 @@ fun ChangePasswordView(
                 value = newPassword,
                 onValueChange = { viewModel.onNewPasswordChange(it) },
                 placeholder = "Nueva contraseña",
-                isPassword = true
-            )
+                isPassword = true,
+                modifier = Modifier.fillMaxWidth()
+
+                )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -116,6 +120,8 @@ fun ChangePasswordView(
                 value = confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChange(it) },
                 placeholder = "Confirme nueva contraseña",
+                modifier = Modifier.fillMaxWidth(),
+
                 isPassword = true
             )
 

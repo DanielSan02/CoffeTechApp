@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -82,7 +83,9 @@ fun FarmView(
                 ReusableSearchBar(
                     query = query,
                     onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                    text = "Buscar finca por nombre"
+                    text = "Buscar finca por nombre",
+                    modifier = Modifier.fillMaxWidth()
+
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

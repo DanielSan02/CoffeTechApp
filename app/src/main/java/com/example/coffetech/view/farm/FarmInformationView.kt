@@ -1,5 +1,6 @@
 package com.example.coffetech.view.farm
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
@@ -47,7 +48,7 @@ fun FarmInformationView(
             // Verificar permiso antes de cargar lotes
             if (viewModel.hasPermission("read_plots")) {
                 viewModel.loadPlots(farmId, it)
-            } 
+            }
         } ?: run {
             viewModel.setErrorMessage("Session token no encontrado. Por favor, inicia sesión.")
         }
@@ -152,7 +153,10 @@ fun FarmInformationView(
                             ActionCard(
                                 buttonText = "Colaboradores", // Texto para el primer botón
                                 onClick = {
-                                    navController.navigate("CollaboratorView/$farmId/$farmName")
+                                    val roleToSend = viewModel.selectedRole.value
+                                    Log.d("FarmInformationView", "Navigating to CollaboratorView with role: $roleToSend")
+
+                                    navController.navigate("CollaboratorView/$farmId/$farmName/$roleToSend")
                                 },
                                 modifier = Modifier
                                     .weight(1f)

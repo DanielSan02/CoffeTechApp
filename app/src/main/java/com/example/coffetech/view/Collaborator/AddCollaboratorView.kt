@@ -39,6 +39,7 @@ fun AddCollaboratorView(
     navController: NavController,
     farmId: Int,  // Añadir farmId
     farmName: String,
+    role: String,
     viewModel: AddCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -50,7 +51,7 @@ fun AddCollaboratorView(
 
     val isFormSubmitted = remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        viewModel.loadRolesFromSharedPreferences(context)
+        viewModel.loadRolesForCollaborator(context, role)
     }
 
 
@@ -183,6 +184,7 @@ fun AddCollaboratorViewPreview() {
             navController = mockNavController,
             farmId = 1, // Ejemplo de ID de la finca
             farmName = "Finca 2" ,
+            role = ""
         )
     }
 }

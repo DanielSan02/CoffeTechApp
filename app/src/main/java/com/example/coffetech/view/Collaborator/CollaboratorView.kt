@@ -52,6 +52,7 @@ fun CollaboratorView(
     navController: NavController,
     farmId: Int,  // Añadir farmId
     farmName: String,  // Añadir farmName
+    role: String,
     viewModel: CollaboratorViewModel = viewModel() // Injects the ViewModel here
 ) {
     val context = LocalContext.current
@@ -60,6 +61,8 @@ fun CollaboratorView(
     LaunchedEffect(farmId) {
         viewModel.loadRolesFromSharedPreferences(context)
         viewModel.loadCollaborators(context, farmId)
+        viewModel.loadRolePermissions(context, role) // Cargar permisos para el rol
+
     }
 
     // Retrieve the current state from the ViewModel
@@ -72,6 +75,8 @@ fun CollaboratorView(
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
     val roles by viewModel.roles.collectAsState()
+    val userHasPermissionAddCollaborators = viewModel.hasPermission("add_administrador_farm" ) ||viewModel.hasPermission("add_operador_farm" )
+    val userHasPermissionReadCollaborators = viewModel.hasPermission("read_collaborators")
 
     // Header and Footer layout with content in between
 
@@ -82,7 +87,7 @@ fun CollaboratorView(
         onBackClick = { navController.navigate("${Routes.FarmInformationView}/$farmId") },
     ) {
         // Main content box with the list of farms and floating action button
-
+        if (userHasPermissionReadCollaborators) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -169,18 +174,18 @@ fun CollaboratorView(
                     }
                 }
             }
-
+            if (userHasPermissionAddCollaborators) {
             // Floating action button for creating a new farm
             FloatingActionButtonGroup(
                 onMainButtonClick = {
-                    navController.navigate("AddCollaboratorView/$farmId/$farmName")
+                    navController.navigate("AddCollaboratorView/$farmId/$farmName/$role")
                 },
                 mainButtonIcon = painterResource(id = R.drawable.plus_icon),
                 modifier = Modifier
                     .padding(16.dp)
-            )
+            )}
 
-    }
+    }}
 }
 
 /**
@@ -194,7 +199,8 @@ fun CollaboratorViewPreview() {
     CoffeTechTheme {
         CollaboratorView(navController = NavController(LocalContext.current),
             farmName = "Finca Ejemplo",
-            farmId= 1,)
+            farmId= 1,
+            role= "")
     }
 }
 

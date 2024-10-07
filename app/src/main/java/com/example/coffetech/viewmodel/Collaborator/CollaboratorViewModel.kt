@@ -116,21 +116,18 @@ class CollaboratorViewModel : ViewModel() {
     }
 
     // Función para verificar si el rol tiene un permiso específico
-    fun hasPermission(permission: String): Boolean {
-        return _permissions.value.contains(permission)
-    }
-
-    // Función para cargar los permisos basados en el rol seleccionado
     fun loadRolePermissions(context: Context, selectedRoleName: String) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()
 
-        // Buscar el rol seleccionado y obtener sus permisos
         roles?.find { it.name == selectedRoleName }?.let { role ->
             _permissions.value = role.permissions.map { it.name }
         }
     }
 
+    fun hasPermission(permission: String): Boolean {
+        return _permissions.value.contains(permission)
+    }
 
     // Función para cargar colaboradores desde el servidor
     fun loadCollaborators(context: Context, farmId: Int) {
@@ -219,4 +216,6 @@ class CollaboratorViewModel : ViewModel() {
             "EditCollaboratorView/$farmId/$collaboratorId/$collaboratorName/$collaboratorEmail/$selectedRole"
         )
     }
+
+
 }

@@ -260,42 +260,52 @@ fun AppNavHost(context: Context) {
         }
 
         composable(
-            route = "${Routes.CollaboratorView}/{farmId}/{farmName}",
+            route = "${Routes.CollaboratorView}/{farmId}/{farmName}/{role}",
             arguments = listOf(
                 navArgument("farmId") { type = NavType.IntType },
-                navArgument("farmName") { type = NavType.StringType }
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("role") { type = NavType.StringType }
+
             )
         ) { backStackEntry ->
             val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
             val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
-            CollaboratorView(navController = navController, farmId = farmId, farmName = farmName)
+            val role = backStackEntry.arguments?.getString("role") ?: ""
+
+            CollaboratorView(navController = navController, farmId = farmId, farmName = farmName, role = role)
             BackHandler {
                 // Prevents back navigation gesture here
             }
         }
 
         composable(
-            route = "${Routes.AddCollaboratorView}/{farmId}/{farmName}",
+            route = "${Routes.AddCollaboratorView}/{farmId}/{farmName}/{role}",
             arguments = listOf(
                 navArgument("farmId") { type = NavType.IntType },
-                navArgument("farmName") { type = NavType.StringType }
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("role") { type = NavType.StringType }
+
             )
         ) { backStackEntry ->
             val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
             val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
-            AddCollaboratorView(navController = navController, farmId = farmId, farmName = farmName)
+            val role = backStackEntry.arguments?.getString("role") ?: ""
+
+            AddCollaboratorView(navController = navController, farmId = farmId, farmName = farmName, role = role)
             BackHandler {
                 // Prevents back navigation gesture here
             }
         }
         composable(
-            route = "EditCollaboratorView/{farmId}/{collaboratorId}/{collaboratorName}/{collaboratorEmail}/{selectedRole}",
+            route = "${Routes.EditCollaboratorView}/{farmId}/{collaboratorId}/{collaboratorName}/{collaboratorEmail}/{selectedRole}/{role}",
             arguments = listOf(
                 navArgument("farmId") { type = NavType.IntType },
                 navArgument("collaboratorId") { type = NavType.IntType },
                 navArgument("collaboratorName") { type = NavType.StringType },
                 navArgument("collaboratorEmail") { type = NavType.StringType },
-                navArgument("selectedRole") { type = NavType.StringType }
+                navArgument("selectedRole") { type = NavType.StringType },
+                navArgument("role") { type = NavType.StringType }
+
             )
         ) { backStackEntry ->
             val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
@@ -303,6 +313,8 @@ fun AppNavHost(context: Context) {
             val collaboratorName = backStackEntry.arguments?.getString("collaboratorName") ?: ""
             val collaboratorEmail = backStackEntry.arguments?.getString("collaboratorEmail") ?: ""
             val selectedRole = backStackEntry.arguments?.getString("selectedRole") ?: ""
+            val role = backStackEntry.arguments?.getString("role") ?: ""
+
             BackHandler {
                 // No action performed, back gesture is disabled
             }
@@ -313,7 +325,8 @@ fun AppNavHost(context: Context) {
                 collaboratorId = collaboratorId,
                 collaboratorName = collaboratorName,
                 collaboratorEmail= collaboratorEmail,
-                selectedRole = selectedRole
+                selectedRole = selectedRole,
+                role = role
             )
         }
 

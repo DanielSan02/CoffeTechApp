@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import androidx.navigation.NavController
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import com.example.coffetech.model.CreateFarmRequest
@@ -43,6 +44,8 @@ class AddCollaboratorViewModel : ViewModel() {
     var isLoading = MutableStateFlow(false)
         private set
 
+    private val _permissions = MutableStateFlow<List<String>>(emptyList())
+
     fun onCollaboratorEmailChange(newName: String) {
         _collaboratorEmail.value = newName
     }
@@ -56,6 +59,28 @@ class AddCollaboratorViewModel : ViewModel() {
         val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
         _collaboratorRole.value = roles
     }
+    // Cargar roles disponibles para el dropdown según el rol que se recibió
+    fun loadRolesForCollaborator(context: Context, userRole: String) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val roles = sharedPreferencesHelper.getRoles()
+
+        // Buscar el rol del usuario y sus permisos
+        roles?.find { it.name == userRole }?.let { role ->
+            _permissions.value = role.permissions.map { it.name }
+
+            // Determinar roles permitidos en función de permisos
+            val allowedRoles = mutableListOf<String>()
+            if (_permissions.value.contains("add_administrador_farm")) {
+                allowedRoles.add("Administrador de finca")
+            }
+            if (_permissions.value.contains("add_operador_farm")) {
+                allowedRoles.add("Operador de campo")
+            }
+            _collaboratorRole.value = allowedRoles
+            Log.d("AddCollaboratorVM", "Roles disponibles según permisos: $allowedRoles")
+        }
+    }
+
 
 
 

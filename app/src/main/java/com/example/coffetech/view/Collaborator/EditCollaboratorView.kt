@@ -45,6 +45,7 @@ fun EditCollaboratorView(
     collaboratorName: String,
     collaboratorEmail: String,
     selectedRole: String,
+    role: String,
     viewModel: EditCollaboratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -310,7 +311,8 @@ fun EditCollaboratorViewPreview() {
             collaboratorId = 1,
             collaboratorName = "Juan Pérez", // Ejemplo de nombre de colaborador
             collaboratorEmail = "juan.perez@example.com", // Ejemplo de email de colaborador
-            selectedRole = "Administrador"
+            selectedRole = "Administrador",
+            role = ""
         )
     }
 }

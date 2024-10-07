@@ -56,7 +56,7 @@ class NotificationViewModel : ViewModel() {
 
             override fun onFailure(call: Call<NotificationResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
             }
         })
     }
@@ -97,7 +97,7 @@ class NotificationViewModel : ViewModel() {
                 }
 
                 override fun onFailure(call: Call<ApiResponse<Any>>, t: Throwable) {
-                    onFailure("Error de conexión: ${t.message}")
+                    onFailure("Error de conexión")
                 }
             })
     }

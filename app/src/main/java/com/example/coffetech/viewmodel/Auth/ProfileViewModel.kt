@@ -125,10 +125,10 @@ class ProfileViewModel : ViewModel() {
             }
 
             override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
-                val connectionErrorMsg = "Error de conexión: ${t.message}"
+                val connectionErrorMsg = "Error de conexión"
                 errorMessage.value = connectionErrorMsg
                 Toast.makeText(context, connectionErrorMsg, Toast.LENGTH_LONG).show()
-                Log.e("ProfileViewModel", "Error de conexión: ${t.message}")
+                Log.e("ProfileViewModel", "Error de conexión")
             }
         })
     }

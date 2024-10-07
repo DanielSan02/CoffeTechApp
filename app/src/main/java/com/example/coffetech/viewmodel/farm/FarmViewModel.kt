@@ -76,23 +76,45 @@ class FarmViewModel : ViewModel() {
         val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
         _roles.value = roles
     }
+    // Función para manejar el cambio del estado del menú desplegable
+    fun setDropdownExpanded(isExpanded: Boolean) {
+        _isDropdownExpanded.value = isExpanded
+    }
+
+
+    // Función para manejar el cambio de búsqueda
+    fun onSearchQueryChanged(query: TextFieldValue) {
+        _searchQuery.value = query
+        filterFarms() // Aplica el filtrado combinado
+    }
 
     // Función para manejar la selección de roles
     fun selectRole(role: String?) {
         _selectedRole.value = role
-        if (role == null) {
-            // Si no se seleccionó ningún rol (es decir, "Todos los roles"), mostrar todas las fincas
-            _farms.value = _allFarms
-        } else {
-            // Filtrar las fincas por el rol seleccionado
-            filterFarmsByRole(role)
-        }
+        filterFarms() // Aplica el filtrado combinado
     }
 
+    // Filtrar las fincas según el rol y la búsqueda
+    private fun filterFarms() {
+        val role = _selectedRole.value
+        val query = _searchQuery.value.text
 
-    // Función para manejar el cambio del estado del menú desplegable
-    fun setDropdownExpanded(isExpanded: Boolean) {
-        _isDropdownExpanded.value = isExpanded
+        // Filtramos primero por rol si hay uno seleccionado
+        var filteredFarms = if (role != null) {
+            _allFarms.filter { it.role == role }
+        } else {
+            _allFarms
+        }
+
+        // Luego aplicamos la búsqueda por nombre si hay un texto de búsqueda
+        if (query.isNotBlank()) {
+            filteredFarms = filteredFarms.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+
+        // Actualizamos la lista de fincas visibles
+        _farms.value = filteredFarms
     }
 
     // Función para cargar fincas desde el servidor
@@ -142,27 +164,13 @@ class FarmViewModel : ViewModel() {
 
             override fun onFailure(call: Call<ListFarmResponse>, t: Throwable) {
                 isLoading.value = false
-                errorMessage.value = "Error de conexión: ${t.message}"
-                Log.e("FarmViewModel", "Error de conexión: ${t.message}")
-                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+                errorMessage.value = "Error de conexión"
+                Log.e("FarmViewModel", "Error de conexión")
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG).show()
             }
         })
     }
 
-    // Función para manejar la búsqueda
-    fun onSearchQueryChanged(query: TextFieldValue) {
-        _searchQuery.value = query
-
-        if (query.text.isBlank()) {
-            // Si la búsqueda está vacía, mostramos todas las fincas
-            _farms.value = _allFarms
-        } else {
-            // Filtramos las fincas según el nombre
-            _farms.value = _allFarms.filter {
-                it.name.contains(query.text, ignoreCase = true)
-            }
-        }
-    }
 
     // Añade una propiedad para almacenar temporalmente la finca seleccionada
     private val _selectedFarmId = mutableStateOf<Int?>(null)

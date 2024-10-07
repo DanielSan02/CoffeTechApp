@@ -145,8 +145,8 @@ class CreateFarmViewModel : ViewModel() {
 
             override fun onFailure(call: Call<CreateFarmResponse>, t: Throwable) {
                 isLoading.value = false
-                errorMessage.value = "Error de conexión: ${t.message}"
-                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+                errorMessage.value = "Error de conexión"
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG).show()
             }
         })
     }

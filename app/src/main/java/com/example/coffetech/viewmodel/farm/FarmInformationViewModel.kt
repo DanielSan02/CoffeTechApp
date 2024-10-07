@@ -17,9 +17,11 @@ import retrofit2.Response
 
 
 import android.util.Log // Importa la clase Log
+import android.widget.Toast
 import com.example.coffetech.model.ListPlotsResponse
 import com.example.coffetech.model.Plot
 import com.example.coffetech.utils.SharedPreferencesHelper
+import org.json.JSONObject
 
 class FarmInformationViewModel : ViewModel() {
 
@@ -115,39 +117,49 @@ class FarmInformationViewModel : ViewModel() {
         Log.d("FarmInfoViewModel", "Starting API call to fetch farm data for farmId: $farmId with sessionToken: $sessionToken")
         _isLoading.value = true
 
-        // Llamada a Retrofit para obtener los datos de la finca
         RetrofitInstance.api.getFarm(farmId, sessionToken).enqueue(object : Callback<GetFarmResponse> {
             override fun onResponse(call: Call<GetFarmResponse>, response: Response<GetFarmResponse>) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    Log.d("FarmInfoViewModel", "API call successful for farmId: $farmId")
-                    response.body()?.data?.farm?.let { farm -> // Cambia aquí para acceder a farm dentro de data
-                        _farmName.value = farm.name
-                        _farmArea.value = farm.area // Convertir área a String con formato
-                        _unitOfMeasure.value = farm.unit_of_measure
-                        _selectedRole.value = farm.role
-                        _status.value = farm.status
-                        Log.d("FarmInfoViewModel", "Farm data loaded: $farm")
-                        loadRolePermissions(context, farm.role)
-                    } ?: run {
-                        _errorMessage.value = "Error: Farm data is null"
-                        Log.e("FarmInfoViewModel", "Error: Farm data is null")
+                    val responseBody = response.body()
+                    if (responseBody?.status == "success") {
+                        responseBody.data?.farm?.let { farm ->
+                            _farmName.value = farm.name
+                            _farmArea.value = farm.area
+                            _unitOfMeasure.value = farm.unit_of_measure
+                            _selectedRole.value = farm.role
+                            _status.value = farm.status
+                            loadRolePermissions(context, farm.role)
+                        } ?: run {
+                            _errorMessage.value = "Error: No se encontraron datos de la finca."
+                            Toast.makeText(context, "Error: No se encontraron datos de la finca.", Toast.LENGTH_LONG).show()
+                        }
+                    } else if (responseBody?.status == "error") {
+                        val errorMsg = responseBody.message ?: "Error desconocido."
+                        _errorMessage.value = errorMsg
+                        Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                    } else {
+                        _errorMessage.value = "Respuesta inesperada del servidor."
+                        Toast.makeText(context, "Respuesta inesperada del servidor.", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    // Obtener el error detallado si hay uno
-                    val errorBody = response.errorBody()?.string()
-                    _errorMessage.value = "Error: ${response.message()}, Details: $errorBody"
-                    Log.e("FarmInfoViewModel", "Error in API response: ${response.message()}, Body: $errorBody")
+                    _errorMessage.value = "Error al obtener los datos de la finca."
+                    Toast.makeText(context, "Error al obtener los datos de la finca.", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<GetFarmResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                val connectionErrorMsg = "Error de conexión"
+                _errorMessage.value = connectionErrorMsg
+                Toast.makeText(context, connectionErrorMsg, Toast.LENGTH_LONG).show()
                 Log.e("FarmInfoViewModel", "API call failed for farmId: $farmId, Error: ${t.message}", t)
             }
         })
-    }
+
+
+
+}
 
 
     /**
@@ -162,26 +174,49 @@ class FarmInformationViewModel : ViewModel() {
 
     fun loadPlots(farmId: Int, sessionToken: String) {
         _isLoading.value = true
+        _errorMessage.value = ""  // Limpiar cualquier mensaje de error anterior
 
         RetrofitInstance.api.listPlots(farmId, sessionToken).enqueue(object : Callback<ListPlotsResponse> {
             override fun onResponse(call: Call<ListPlotsResponse>, response: Response<ListPlotsResponse>) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    response.body()?.data?.let { data ->
-                        _lotes.value = data.plots
+                    val responseBody = response.body()
+                    responseBody?.let {
+                        if (it.status == "success") {
+                            _lotes.value = it.data.plots
+                        } else if (it.status == "error") {
+                            val errorMsg = it.message ?: "Error desconocido al cargar los lotes."
+                            _errorMessage.value = errorMsg
+                        }
                     } ?: run {
                         _errorMessage.value = "No se encontraron lotes."
                     }
                 } else {
-                    _errorMessage.value = "Error al cargar los lotes: ${response.message()}"
+                    val errorBody = response.errorBody()?.string()
+                    errorBody?.let {
+                        try {
+                            val errorJson = JSONObject(it)
+                            val errorMsg = if (errorJson.has("message")) {
+                                errorJson.getString("message")
+                            } else {
+                                "Error desconocido al cargar los lotes."
+                            }
+                            _errorMessage.value = errorMsg
+                        } catch (e: Exception) {
+                            _errorMessage.value = "Error al procesar la respuesta del servidor."
+                        }
+                    } ?: run {
+                        _errorMessage.value = "Error al cargar los lotes: respuesta vacía del servidor."
+                    }
                 }
             }
 
             override fun onFailure(call: Call<ListPlotsResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
             }
         })
     }
+
 }
 

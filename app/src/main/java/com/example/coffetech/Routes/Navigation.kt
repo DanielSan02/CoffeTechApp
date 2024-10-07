@@ -4,6 +4,7 @@ package com.example.coffetech.navigation
 
 import NotificationView
 import android.content.Context // Importar el Context correcto
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -352,34 +353,21 @@ fun AppNavHost(context: Context) {
 
 
         composable(
-            route = "PlotInformationView/{plotId}/{plotName}/{coffeeVariety}/{latitude}/{longitude}/{altitude}/{farmName}",
+            route = "PlotInformationView/{plotId}/{farmName}",
             arguments = listOf(
                 navArgument("plotId") { type = NavType.IntType },
-                navArgument("plotName") { type = NavType.StringType },
-                navArgument("coffeeVariety") { type = NavType.StringType },
-                navArgument("latitude") { type = NavType.StringType },
-                navArgument("longitude") { type = NavType.StringType },
-                navArgument("altitude") { type = NavType.StringType },
+
                 navArgument("farmName") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
-            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
-            val coffeeVariety = backStackEntry.arguments?.getString("coffeeVariety") ?: ""
-            val latitude = backStackEntry.arguments?.getString("latitude") ?: ""
-            val longitude = backStackEntry.arguments?.getString("longitude") ?: ""
-            val altitude = backStackEntry.arguments?.getString("altitude") ?: ""
+
             val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
 
             PlotInformationView(
                 navController = navController,
                 plotId = plotId,
-                plotName = plotName,
-                coffeeVariety = coffeeVariety,
-                selectedVariety = coffeeVariety,
-                latitude = latitude,
-                longitude = longitude,
-                altitude = altitude,
+
                 farmName = farmName
             )
         }
@@ -395,12 +383,11 @@ fun AppNavHost(context: Context) {
             val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
             val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
             val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
-
             EditPlotInformationView(
                 navController = navController,
                 plotId = plotId,
-                plotName = plotName,
-                selectedVariety = selectedVariety
+                plotName = Uri.decode(plotName),
+                selectedVariety = Uri.decode(selectedVariety)
             )
         }
 

@@ -41,7 +41,6 @@ class CollaboratorViewModel : ViewModel() {
     private val _searchQuery = mutableStateOf(TextFieldValue(""))
     val searchQuery: MutableState<TextFieldValue> = _searchQuery
 
-
     private val _permissions = MutableStateFlow<List<String>>(emptyList())
     val permissions: StateFlow<List<String>> = _permissions.asStateFlow()
 
@@ -68,11 +67,37 @@ class CollaboratorViewModel : ViewModel() {
     val errorMessage = mutableStateOf("")
 
 
-    private fun filterCollaboratorsByRole(role: String) {
-        // Filtra las fincas según el rol seleccionado
-        _collaborators.value = _allCollaborators.filter {
-            it.role == role
+    fun onSearchQueryChanged(query: TextFieldValue) {
+        _searchQuery.value = query
+        filterCollaborators() // Aplica el filtrado combinado
+    }
+
+    // Función para manejar la selección de roles
+    fun selectRole(role: String?) {
+        _selectedRole.value = role
+        filterCollaborators() // Aplica el filtrado combinado
+    }
+
+    private fun filterCollaborators() {
+        val role = _selectedRole.value
+        val query = _searchQuery.value.text
+
+        // Filtramos primero por rol si hay uno seleccionado
+        var filteredCollaborators = if (role != null) {
+            _allCollaborators.filter { it.role == role }
+        } else {
+            _allCollaborators
         }
+
+        // Luego aplicamos la búsqueda por nombre si hay un texto de búsqueda
+        if (query.isNotBlank()) {
+            filteredCollaborators = filteredCollaborators.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+
+        // Actualizamos la lista de colaboradores visibles
+        _collaborators.value = filteredCollaborators
     }
 
 
@@ -83,17 +108,6 @@ class CollaboratorViewModel : ViewModel() {
         _roles.value = roles
     }
 
-    // Función para manejar la selección de roles
-    fun selectRole(role: String?) {
-        _selectedRole.value = role
-        if (role == null) {
-            // Si no se seleccionó ningún rol (es decir, "Todos los roles"), mostrar todos los colaboradores
-            _collaborators.value = _allCollaborators
-        } else {
-            // Filtrar las fincas por el rol seleccionado
-            filterCollaboratorsByRole(role)
-        }
-    }
 
 
     // Función para manejar el cambio del estado del menú desplegable
@@ -181,29 +195,17 @@ class CollaboratorViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<ListCollaboratorResponse>, t: Throwable) {
                     isLoading.value = false
-                    errorMessage.value = "Error de conexión: ${t.message}"
-                    Log.e("CollaboratorViewModel", "Error de conexión: ${t.message}")
-                    Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG)
+                    errorMessage.value = "Error de conexión"
+                    Log.e("CollaboratorViewModel", "Error de conexión")
+                    Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG)
                         .show()
                 }
             })
     }
 
 
-    // Función para manejar la búsqueda
-    fun onSearchQueryChanged(query: TextFieldValue) {
-        _searchQuery.value = query
 
-        if (query.text.isBlank()) {
-            // Si la búsqueda está vacía, mostramos todas las fincas
-            _collaborators.value = _allCollaborators
-        } else {
-            // Filtramos las fincas según el nombre
-            _collaborators.value = _allCollaborators.filter {
-                it.name.contains(query.text, ignoreCase = true)
-            }
-        }
-    }
+
 
     fun onEditCollaborator(
         navController: NavController,

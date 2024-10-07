@@ -159,7 +159,7 @@ class ChangePasswordViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<ChangePasswordResponse>, t: Throwable) {
                     // Manejar errores de conexión o fallos de la solicitud
-                    val connectionErrorMsg = "Error de conexión: ${t.message}"
+                    val connectionErrorMsg = "Error de conexión"
                     errorMessage.value = connectionErrorMsg
                     Toast.makeText(context, connectionErrorMsg, Toast.LENGTH_LONG).show()
                 }

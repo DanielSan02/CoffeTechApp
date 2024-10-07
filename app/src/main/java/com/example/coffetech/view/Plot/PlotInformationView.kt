@@ -1,6 +1,9 @@
 package com.example.coffetech.view.Plot
 
 
+import PlotInformationViewModel
+import android.content.ContentValues.TAG
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,127 +28,150 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.*
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
-import com.example.coffetech.viewmodel.Plot.PlotInformationViewModel
+import android.util.Log
 
 
 @Composable
 fun PlotInformationView(
     navController: NavController,
     plotId: Int,
-    plotName: String,
-    coffeeVariety: String,
-    selectedVariety: String,
-    latitude: String,
-    longitude: String,
-    altitude: String,
     farmName: String,
     viewModel: PlotInformationViewModel = viewModel()
 ) {
+
+
     val context = LocalContext.current
     val sessionToken = remember { SharedPreferencesHelper(context).getSessionToken() }
 
-    // Obtain the states from ViewModel
-
-    val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
-    val selectedVariety by viewModel.selectedVariety.collectAsState()
+    // Obtener estados del ViewModel
+    val plot by viewModel.plot.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val plotName by viewModel.plotName.collectAsState()
+    val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
+    val coordinatesUbication by viewModel.coordinatesUbication.collectAsState()
+    val selectedVariety by viewModel.selectedVariety.collectAsState()
     val faseName by viewModel.faseName.collectAsState()
     val initialDate by viewModel.initialDate.collectAsState()
     val endDate by viewModel.endDate.collectAsState()
-    val coordinatesUbication by viewModel.coordinatesUbication.collectAsState()
+    Log.d(TAG, "Estados obtenidos del ViewModel: plotName=$plotName, plotCoffeeVariety=$plotCoffeeVariety")
 
-    val displayedFarmName = if (plotName.length > 21) {
-        plotName.take(17) + "..."
-    } else {
-        plotName
+    // Llamar a getPlot cuando el Composable se inicie
+    LaunchedEffect(Unit) {
+        if (sessionToken != null) {
+            viewModel.getPlot(plotId, sessionToken)
+        } else {
+            viewModel.setErrorMessage("Token de sesión no encontrado.")
+            // Opcional: Navegar al Login si el token no está disponible
+            Toast.makeText(context, "Token de sesión no encontrado. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
+            navController.navigate(Routes.LoginView) {
+                popUpTo(Routes.StartView) { inclusive = true }
+            }
+        }
     }
 
-    // Main View
-        HeaderFooterSubView(
-        title = "Información de Lote",
-        currentView = "Fincas",
-        navController = navController,
-        onBackClick = { navController.navigate(Routes.FarmInformationView) },
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFEFEFEF))
-                .padding(16.dp)
+    // Mostrar indicadores de carga o mensajes de error
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+            CircularProgressIndicator()
+        }
+    } else if (errorMessage.isNotEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = errorMessage, color = Color.Red, fontSize = 16.sp)
+        }
+    } else {
+        plot?.let {
+            // Main View
+            HeaderFooterSubView(
+                title = "Información de Lote",
+                currentView = "Fincas",
+                navController = navController
             ) {
-                Text(
-                    text = "Finca: $farmName",
-                    color = Color.Black,
-                    maxLines = 3,
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                )
+                        .fillMaxSize()
+                        .background(Color(0xFFEFEFEF))
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Finca: $farmName",
+                            color = Color.Black,
+                            maxLines = 3,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        )
 
-                Spacer(modifier = Modifier.width(20.dp))
+                        Spacer(modifier = Modifier.width(20.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // General Information Card
+                    GeneralPlotInfoCard(
+                        plotName = plotName,
+                        plotCoffeeVariety = plotCoffeeVariety,
+                        onEditClick = { viewModel.onEditPlot(
+                            navController = navController,
+                            plotId = plotId,
+                            plotName = plotName,
+                            selectedVariety = plotCoffeeVariety
+                        ) },
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Ubication Card
+                    PlotUbicationCard(
+                        latitude = it.latitude,
+                        longitude = it.longitude,
+                        altitude = it.altitude,
+                        onEditClick = { viewModel.onEditUbication(navController, coordinatesUbication) },
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ActionCard(
+                        buttonText = "Floraciones",
+                        onClick = {
+                            viewModel.onFloracionesClick(navController, plotId)
+                        },
+                        modifier = Modifier
+                            .width(198.dp)
+                            .height(159.dp)
+                            .padding(start = 2.5.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(50.dp))
+
+                    Text(
+                        text = "Historial de detecciones",
+                        fontSize = 18.sp,
+                        color = Color.Black,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Implementa las tarjetas de historial de detecciones aquí
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // General Information Card
-            GeneralPlotInfoCard(
-                plotName = plotName,
-                plotCoffeeVariety = coffeeVariety,
-                onEditClick = { viewModel.onEditPlot(
-                    navController= navController,
-                    plotId = plotId,
-                    plotName = plotName,
-                    selectedVariety = selectedVariety
-                ) },
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Ubication Card
-            PlotUbicationCard(
-                latitude = latitude,
-                longitude = longitude,
-                altitude = altitude,
-                onEditClick = { viewModel.onEditUbication(navController, coordinatesUbication) },
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ActionCard(
-                buttonText = "Floraciones", // Texto para el segundo botón
-                onClick = {/*Navegacion a floraciones*/},
-                modifier = Modifier
-                    .width(198.dp)
-                    .height(159.dp)
-                    .padding(start = 2.5.dp)
-            )
-
-
-            // Spacer for spacing between button and detections history
-            Spacer(modifier = Modifier.height(50.dp))
-
-            // Título de la sección de historial de detecciones
-            Text(
-                text = "Historial de detecciones",
-                fontSize = 18.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            // Aquí puedes agregar la implementación de las tarjetas de historial de detecciones
-            // Como un Row o LazyRow para mostrar las tarjetas
         }
     }
 }
@@ -153,17 +179,12 @@ fun PlotInformationView(
 @Preview(showBackground = true)
 @Composable
 fun PlotInformationViewPreview() {
+    val navController = rememberNavController()
     CoffeTechTheme {
         PlotInformationView(
-            navController = NavController(LocalContext.current),
-            plotId=1,
-            plotName="lote 1",
-            coffeeVariety="caturro",
-            selectedVariety = "caturro",
-            latitude="",
-            longitude="",
-            altitude="",
-            farmName="Hola",
+            navController = navController,
+            plotId = 11,
+            farmName = "Finca Ejemplo"
         )
     }
 }

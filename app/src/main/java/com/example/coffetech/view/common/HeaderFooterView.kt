@@ -343,12 +343,12 @@ fun BottomNavigationBar(
                     painter = painterResource(R.drawable.home_icon),
                     contentDescription = "Inicio",
                     tint = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Inicio",
                     color = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -369,12 +369,12 @@ fun BottomNavigationBar(
                     painter = painterResource(R.drawable.central_icon),
                     contentDescription = "Fincas",
                     tint = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Fincas",
                     color = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -395,14 +395,14 @@ fun BottomNavigationBar(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.labor_icon),
-                    contentDescription = "Reportes",
-                    tint = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(35.dp)
+                    contentDescription = "Labores",
+                    tint = if (currentView == "Labores") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Labores",
-                    color = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    style = MaterialTheme.typography.bodyLarge
+                    color = if (currentView == "Labores") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -421,14 +421,14 @@ fun BottomNavigationBar(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.reports_icon),
-                    contentDescription = "Costos",
-                    tint = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(35.dp)
+                    contentDescription = "Reportes",
+                    tint = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Reportes",
-                    color = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    style = MaterialTheme.typography.bodyLarge
+                    color = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }

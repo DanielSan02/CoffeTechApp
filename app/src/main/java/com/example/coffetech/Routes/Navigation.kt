@@ -172,7 +172,9 @@ fun AppNavHost(context: Context) {
             val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
             val farmArea = backStackEntry.arguments?.getString("farmArea") ?: ""
             val unitOfMeasure = backStackEntry.arguments?.getString("unitOfMeasure") ?: ""
-
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
             FarmEditView(
                 navController = navController,
                 farmId = farmId,
@@ -188,6 +190,9 @@ fun AppNavHost(context: Context) {
         composable("FarmInformationView/{farmId}") { backStackEntry ->
             val farmId = backStackEntry.arguments?.getString("farmId")?.toIntOrNull() ?: 0
             FarmInformationView(navController = navController, farmId = farmId)
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
         }
 
 
@@ -298,7 +303,9 @@ fun AppNavHost(context: Context) {
             val collaboratorName = backStackEntry.arguments?.getString("collaboratorName") ?: ""
             val collaboratorEmail = backStackEntry.arguments?.getString("collaboratorEmail") ?: ""
             val selectedRole = backStackEntry.arguments?.getString("selectedRole") ?: ""
-
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
             // Llama a la vista `EditCollaboratorView` con los parámetros necesarios
             EditCollaboratorView(
                 navController = navController,
@@ -323,6 +330,9 @@ fun AppNavHost(context: Context) {
             val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
             val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
             val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
             CreatePlotInformationView(
                 navController = navController,
                 farmId = farmId,
@@ -342,7 +352,9 @@ fun AppNavHost(context: Context) {
             val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
             val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
             val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
-
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
             CreateMapPlotView(
                 navController = navController,
                 farmId = farmId,
@@ -353,21 +365,28 @@ fun AppNavHost(context: Context) {
 
 
         composable(
-            route = "PlotInformationView/{plotId}/{farmName}",
+            route = "PlotInformationView/{plotId}/{farmName}/{farmId}",
             arguments = listOf(
                 navArgument("plotId") { type = NavType.IntType },
 
-                navArgument("farmName") { type = NavType.StringType }
-            )
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmId") { type = NavType.IntType },
+
+
+                )
         ) { backStackEntry ->
             val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
 
             val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
 
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
             PlotInformationView(
                 navController = navController,
                 plotId = plotId,
-
+                farmId = farmId,
                 farmName = farmName
             )
         }
@@ -383,6 +402,9 @@ fun AppNavHost(context: Context) {
             val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
             val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
             val selectedVariety = backStackEntry.arguments?.getString("selectedVariety") ?: ""
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
             EditPlotInformationView(
                 navController = navController,
                 plotId = plotId,

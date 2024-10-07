@@ -55,6 +55,7 @@ fun HeaderFooterSubView(
     navController: NavController,
     onBackClick: () -> Unit = {},
     currentView: String = "",
+
     content: @Composable () -> Unit,
 
 ) {

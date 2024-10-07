@@ -156,7 +156,7 @@ fun FarmInformationView(
                         modifier = Modifier.fillMaxWidth(),
                         onLoteClick = { lote ->
                             navController.navigate(
-                                "PlotInformationView/${lote.plot_id}/$farmName"
+                                "PlotInformationView/${lote.plot_id}/$farmName/$farmId"
                             )
                         }
                     )

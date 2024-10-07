@@ -79,7 +79,7 @@ fun CollaboratorView(
         title = "Mis Colaboradores",
         currentView = "Fincas",
         navController = navController,
-        onBackClick = { navController.navigate(Routes.FarmInformationView) },
+        onBackClick = { navController.navigate("${Routes.FarmInformationView}/$farmId") },
     ) {
         // Main content box with the list of farms and floating action button
 

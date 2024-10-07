@@ -42,6 +42,7 @@ fun PlotInformationView(
     navController: NavController,
     plotId: Int,
     farmName: String,
+    farmId: Int,
     viewModel: PlotInformationViewModel = viewModel()
 ) {
 
@@ -97,8 +98,10 @@ fun PlotInformationView(
             HeaderFooterSubView(
                 title = "Información de Lote",
                 currentView = "Fincas",
-                navController = navController
-            ) {
+                navController = navController,
+                onBackClick = { navController.navigate("${Routes.FarmInformationView}/$farmId") },
+
+                ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -184,7 +187,8 @@ fun PlotInformationViewPreview() {
         PlotInformationView(
             navController = navController,
             plotId = 11,
-            farmName = "Finca Ejemplo"
+            farmName = "Finca Ejemplo",
+            farmId = 0
         )
     }
 }

@@ -44,7 +44,10 @@ fun FarmInformationView(
     LaunchedEffect(farmId) {
         sessionToken?.let {
             viewModel.loadFarmData(farmId, it, context)
-            viewModel.loadPlots(farmId, it) // Llama a la función para cargar los lotes
+            // Verificar permiso antes de cargar lotes
+            if (viewModel.hasPermission("read_plots")) {
+                viewModel.loadPlots(farmId, it)
+            } 
         } ?: run {
             viewModel.setErrorMessage("Session token no encontrado. Por favor, inicia sesión.")
         }
@@ -62,9 +65,12 @@ fun FarmInformationView(
     val searchQuery by viewModel.searchQuery // Obtener la consulta de búsqueda como TextFieldValue
 
     // Verificar permisos del usuario
-    val userHasPermissionToEdit = viewModel.hasPermission("edit_farm")
-    val userHasPermissionToDelete = viewModel.hasPermission("delete_farm")
-    val userHasPermissionCollaborators = viewModel.hasPermission("add_operador_farm") || viewModel.hasPermission("agregar_operador_farm")
+    val userHasPermissionToEditFarm = viewModel.hasPermission("edit_farm")
+    val userHasPermissionToDeleteFarm = viewModel.hasPermission("delete_farm")
+    val userHasPermissionReadCollaborators = viewModel.hasPermission("read_collaborators") || viewModel.hasPermission("read_collaborators")
+    val userHasPermissionReadReports = viewModel.hasPermission("read_report") || viewModel.hasPermission("read_report")
+    val userHasPermissionReadPlots = viewModel.hasPermission("read_plots") || viewModel.hasPermission("read_plots")
+    val userHasPermissionAddPlots = viewModel.hasPermission("add_plot") || viewModel.hasPermission("add_plot")
 
     val displayedFarmName = if (farmName.length > 21) {
         farmName.take(17) + "..." // Si tiene más de 21 caracteres, corta y añade "..."
@@ -112,12 +118,14 @@ fun FarmInformationView(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Search bar para filtrar lotes por nombre
-                    ReusableSearchBar(
-                        query = searchQuery,
-                        onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                        text = "Buscar lote por nombre",
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    if (userHasPermissionReadPlots) {
+                        ReusableSearchBar(
+                            query = searchQuery,
+                            onQueryChanged = { viewModel.onSearchQueryChanged(it) },
+                            text = "Buscar lote por nombre",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
 
 
@@ -129,7 +137,7 @@ fun FarmInformationView(
                         farmArea = farmAreaInt,
                         farmUnitMeasure = unitOfMeasure,
                         onEditClick = { viewModel.onEditFarm(navController, farmId, farmName, farmArea, unitOfMeasure) },
-                        showEditButton = userHasPermissionToEdit // Solo muestra el botón si tiene el permiso
+                        showEditButton = userHasPermissionToEditFarm // Solo muestra el botón si tiene el permiso
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -140,43 +148,48 @@ fun FarmInformationView(
                             .height(159.dp), // Altura de 159dp como en el diseño
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        ActionCard(
-                            buttonText = "Colaboradores", // Texto para el primer botón
-                            onClick = {
-                                navController.navigate("CollaboratorView/$farmId/$farmName")
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 7.5.dp) // Mitad del padding para separar los botones
-                        )
-                        ActionCard(
-                            buttonText = "Reportes", // Texto para el segundo botón
-                            onClick = {
-                                // Acción para el botón de reportes
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 7.5.dp) // Mitad del padding para separar los botones
-                        )
+                        if (userHasPermissionReadCollaborators) {
+                            ActionCard(
+                                buttonText = "Colaboradores", // Texto para el primer botón
+                                onClick = {
+                                    navController.navigate("CollaboratorView/$farmId/$farmName")
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 7.5.dp) // Mitad del padding para separar los botones
+                            )
+                        }
+                        if (userHasPermissionReadReports) {
+
+                            ActionCard(
+                                buttonText = "Reportes", // Texto para el segundo botón
+                                onClick = {
+                                    // Acción para el botón de reportes
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 7.5.dp) // Mitad del padding para separar los botones
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // Lista de Lotes usando el LotesList personalizado
-                    LotesList(
-                        lotes = lotes, // Utilizar la lista filtrada de lotes
-                        modifier = Modifier.fillMaxWidth(),
-                        onLoteClick = { lote ->
-                            navController.navigate(
-                                "PlotInformationView/${lote.plot_id}/$farmName/$farmId"
-                            )
-                        }
-                    )
-
+                    if (userHasPermissionReadPlots) {
+                        // Lista de Lotes usando el LotesList personalizado
+                        LotesList(
+                            lotes = lotes, // Utilizar la lista filtrada de lotes
+                            modifier = Modifier.fillMaxWidth(),
+                            onLoteClick = { lote ->
+                                navController.navigate(
+                                    "PlotInformationView/${lote.plot_id}/$farmName/$farmId"
+                                )
+                            }
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
-
+            if (userHasPermissionAddPlots){
             // Botón flotante alineado al fondo derecho
             CustomFloatingActionButton(
                 onAddLoteClick = {
@@ -186,7 +199,7 @@ fun FarmInformationView(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            )
+            )}
         }
     }
 }

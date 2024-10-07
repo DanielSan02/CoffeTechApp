@@ -142,22 +142,25 @@ class FarmInformationViewModel : ViewModel() {
                         responseBody.data?.farm?.let { farm ->
                             _farmName.value = farm.name
                             _farmArea.value = farm.area
-
                             _unitOfMeasure.value = farm.unit_of_measure
                             _selectedRole.value = farm.role
                             _status.value = farm.status
+
+                            // Cargar permisos basados en el rol
                             loadRolePermissions(context, farm.role)
+
+                            // Verificar permisos antes de intentar cargar los lotes
+                            if (hasPermission("read_plots")) {
+                                loadPlots(farmId, sessionToken)
+                            }
                         } ?: run {
                             _errorMessage.value = "Error: No se encontraron datos de la finca."
                             Toast.makeText(context, "Error: No se encontraron datos de la finca.", Toast.LENGTH_LONG).show()
                         }
-                    } else if (responseBody?.status == "error") {
-                        val errorMsg = responseBody.message ?: "Error desconocido."
+                    } else {
+                        val errorMsg = responseBody?.message ?: "Error desconocido."
                         _errorMessage.value = errorMsg
                         Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
-                    } else {
-                        _errorMessage.value = "Respuesta inesperada del servidor."
-                        Toast.makeText(context, "Respuesta inesperada del servidor.", Toast.LENGTH_LONG).show()
                     }
                 } else {
                     _errorMessage.value = "Error al obtener los datos de la finca."
@@ -174,6 +177,7 @@ class FarmInformationViewModel : ViewModel() {
             }
         })
     }
+
 
     /**
      * Establece un mensaje de error para ser mostrado en la UI.

@@ -4,10 +4,15 @@ import Farm
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,10 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -378,59 +387,69 @@ fun ReusableSearchBar(
     query: TextFieldValue,
     onQueryChanged: (TextFieldValue) -> Unit,
     text: String,
-    modifier: Modifier = Modifier, // Permitir que se pase un modificador externo
-    maxWidth: Dp = 300.dp, // Ancho máximo configurable como en ReusableTextField
+    modifier: Modifier = Modifier,
+    maxWidth: Dp = 300.dp,
     cornerRadius: Dp = 28.dp
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     Box(
         modifier = modifier
             .border(width = 1.dp, color = Color.White, shape = RoundedCornerShape(cornerRadius))
             .background(Color.Transparent, shape = RoundedCornerShape(cornerRadius))
-            .widthIn(max = maxWidth) // Configura el ancho máximo igual que en ReusableTextField
-            .height(56.dp) // Mantiene la altura fija en 56.dp
+            .widthIn(max = maxWidth)
+            .height(56.dp)
+            .clickable {
+                focusRequester.requestFocus()
+            }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Color.White,
-                    shape = RoundedCornerShape(cornerRadius)
-                )
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChanged,
-                decorationBox = { innerTextField ->
+        BasicTextField(
+            value = query,
+            onValueChange = onQueryChanged,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+            decorationBox = { innerTextField ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Color.White,
+                            shape = RoundedCornerShape(cornerRadius)
+                        )
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Box(
-                        contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         if (query.text.isEmpty()) {
                             Text(
                                 text = text,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
                             )
                         }
                         innerTextField()
                     }
-                },
-                modifier = Modifier.fillMaxHeight()
-            )
-            Spacer(modifier = Modifier.width(8.dp)) // Espaciador entre el campo de texto y el ícono
 
-            Icon(
-                imageVector = Icons.Default.Search, // Puedes cambiar el ícono por el que prefieras
-                contentDescription = "Search Icon",
-                modifier = Modifier
-                    .size(24.dp) // Tamaño del ícono
-                    .align(Alignment.CenterVertically), // Alinea el ícono verticalmente en el centro
-                tint = Color.Gray
-            )
-        }
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon",
+                        tint = Color.Gray
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize() // Hace que el BasicTextField llene todo el espacio disponible
+                .focusRequester(focusRequester)
+                .focusable()
+        )
     }
 }
+
+
+
+
 
 
 @Composable

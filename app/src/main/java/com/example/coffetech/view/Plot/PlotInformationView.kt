@@ -158,7 +158,7 @@ fun PlotInformationView(
                     ActionCard(
                         buttonText = "Floraciones",
                         onClick = {
-                            viewModel.onFloracionesClick(navController, plotId)
+                            Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .width(198.dp)

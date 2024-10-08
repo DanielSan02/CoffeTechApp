@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.example.coffetech.common.ReusableTittleSmall
 
 @Composable
@@ -184,10 +186,13 @@ fun HamburgerMenu(
             .background(Color.White)
             .border(1.dp, Color.LightGray)
     ) {
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .verticalScroll(scrollState)
         ) {
             // Botón de cierre
             IconButton(
@@ -220,7 +225,7 @@ fun HamburgerMenu(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = profileName,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -239,11 +244,11 @@ fun HamburgerMenu(
                 text = "Notificaciones",
                 onClick = onNotificationsClick
             )
-            MenuOption(
+           /* MenuOption(
                 icon = painterResource(R.drawable.circle_question_regular),
                 text = "Ayuda",
                 onClick = onHelpClick
-            )
+            )*/
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -254,7 +259,8 @@ fun HamburgerMenu(
                     containerColor = Color(0xFFB31D34),
                     contentColor = Color.White
                 ),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+
                 enabled = !isLoading // Deshabilitar si está en estado de carga
             ) {
                 if (isLoading) {
@@ -282,7 +288,7 @@ private fun MenuOption(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
 
     ) {
         Row(

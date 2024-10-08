@@ -107,6 +107,8 @@ fun LoginView(
                             value = email,
                             onValueChange = { viewModel.onEmailChange(it) },
                             placeholder = "Correo Electrónico"
+                            ,
+                            modifier = Modifier.fillMaxWidth()
                         )
 
                         ReusableTextField(
@@ -114,6 +116,8 @@ fun LoginView(
                             onValueChange = { viewModel.onPasswordChange(it) },
                             placeholder = "Contraseña",
                             isPassword = true
+                            ,
+                            modifier = Modifier.fillMaxWidth()
                         )
 
                         // Display an error message if one exists

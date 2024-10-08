@@ -1,6 +1,7 @@
 package com.example.coffetech.view.farm
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
@@ -168,7 +169,7 @@ fun FarmInformationView(
                             ActionCard(
                                 buttonText = "Reportes", // Texto para el segundo botón
                                 onClick = {
-                                    // Acción para el botón de reportes
+                                    Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier
                                     .weight(1f)

@@ -351,7 +351,7 @@ fun TermsAndConditionsText() {
         }
 
         // Aplicamos el estilo para la parte clickable
-        pushStringAnnotation(tag = "URL", annotation = "https://static9.depositphotos.com/1052426/1206/i/450/depositphotos_12068697-stock-photo-ginger-kitty.jpg")
+        pushStringAnnotation(tag = "URL", annotation = "https://prueba-deploy--coffeetech.netlify.app/termsandconditions")
         withStyle(style = SpanStyle(
             fontSize = bodyMediumStyle.fontSize,
             fontWeight = bodyMediumStyle.fontWeight ?: FontWeight.Bold,

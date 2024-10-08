@@ -147,7 +147,7 @@ fun FarmEditView(
                     placeholder = "Área de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmAreaState.isNotEmpty(),
-                    charLimit= 5,
+                    charLimit= 4,
                     isNumeric = true,
                     errorMessage = if (farmAreaState.isEmpty()) "El área de la finca no puede estar vacía" else ""
                 )

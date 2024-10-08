@@ -29,4 +29,5 @@ object Routes {
     const val PlotInformationView ="PlotInformationView"
     const val CreatePlotInformationView = "createPlotInformationView"
     const val EditPlotInformationView = "editPlotInformationView"
+    const val EditMapPlotView = "editMapPlotView"
 }

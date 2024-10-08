@@ -32,6 +32,7 @@ import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
 import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
+import com.example.coffetech.view.Plot.EditMapPlotView
 import com.example.coffetech.view.Plot.EditPlotInformationView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
@@ -426,5 +427,29 @@ fun AppNavHost(context: Context) {
             )
         }
 
+        // Agrega esta ruta en Navigation.kt
+        composable(
+            route = "${Routes.EditMapPlotView}/{plotId}/{latitude}/{longitude}/{altitude}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("latitude") { type = NavType.StringType },
+                navArgument("longitude") { type = NavType.StringType },
+                navArgument("altitude") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val latitude = backStackEntry.arguments?.getString("latitude")?.toDoubleOrNull() ?: 0.0
+            val longitude = backStackEntry.arguments?.getString("longitude")?.toDoubleOrNull() ?: 0.0
+            val altitude = backStackEntry.arguments?.getString("altitude")?.toDoubleOrNull() ?: 0.0
 
-}}
+            EditMapPlotView(
+                navController = navController,
+                plotId = plotId,
+                initialLatitude = latitude,
+                initialLongitude = longitude,
+                initialAltitude = altitude
+            )
+        }
+
+
+    }}

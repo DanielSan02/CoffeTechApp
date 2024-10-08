@@ -59,6 +59,9 @@ class PlotViewModel : ViewModel() {
     private val _isFormSubmitted = mutableStateOf(false)
     val isFormSubmitted: State<Boolean> = _isFormSubmitted
 
+    private val _isAltitudeLoading = MutableStateFlow(false)
+    val isAltitudeLoading: StateFlow<Boolean> = _isAltitudeLoading.asStateFlow()
+
     private val _latitude = MutableStateFlow("")
     val latitude: StateFlow<String> = _latitude.asStateFlow()
 
@@ -71,10 +74,11 @@ class PlotViewModel : ViewModel() {
         _latitude.value = latLng.latitude.toString()
         _longitude.value = latLng.longitude.toString()
 
-        // Obtener altitud para la nueva ubicación
         viewModelScope.launch {
+            _isAltitudeLoading.value = true // Iniciar el estado de carga
             val elevation = fetchElevation(latLng)
             _altitude.value = elevation
+            _isAltitudeLoading.value = false // Finalizar el estado de carga
         }
     }
 
@@ -110,20 +114,28 @@ class PlotViewModel : ViewModel() {
     }
 
     suspend fun fetchElevation(latLng: LatLng): Double? {
-        return try {
-            val response = service.getElevation("${latLng.latitude},${latLng.longitude}")
-            if (response.results.isNotEmpty()) {
-                response.results[0].elevation
-            } else {
-                _errorMessage.value = "No se encontraron resultados."
-                null
+        var attempts = 0
+        var elevation: Double? = null
+
+        while (attempts < 3 && elevation == null) {
+            try {
+                _errorMessage.value = ""
+                val response = service.getElevation("${latLng.latitude},${latLng.longitude}")
+                if (response.results.isNotEmpty()) {
+                    elevation = response.results[0].elevation
+                } else {
+                    _errorMessage.value = "No se encontraron resultados."
+                }
+            } catch (e: Exception) {
+                attempts++
+                if (attempts >= 3) {
+                    _errorMessage.value = "Error al obtener la altitud: ${e.message}"
+                }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            _errorMessage.value = "Excepción: ${e.message}"
-            null
         }
+        return elevation
     }
+
 
     fun onCreatePlot(navController: NavController, context: Context, farmId: Int, plotName: String, coffeeVarietyName: String) {
         if (latitude.value.isBlank() || longitude.value.isBlank() || plotName.isBlank()) {

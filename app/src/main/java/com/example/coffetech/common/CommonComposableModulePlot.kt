@@ -42,6 +42,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffetech.R
+// MapComponents.kt
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+
+import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
 
 @Composable
 fun GeneralPlotInfoCard(
@@ -313,5 +321,32 @@ fun VarietyCoffeeDropdown(
                 )
             }
         }
+    }
+}
+
+
+
+
+@Composable
+fun GoogleMapView(
+    location: LatLng,
+    onLocationSelected: (LatLng) -> Unit
+) {
+    val cameraPositionState = rememberCameraPositionState {
+        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(location, 15f)
+    }
+
+    GoogleMap(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        cameraPositionState = cameraPositionState,
+        onMapClick = { latLng: LatLng ->
+            onLocationSelected(latLng)
+        }
+    ) {
+        Marker(
+            state = MarkerState(position = location)
+        )
     }
 }

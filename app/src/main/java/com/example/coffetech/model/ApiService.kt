@@ -489,6 +489,30 @@ data class UpdatePlotGeneralInfoResponse(
     val message: String,
     val data: Plot? = null
 )
+// UpdatePlotLocationRequest.kt
+
+data class UpdatePlotLocationRequest(
+    val plot_id: Int,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String
+)
+
+
+// UpdatePlotLocationResponse.kt
+data class UpdatePlotLocationResponse(
+    val status: String,
+    val message: String,
+    val data: PlotLocationData
+)
+
+data class PlotLocationData(
+    val plot_id: Int,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String
+)
+
 
 
 // API service interface for interacting with backend services
@@ -722,8 +746,16 @@ interface ApiService {
         @Body request: UpdatePlotGeneralInfoRequest
     ): Call<UpdatePlotGeneralInfoResponse>
 
+    @POST("/plots/update-plot-location")
+    fun updatePlotLocation(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdatePlotLocationRequest
+    ): Call<UpdatePlotLocationResponse>
+
 
 }
+
+// OpenElevationResponse.kt
 
 data class OpenElevationResponse(
     val results: List<ElevationResult>
@@ -739,9 +771,13 @@ data class Location(
     val longitude: Double
 )
 
+
+// OpenElevationService.kt
+
 interface OpenElevationService {
     @GET("/api/v1/lookup")
     suspend fun getElevation(
         @Query("locations") locations: String
     ): OpenElevationResponse
 }
+

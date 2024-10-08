@@ -142,12 +142,15 @@ fun PlotInformationView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    val latitude =it.latitude
+                    val longitude = it.longitude
+                    val altitude = it.altitude
                     // Ubication Card
                     PlotUbicationCard(
-                        latitude = it.latitude,
-                        longitude = it.longitude,
-                        altitude = it.altitude,
-                        onEditClick = { viewModel.onEditUbication(navController, coordinatesUbication) },
+                        latitude = latitude,
+                        longitude = longitude,
+                        altitude = altitude,
+                        onEditClick = { navController.navigate("${Routes.EditMapPlotView}/$plotId/$latitude/$longitude/$altitude") },
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

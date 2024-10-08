@@ -52,11 +52,9 @@ fun EditCollaboratorView(
     val showDeleteConfirmation = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.loadRolesForEditing(context, role)
         viewModel.initializeValues(selectedRole)
-        viewModel.onCollaboratorRoleChange(selectedRole)
-        viewModel.loadRolesFromSharedPreferences(context)
     }
-
 
     val currentRole by viewModel.selectedRole.collectAsState()
     val collaboratorRoles by viewModel.collaboratorRole.collectAsState()

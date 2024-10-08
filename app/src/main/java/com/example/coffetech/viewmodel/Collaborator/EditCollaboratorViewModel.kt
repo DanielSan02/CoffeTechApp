@@ -37,6 +37,28 @@ class EditCollaboratorViewModel : ViewModel() {
     // Guardar valores iniciales para comparación
     private var initialSelectedRole = ""
 
+
+    private val _permissions = MutableStateFlow<List<String>>(emptyList())
+
+    // Cargar roles permitidos desde SharedPreferences en función de los permisos de edición
+    fun loadRolesForEditing(context: Context, userRole: String) {
+        val sharedPreferencesHelper = SharedPreferencesHelper(context)
+        val roles = sharedPreferencesHelper.getRoles()
+
+        roles?.find { it.name == userRole }?.let { role ->
+            _permissions.value = role.permissions.map { it.name }
+
+            val allowedRoles = mutableListOf<String>()
+            if (_permissions.value.contains("edit_administrador_farm")) {
+                allowedRoles.add("Administrador de finca")
+            }
+            if (_permissions.value.contains("edit_operador_farm")) {
+                allowedRoles.add("Operador de campo")
+            }
+            _collaboratorRole.value = allowedRoles
+        }
+    }
+
     // Inicializar los valores iniciales
 
     fun initializeValues(selectedRole: String) {

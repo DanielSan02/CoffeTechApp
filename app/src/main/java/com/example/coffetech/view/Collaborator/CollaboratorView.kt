@@ -78,6 +78,8 @@ fun CollaboratorView(
     val userHasPermissionAddCollaborators = viewModel.hasPermission("add_administrador_farm" ) ||viewModel.hasPermission("add_operador_farm" )
     val userHasPermissionReadCollaborators = viewModel.hasPermission("read_collaborators")
 
+    val canEditAdministrador = viewModel.hasPermission("edit_administrador_farm")
+    val canEditOperador = viewModel.hasPermission("edit_operador_farm")
     // Header and Footer layout with content in between
 
     HeaderFooterSubView(
@@ -93,27 +95,28 @@ fun CollaboratorView(
                     .fillMaxSize()
                     .padding(19.dp)
             ) {
+                Text(text = "Finca: $farmName", color = Color.Black)
+
+
+               
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = "Su rol es: ${role.ifEmpty { "Sin rol" }}", color = Color.Black)
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Search bar for filtering farms by name
                 ReusableSearchBar(
                     query = query,
                     onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                    text = "Buscar colaborador por nombre"
+                    text = "Buscar colaborador por nombre",
+                    modifier = Modifier.fillMaxWidth()
+
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
 
 
 
-                    // Botón de eliminar alineado a la izquierda
-                    Text(
-                        text = "Finca: $farmName",
-                        color = Color.Black,
-                        maxLines = 3, // Limita a una línea
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset(x = 10.dp)
-                    )
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -144,34 +147,35 @@ fun CollaboratorView(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(collaborators) { collaborator ->
-                            Column {
-                                val cleanedCollaboratorId = collaborator.user_id
-                                val cleanedCollaboratorName = collaborator.name.replace(Regex("\\s+"), " ")
-                                val cleanedCollaboratorRole = collaborator.role.replace(Regex("\\s+"), " ")
-                                val cleanedCollaboratorEmail = collaborator.email.replace(Regex("\\s+"), " ")
+                            val collaboratorRole = collaborator.role
+                            val collaboratorId = collaborator.user_id
+                            val collaboratorName = collaborator.name
+                            val collaboratorEmail = collaborator.email
 
-                                // Card for each farm in the list
-                                CollaboratorInfoCard(
-                                    collaboratorName = cleanedCollaboratorName,
-                                    collaboratorRole = cleanedCollaboratorRole,
-                                    collaboratorEmail = cleanedCollaboratorEmail,
-                                    onEditClick = {
-                                        viewModel.onEditCollaborator(
-                                            navController = navController,
-                                            farmId = farmId,
-                                            collaboratorId = cleanedCollaboratorId,
-                                            collaboratorName = cleanedCollaboratorName,
-                                            collaboratorEmail = cleanedCollaboratorEmail,
-                                            selectedRole = cleanedCollaboratorRole
-                                        )
-                                    }
-                                )
-
-
-                                Spacer(modifier = Modifier.height(8.dp)) // Space between cards
+                            // Verificar permisos de edición basados en el rol del colaborador
+                            val canEdit = when (collaboratorRole) {
+                                "Administrador de finca" -> canEditAdministrador
+                                "Operador de campo" -> canEditOperador
+                                else -> false
                             }
+
+                            CollaboratorInfoCard(
+                                collaboratorName = collaboratorName,
+                                collaboratorRole = collaboratorRole,
+                                collaboratorEmail = collaboratorEmail,
+                                onEditClick = {
+                                    if (canEdit) {
+                                        navController.navigate("EditCollaboratorView/$farmId/$collaboratorId/$collaboratorName/$collaboratorEmail/$collaboratorRole/$role")
+                                    }
+                                },
+                                // Pasar una bandera para mostrar u ocultar el ícono de edición
+                                showEditIcon = canEdit
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
+
                 }
             }
             if (userHasPermissionAddCollaborators) {

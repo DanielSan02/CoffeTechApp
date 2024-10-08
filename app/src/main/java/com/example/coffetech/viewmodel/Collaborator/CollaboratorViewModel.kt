@@ -66,6 +66,9 @@ class CollaboratorViewModel : ViewModel() {
     // Error
     val errorMessage = mutableStateOf("")
 
+    val canEditAdministrador = hasPermission("edit_administrador_farm")
+    val canEditOperador = hasPermission("edit_operador_farm")
+
 
     fun onSearchQueryChanged(query: TextFieldValue) {
         _searchQuery.value = query
@@ -199,23 +202,5 @@ class CollaboratorViewModel : ViewModel() {
                 }
             })
     }
-
-
-
-
-
-    fun onEditCollaborator(
-        navController: NavController,
-        farmId: Int,
-        collaboratorId: Int,
-        collaboratorName: String,
-        collaboratorEmail: String,
-        selectedRole: String
-    ) {
-        navController.navigate(
-            "EditCollaboratorView/$farmId/$collaboratorId/$collaboratorName/$collaboratorEmail/$selectedRole"
-        )
-    }
-
 
 }

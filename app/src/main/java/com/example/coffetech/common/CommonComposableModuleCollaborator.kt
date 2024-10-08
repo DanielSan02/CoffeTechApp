@@ -132,7 +132,7 @@ fun CollaboratorInfoCard(
     collaboratorEmail: String,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
-    showEditButton: Boolean = false // Nuevo parámetro opcional para mostrar el botón
+    showEditIcon: Boolean = false // Nuevo parámetro opcional para mostrar el botón
 ) {
     Box(
         modifier = modifier
@@ -169,7 +169,7 @@ fun CollaboratorInfoCard(
                     fontSize = 12.sp
                 )
             }
-
+            if (showEditIcon) {
                 IconButton(
                     onClick = onEditClick,
                     modifier = Modifier
@@ -184,6 +184,7 @@ fun CollaboratorInfoCard(
                         modifier = Modifier.size(16.dp)
                     )
                 }
+            }
         }
     }
 }

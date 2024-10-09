@@ -186,7 +186,7 @@ fun ReusableTextField(
         TextField(
             value = value.take(charLimit), // Limita la cantidad de caracteres a charLimit
             onValueChange = {
-                var filteredText = it.replace(emojiRegex, "") // Filtra los emojis
+                var filteredText = it.replace("\n", "").replace(emojiRegex, "") // Filtra los saltos de línea y emojis
 
                 if (isNumeric) {
                     filteredText = filteredText.replace(numericRegex, "") // Filtra caracteres no numéricos
@@ -389,9 +389,12 @@ fun ReusableSearchBar(
     text: String,
     modifier: Modifier = Modifier,
     maxWidth: Dp = 300.dp,
-    cornerRadius: Dp = 28.dp
+    cornerRadius: Dp = 28.dp,
+    charLimit: Int = 60 // Límite de caracteres por defecto
+
 ) {
     val focusRequester = remember { FocusRequester() }
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = modifier
@@ -405,7 +408,12 @@ fun ReusableSearchBar(
     ) {
         BasicTextField(
             value = query,
-            onValueChange = onQueryChanged,
+            onValueChange = { newValue ->
+                // Limita el texto a 50 caracteres y evita saltos de línea
+                if (newValue.text.length <= charLimit && !newValue.text.contains("\n")) {
+                    onQueryChanged(newValue)
+                }
+            },
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
             decorationBox = { innerTextField ->
                 Row(
@@ -415,7 +423,9 @@ fun ReusableSearchBar(
                             Color.White,
                             shape = RoundedCornerShape(cornerRadius)
                         )
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
+                        .horizontalScroll(scrollState), // Permite el desplazamiento horizontal
+
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -439,11 +449,16 @@ fun ReusableSearchBar(
                     )
                 }
             },
+            maxLines = 1, // Limita a una sola línea
             modifier = Modifier
                 .fillMaxSize() // Hace que el BasicTextField llene todo el espacio disponible
                 .focusRequester(focusRequester)
                 .focusable()
         )
+        // Asegura que el texto y el cursor se mantengan desplazados hacia el final
+        LaunchedEffect(query.text) {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
     }
 }
 

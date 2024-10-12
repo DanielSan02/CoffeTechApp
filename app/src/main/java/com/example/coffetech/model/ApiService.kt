@@ -513,6 +513,45 @@ data class PlotLocationData(
     val altitude: String
 )
 
+//MODULE FLOWERINGS
+
+data class CreateFloweringRequest(
+    val plot_id: Int,
+    val flowering_type_name: String,
+    val flowering_date: String,
+    val harvest_date: String
+)
+
+data class Flowering(
+    val flowering_id: Int,
+    val plot_id: Int,
+    val flowering_date: String,
+    val harvest_date: String,
+    val status: String,
+    val flowering_type_name: String,
+)
+
+data class ListFloweringsResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringsData
+)
+
+data class FloweringsData(
+    val flowerings: List<Flowering>
+)
+
+data class GetFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: PlotDataWrapper
+)
+
+data class FloweringDataWrapper(
+    val flowering: Flowering
+)
+
+
 
 
 // API service interface for interacting with backend services

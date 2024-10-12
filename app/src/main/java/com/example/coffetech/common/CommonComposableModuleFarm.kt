@@ -203,11 +203,11 @@ fun ActionCard(
 
 @Composable
 fun CustomFloatingActionButton(
-    onAddLoteClick: () -> Unit,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     FloatingActionButtonGroup(
-        onMainButtonClick = onAddLoteClick, // Navegar a la vista de agregar lote
+        onMainButtonClick = onAddClick, // Navegar a la vista de agregar lote
         mainButtonIcon = painterResource(id = R.drawable.plus_icon),
     )
 }

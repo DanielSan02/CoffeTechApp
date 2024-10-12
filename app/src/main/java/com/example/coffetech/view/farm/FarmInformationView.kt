@@ -197,7 +197,7 @@ fun FarmInformationView(
             if (userHasPermissionAddPlots){
             // Botón flotante alineado al fondo derecho
             CustomFloatingActionButton(
-                onAddLoteClick = {
+                onAddClick = {
                     // Navegamos a CreatePlotInformationView con el farmId
                     navController.navigate("${Routes.CreatePlotInformationView}/$farmId")
                 },

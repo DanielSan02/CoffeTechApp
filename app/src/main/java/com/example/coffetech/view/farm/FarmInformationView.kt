@@ -191,7 +191,8 @@ fun FarmInformationView(
                             }
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Spacer(modifier = Modifier.height(80.dp)) // Ajusta la altura según el tamaño del botón flotante
                 }
             }
             if (userHasPermissionAddPlots){

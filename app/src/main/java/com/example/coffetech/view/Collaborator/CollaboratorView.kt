@@ -174,6 +174,9 @@ fun CollaboratorView(
 
                             Spacer(modifier = Modifier.height(8.dp))
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp)) // Ajusta la altura aquí según el tamaño de tu botón
+                        }
                     }
 
                 }

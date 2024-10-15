@@ -18,6 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class EditMapPlotViewModel : ViewModel() {
@@ -81,25 +82,43 @@ class EditMapPlotViewModel : ViewModel() {
     private fun fetchAltitude(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             _isAltitudeLoading.value = true
+            val maxAttempts = 3
             var attempts = 0
             var success = false
+            var currentLatLng = LatLng(latitude, longitude)
 
-            while (attempts < 3 && !success) {
+            while (attempts < maxAttempts && !success) {
                 try {
-                    val locations = "$latitude,$longitude"
+                    _errorMessage.value = ""
+                    val locations = "${currentLatLng.latitude},${currentLatLng.longitude}"
                     val elevationResponse = openElevationService.getElevation(locations)
+
                     if (elevationResponse.results.isNotEmpty()) {
                         _altitude.value = elevationResponse.results[0].elevation
                         success = true
                     } else {
-                        _errorMessage.value = "No se pudo obtener la altitud."
+                        _errorMessage.value = "Reintentando..."
+                        currentLatLng = LatLng(
+                            currentLatLng.latitude + 0.0001,
+                            currentLatLng.longitude + 0.0001
+                        )
                     }
                 } catch (e: Exception) {
                     attempts++
-                    if (attempts >= 3) {
-                        _errorMessage.value = "Error al obtener la altitud: ${e.message}"
+                    if (attempts < maxAttempts) {
+                        currentLatLng = LatLng(
+                            currentLatLng.latitude + 0.0001,
+                            currentLatLng.longitude + 0.0001
+                        )
+                        delay(1000) // Esperar 1 segundo antes de reintentar
+                    } else {
+                        _errorMessage.value = "Error al obtener la altitud después de $attempts intentos. Intente en otra ubicación o más tarde."
                     }
                 }
+            }
+
+            if (!success && _errorMessage.value.isEmpty()) {
+                _errorMessage.value = "No se pudo obtener la altitud."
             }
 
             _isAltitudeLoading.value = false

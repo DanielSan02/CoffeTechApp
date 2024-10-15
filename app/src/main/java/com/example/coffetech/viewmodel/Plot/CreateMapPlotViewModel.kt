@@ -3,6 +3,7 @@ package com.example.coffetech.viewmodel.Plot
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import android.view.WindowInsetsAnimation
 import android.widget.Toast
 import androidx.compose.runtime.State
@@ -11,17 +12,23 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.room.util.copy
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.model.CreateFarmResponse
 import com.example.coffetech.model.CreatePlotRequest
 import com.example.coffetech.model.OpenElevationService
 import com.example.coffetech.model.RetrofitInstance
 import com.example.coffetech.utils.SharedPreferencesHelper
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import okhttp3.Response
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -113,28 +120,101 @@ class PlotViewModel : ViewModel() {
         // Lógica para guardar los datos
     }
 
+    fun fetchLocation(context: Context) {
+        viewModelScope.launch {
+            setErrorMessage("")
+            _isLoading.value = true
+            try {
+                Log.d("PlotViewModel", "Intentando obtener la ubicación...")
+                val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                val lastLocation = fusedLocationClient.lastLocation.await()
+                if (lastLocation != null) {
+                    Log.d("PlotViewModel", "Última ubicación obtenida: $lastLocation")
+                    val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    onLocationChange(latLng)
+                } else {
+                    Log.d("PlotViewModel", "Última ubicación es null, obteniendo ubicación actual...")
+                    val cancellationTokenSource = CancellationTokenSource()
+                    val currentLocation = fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        cancellationTokenSource.token
+                    ).await()
+                    if (currentLocation != null) {
+                        Log.d("PlotViewModel", "Ubicación actual obtenida: $currentLocation")
+                        val latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
+                        onLocationChange(latLng)
+                    } else {
+                        Log.e("PlotViewModel", "No se pudo obtener la ubicación actual.")
+                        setErrorMessage("No se pudo obtener la ubicación actual.")
+                    }
+                }
+            } catch (e: SecurityException) {
+                Log.e("PlotViewModel", "Error de permisos de ubicación: ${e.message}")
+                setErrorMessage("Error de permisos de ubicación.")
+            } catch (e: Exception) {
+                Log.e("PlotViewModel", "Error al obtener la ubicación: ${e.message}")
+                setErrorMessage("Error al obtener la ubicación: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Función para obtener la elevación con intentos y ajustes en latLng
     suspend fun fetchElevation(latLng: LatLng): Double? {
+        val maxAttempts = 3
         var attempts = 0
         var elevation: Double? = null
+        var currentLatLng = latLng
 
-        while (attempts < 3 && elevation == null) {
+        while (attempts < maxAttempts && elevation == null) {
             try {
+                // Resetear el mensaje de error antes de cada intento
                 _errorMessage.value = ""
-                val response = service.getElevation("${latLng.latitude},${latLng.longitude}")
+                Log.d("PlotViewModel", "Intento ${attempts + 1} de $maxAttempts para obtener la altitud.")
+
+                // Realizar la solicitud de elevación
+                val response = service.getElevation("${currentLatLng.latitude},${currentLatLng.longitude}")
+
                 if (response.results.isNotEmpty()) {
                     elevation = response.results[0].elevation
+                    Log.d("PlotViewModel", "Altitud obtenida: $elevation")
                 } else {
-                    _errorMessage.value = "No se encontraron resultados."
+                    Log.e("PlotViewModel", "No se encontraron resultados para la altitud en ($currentLatLng).")
+                    // Ajustar latLng ligeramente para el próximo intento
+                    currentLatLng = LatLng(
+                        currentLatLng.latitude + 0.0001,
+                        currentLatLng.longitude + 0.0001
+                    )
                 }
             } catch (e: Exception) {
                 attempts++
-                if (attempts >= 3) {
-                    _errorMessage.value = "Error al obtener la altitud: ${e.message}"
+                Log.e("PlotViewModel", "Error al obtener la altitud en el intento $attempts: ${e.message}")
+
+                if (attempts < maxAttempts) {
+                    // Ajustar latLng ligeramente antes del siguiente intento
+                    currentLatLng = LatLng(
+                        currentLatLng.latitude + 0.0001,
+                        currentLatLng.longitude + 0.0001
+                    )
+
+                    // Opcional: Agregar un retraso antes del siguiente intento
+                    delay(1000) // Esperar 1 segundo antes de reintentar
+                } else {
+                    // Mensaje final después de agotar los intentos
+                    _errorMessage.value = "Error al obtener la altitud después de $attempts intentos. Intente en otra ubicación o más tarde."
                 }
             }
         }
+
+        if (elevation == null && _errorMessage.value.isEmpty()) {
+            // Si no se obtuvo la elevación y no hay mensaje de error, asignar un mensaje genérico
+            _errorMessage.value = "No se pudo obtener la altitud."
+        }
+
         return elevation
     }
+
 
 
     fun onCreatePlot(navController: NavController, context: Context, farmId: Int, plotName: String, coffeeVarietyName: String) {

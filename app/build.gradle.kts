@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -82,6 +83,7 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:2.8.0")
     implementation("com.google.accompanist:accompanist-permissions:0.30.1") // Verifica la última versión
 
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")

@@ -2,7 +2,9 @@ package com.example.coffetech.view.Plot
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -42,6 +44,17 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import android.location.LocationManager
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+
+
+
 
 @Composable
 fun GoogleMapView(
@@ -70,6 +83,8 @@ fun GoogleMapView(
 
 
 
+// CreateMapPlotView.kt
+// CreateMapPlotView.kt
 @Composable
 fun CreateMapPlotView(
     navController: NavController,
@@ -83,14 +98,90 @@ fun CreateMapPlotView(
     val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val currentLocation = location
     val latitude by viewModel.latitude.collectAsState()
     val longitude by viewModel.longitude.collectAsState()
     val altitude by viewModel.altitude.collectAsState()
     val isAltitudeLoading by viewModel.isAltitudeLoading.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
-    // Estado para saber si los permisos fueron denegados permanentemente
+    // Estados para gestionar permisos y servicios de ubicación
     var isPermissionDeniedPermanently by remember { mutableStateOf(false) }
+    var isLocationEnabled by remember { mutableStateOf(true) }
+    var showLocationDialog by remember { mutableStateOf(false) }
+
+    // Obtener el LocationManager
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    // Observer para detectar cambios en el ciclo de vida de la actividad
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // Verificar si los servicios de ubicación están habilitados
+                val isEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                        locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                if (isEnabled != isLocationEnabled) {
+                    isLocationEnabled = isEnabled
+                    if (!isEnabled) {
+                        showLocationDialog = true
+                    } else {
+                        // Si los servicios de ubicación están habilitados, verificar permisos
+                        val hasPermission = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (hasPermission != locationPermissionGranted) {
+                            // Actualizar el estado a través del ViewModel
+                            viewModel.updateLocationPermissionStatus(hasPermission)
+                            if (hasPermission) {
+                                viewModel.fetchLocation(context)
+                            } else {
+                                coroutineScope.launch {
+                                    navController.popBackStack() // Regresar a FarmInformationView
+                                }
+                            }
+                        } else if (isEnabled && hasPermission) {
+                            // Si los servicios y permisos están habilitados, obtener la ubicación
+                            viewModel.fetchLocation(context)
+                        }
+                    }
+                } else {
+                    // Si el estado de los servicios no ha cambiado, aún debemos verificar los permisos
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+
+                    if (hasPermission != locationPermissionGranted) {
+                        viewModel.updateLocationPermissionStatus(hasPermission)
+                        if (hasPermission) {
+                            viewModel.fetchLocation(context)
+                        } else {
+                            coroutineScope.launch {
+                                navController.popBackStack() // Regresar a FarmInformationView
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+
+    // Verificar si los servicios de ubicación están habilitados al iniciar
+    LaunchedEffect(Unit) {
+        isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        if (!isLocationEnabled) {
+            showLocationDialog = true
+        }
+    }
 
     // Crear el lanzador de permisos
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -98,6 +189,7 @@ fun CreateMapPlotView(
     ) { isGranted: Boolean ->
         if (isGranted) {
             viewModel.updateLocationPermissionStatus(isGranted)
+            viewModel.fetchLocation(context)
         } else {
             val activity = context as? Activity
             if (activity != null) {
@@ -108,54 +200,28 @@ fun CreateMapPlotView(
             }
 
             coroutineScope.launch {
-                if (isPermissionDeniedPermanently) {
-                    snackbarHostState.showSnackbar("Se necesitan permisos de localización")
-                } else {
-                    snackbarHostState.showSnackbar("Se necesitan permisos de localización")
+                snackbarHostState.showSnackbar("Se necesitan permisos de localización")
+                if (!isPermissionDeniedPermanently) {
                     navController.popBackStack() // Regresa a FarmInformationView
                 }
             }
         }
     }
 
-    // Crear el cliente de ubicación
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    // Lanzar permisos cada vez que el usuario pulsa el botón, sin importar si ya los denegó
+    // Solicitar permisos al iniciar si no están concedidos
     LaunchedEffect(Unit) {
         if (!viewModel.checkLocationPermission(context)) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            viewModel.updateLocationPermissionStatus(true)
+            viewModel.fetchLocation(context)
         }
     }
 
-    // Obtener la ubicación actual cuando los permisos estén concedidos
-    LaunchedEffect(locationPermissionGranted) {
-        if (locationPermissionGranted) {
-            try {
-                val lastLocation = fusedLocationClient.lastLocation.await()
-                if (lastLocation != null) {
-                    val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-                    viewModel.onLocationChange(latLng)
-                } else {
-                    val cancellationTokenSource = CancellationTokenSource()
-                    val currentLocation = fusedLocationClient.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        cancellationTokenSource.token
-                    ).await()
-                    if (currentLocation != null) {
-                        val latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
-                        viewModel.onLocationChange(latLng)
-                    } else {
-                        viewModel.setErrorMessage("No se pudo obtener la ubicación actual.")
-                    }
-                }
-            } catch (e: SecurityException) {
-                viewModel.setErrorMessage("Error de permisos de ubicación.")
-            } catch (e: Exception) {
-                viewModel.setErrorMessage("Error al obtener la ubicación: ${e.message}")
-            }
+    // Detectar cambios en los estados de permisos y servicios de ubicación
+    LaunchedEffect(locationPermissionGranted, isLocationEnabled) {
+        if (locationPermissionGranted && isLocationEnabled) {
+            viewModel.fetchLocation(context)
         }
     }
 
@@ -171,188 +237,248 @@ fun CreateMapPlotView(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         content = { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                if (locationPermissionGranted) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(0xFF101010))
-                            .padding(10.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
+                when {
+                    locationPermissionGranted && isLocationEnabled -> {
+                        // Contenido principal cuando los permisos y servicios de ubicación están habilitados
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.95f)
-                                .background(Color.White, RoundedCornerShape(16.dp))
-                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                                .fillMaxSize()
+                                .background(Color(0xFF101010))
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Column(
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
+                                    .fillMaxWidth(0.95f)
+                                    .background(Color.White, RoundedCornerShape(16.dp))
+                                    .padding(horizontal = 20.dp, vertical = 16.dp)
                             ) {
-                                // Botón de cerrar o volver (BackButton)
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
                                 ) {
-                                    BackButton(
-                                        navController = navController,
-                                        modifier = Modifier.size(32.dp)
+                                    // Botón de cerrar o volver (BackButton)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        BackButton(
+                                            navController = navController,
+                                            onClick = { navController.navigate("FarmInformationView/${farmId}") },
+                                            modifier = Modifier.size(32.dp)
+
+
+                                        )
+                                    }
+
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    // Título de la pantalla
+                                    Text(
+                                        text = "Crear Lote",
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.W600,
+                                        fontSize = 30.sp,
+                                        color = Color(0xFF49602D),
+                                        modifier = Modifier.fillMaxWidth()
                                     )
-                                }
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                    Spacer(modifier = Modifier.height(30.dp))
 
-                                // Título de la pantalla
-                                Text(
-                                    text = "Crear Lote",
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = FontWeight.W600,
-                                    fontSize = 30.sp,
-                                    color = Color(0xFF49602D),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-
-                                Spacer(modifier = Modifier.height(30.dp))
-
-                                // Título para ubicación
-                                Text(
-                                    text = "Ubicación",
-                                    textAlign = TextAlign.Start,
-                                    fontWeight = FontWeight.W500,
-                                    fontSize = 22.sp,
-                                    color = Color(0xFF49602D),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                if (currentLocation != null) {
-                                    GoogleMapView(
-                                        location = currentLocation,
-                                        onLocationSelected = { latLng ->
-                                            viewModel.onLocationChange(latLng)
-                                        }
+                                    // Título para ubicación
+                                    Text(
+                                        text = "Ubicación",
+                                        textAlign = TextAlign.Start,
+                                        fontWeight = FontWeight.W500,
+                                        fontSize = 22.sp,
+                                        color = Color(0xFF49602D),
+                                        modifier = Modifier.fillMaxWidth()
                                     )
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
-                                    // Mostrar latitud, longitud y altitud debajo del mapa
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = "Latitud: ${latitude.take(10)}",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = Color.Black
+                                    if (location != null) {
+                                        GoogleMapView(
+                                            location = location!!,
+                                            onLocationSelected = { latLng ->
+                                                viewModel.onLocationChange(latLng)
+                                            }
                                         )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "Longitud: ${longitude.take(10)}",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = Color.Black
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = if (isAltitudeLoading) "Obteniendo altitud..." else "Altitud: ${altitude ?: "No disponible"} metros",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = Color.Black
+
+                                        Spacer(modifier = Modifier.height(16.dp))
+
+                                        // Mostrar latitud, longitud y altitud debajo del mapa
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = "Latitud: ${latitude.take(10)}",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = "Longitud: ${longitude.take(10)}",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = if (isAltitudeLoading) "Obteniendo altitud..." else "Altitud: ${altitude ?: "No disponible"} metros",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+                                        }
+
+                                    } else {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.align(Alignment.CenterHorizontally)
                                         )
                                     }
 
-                                } else {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                                    )
-                                }
+                                    Spacer(modifier = Modifier.height(16.dp))
 
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
-                                    Text(
-                                        text = viewModel.errorMessage.collectAsState().value,
-                                        color = Color.Red,
-                                        modifier = Modifier.padding(top = 8.dp)
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                ReusableButton(
-                                    text = if (viewModel.isLoading.collectAsState().value) "Guardando..." else "Guardar",
-                                    onClick = {
-                                        viewModel.onCreatePlot(
-                                            navController = navController,
-                                            context = context,
-                                            farmId = farmId,
-                                            plotName = plotName,
-                                            coffeeVarietyName = selectedVariety
+                                    if (errorMessage.isNotEmpty()) {
+                                        Text(
+                                            text = errorMessage,
+                                            color = Color.Red,
+                                            modifier = Modifier.padding(top = 8.dp)
                                         )
-                                    },
-                                    modifier = Modifier
-                                        .size(width = 160.dp, height = 48.dp)
-                                        .align(Alignment.CenterHorizontally),
-                                    buttonType = ButtonType.Green,
-                                    enabled = altitude != null && !isAltitudeLoading && !viewModel.isLoading.collectAsState().value // Deshabilitar si la altitud no está lista
-                                )
+                                    }
 
-                                ReusableTextButton(
-                                    navController = navController,
-                                    destination = "createPlotInformationView/$farmId?plotName=${Uri.encode(plotName)}&selectedVariety=${Uri.encode(selectedVariety)}",
-                                    text = "Volver",
-                                    modifier = Modifier
-                                        .size(width = 160.dp, height = 54.dp)
-                                        .align(Alignment.CenterHorizontally)
-                                )
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    ReusableButton(
+                                        text = if (isLoading) "Guardando..." else "Guardar",
+                                        onClick = {
+                                            viewModel.onCreatePlot(
+                                                navController = navController,
+                                                context = context,
+                                                farmId = farmId,
+                                                plotName = plotName,
+                                                coffeeVarietyName = selectedVariety
+                                            )
+                                        },
+                                        modifier = Modifier
+                                            .size(width = 160.dp, height = 48.dp)
+                                            .align(Alignment.CenterHorizontally),
+                                        buttonType = ButtonType.Green,
+                                        enabled = altitude != null && !isAltitudeLoading && !isLoading // Deshabilitar si la altitud no está lista
+                                    )
+
+                                    ReusableTextButton(
+                                        navController = navController,
+                                        destination = "createPlotInformationView/$farmId?plotName=${Uri.encode(plotName)}&selectedVariety=${Uri.encode(selectedVariety)}",
+                                        text = "Volver",
+                                        modifier = Modifier
+                                            .size(width = 160.dp, height = 54.dp)
+                                            .align(Alignment.CenterHorizontally)
+                                    )
+                                }
                             }
                         }
                     }
-                } else if (isPermissionDeniedPermanently) {
-                    // Mostrar el botón para abrir la configuración si los permisos están denegados permanentemente
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Los permisos de localización fueron denegados. Habilítalos manualmente desde la configuración.",
-                            color = Color.Red,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                        Button(
-                            onClick = {
-                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", context.packageName, null)
-                                }
-                                context.startActivity(intent)
-                            },
-                            modifier = Modifier.padding(top = 16.dp)
+
+                    isPermissionDeniedPermanently -> {
+                        // Mostrar el botón para abrir la configuración si los permisos están denegados permanentemente
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Text("Abrir Configuración")
+                            Text(
+                                text = "Los permisos de localización fueron denegados. Habilítalos manualmente desde la configuración.",
+                                color = Color.Red,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                            ReusableButton(
+                                text = "Abrir Configuración",
+                                onClick = {
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    }
+                                    context.startActivity(intent)
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            ReusableTextButton(
+                                navController = navController,
+                                text = "Volver",
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                destination = "FarmInformationView/$farmId"
+                            )
                         }
+                    }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                    else -> {
 
-                        ReusableTextButton(
-                            navController = navController,
-                            text = "Volver",
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            destination = "FarmInformationView/$farmId"
-                        )
+
+
+                        // Mostrar diálogo para activar los servicios de ubicación
+                        if (showLocationDialog) {
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "Los servicios de ubicación están desactivados. Habilítalos manualmente desde la configuración.",
+                                    color = Color.Red,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                                ReusableButton(
+                                    text = "Abrir Configuración",
+                                    onClick = {
+                                        showLocationDialog = false
+                                        // Abrir la configuración de ubicación
+                                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                                        context.startActivity(intent)
+                                    }
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                ReusableTextButton(
+                                    navController = navController,
+                                    text = "Volver",
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    destination = "FarmInformationView/$farmId"
+                                )
+                            }
+
+                        } else {
+                            // Mostrar una interfaz de carga o mensaje adecuado
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color(0xFF101010))
+                                    .padding(10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = Color.White)
+                            }
+                        }
                     }
                 }
             }
         }
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -361,8 +487,9 @@ fun AddLocationPlotPreview() {
         CreateMapPlotView(
             navController = NavController(LocalContext.current),
             farmId = 1,
-            plotName= "",
-            selectedVariety= ""
+            plotName = "",
+            selectedVariety = ""
         )
     }
 }
+

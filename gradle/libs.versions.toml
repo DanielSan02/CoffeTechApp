@@ -17,6 +17,7 @@ gson = "2.8.8"
 firebaseCrashlyticsBuildtools = "3.0.2"
 googleServices = "4.3.15"
 playServicesLocation = "21.3.0"
+roomKtx = "2.6.1"
 
 
 
@@ -45,6 +46,7 @@ androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtim
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version = "23.1.0" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -418,7 +418,7 @@ fun RoleDropdown(
             .wrapContentWidth()
             .padding(bottom = 15.dp)
             .padding(horizontal = 8.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp)) // Fondo blanco con esquinas redondeadas
+            .background(Color.White, shape = RoundedCornerShape(10.dp)) // Fondo blanco con esquinas redondeadas
             .size(width = 200.dp, height = 32.dp) // Tamaño del área del botón
     ) {
         OutlinedButton(
@@ -484,20 +484,25 @@ fun RoleDropdown(
 }
 
 @Composable
-fun BackButton(navController: NavController, modifier: Modifier) {
+fun BackButton(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null // Parámetro onClick opcional
+) {
     IconButton(
-        onClick = { navController.popBackStack() },
-
-        modifier = Modifier
-            .padding(1.dp)
+        onClick = {
+            onClick?.invoke() ?: navController.popBackStack() // Ejecuta onClick si está definido, sino usa popBackStack
+        },
+        modifier = modifier.padding(1.dp)
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.close), // Usa tu ícono de retroceso
+            painter = painterResource(id = R.drawable.close),
             contentDescription = "Back",
             tint = Color.Black
         )
     }
 }
+
 
 @Composable
 fun ReusableDeleteButton(

@@ -89,6 +89,7 @@ fun CreatePlotInformationView(
                 ) {
                     BackButton(
                         navController = navController,
+                        onClick = { navController.navigate("FarmInformationView/${farmId}") },
                         modifier = Modifier.size(32.dp)
                     )
                 }

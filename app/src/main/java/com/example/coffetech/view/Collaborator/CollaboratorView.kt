@@ -181,7 +181,7 @@ fun CollaboratorView(
 
                 }
             }
-            if (userHasPermissionAddCollaborators) {
+            if (userHasPermissionAddCollaborators && errorMessage.isEmpty()) {
             // Floating action button for creating a new farm
             FloatingActionButtonGroup(
                 onMainButtonClick = {

@@ -138,14 +138,17 @@ fun FarmView(
                 }
             }
 
-            // Floating action button for creating a new farm
-            FloatingActionButtonGroup(
-                onMainButtonClick = { navController.navigate("CreateFarmView") },
-                mainButtonIcon = painterResource(id = R.drawable.plus_icon),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd) // Align to the bottom right
-                    .padding(16.dp) // Padding for positioning
-            )
+            // Floating action button for creating a new farm, only if there's no error
+            if (errorMessage.isEmpty()) {
+                FloatingActionButtonGroup(
+                    onMainButtonClick = { navController.navigate("CreateFarmView") },
+                    mainButtonIcon = painterResource(id = R.drawable.plus_icon),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd) // Align to the bottom right
+                        .padding(16.dp) // Padding for positioning
+                )
+            }
+
         }
     }
 }

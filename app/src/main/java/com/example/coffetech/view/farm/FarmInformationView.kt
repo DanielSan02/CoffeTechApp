@@ -195,8 +195,7 @@ fun FarmInformationView(
                     Spacer(modifier = Modifier.height(80.dp)) // Ajusta la altura según el tamaño del botón flotante
                 }
             }
-            if (userHasPermissionAddPlots){
-            // Botón flotante alineado al fondo derecho
+            if (userHasPermissionAddPlots && errorMessage.isEmpty()){
             CustomFloatingActionButton(
                 onAddLoteClick = {
                     // Navegamos a CreatePlotInformationView con el farmId

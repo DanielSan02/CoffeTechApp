@@ -55,6 +55,9 @@ class PlotViewModel : ViewModel() {
 
     private val service = retrofit.create(OpenElevationService::class.java)
 
+    private val _attemptNumber = MutableStateFlow(0)
+    val attemptNumber: StateFlow<Int> = _attemptNumber.asStateFlow()
+
     // Estado para los mensajes de error o validación
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage
@@ -168,10 +171,12 @@ class PlotViewModel : ViewModel() {
         var currentLatLng = latLng
 
         while (attempts < maxAttempts && elevation == null) {
+            attempts++
+            _attemptNumber.value = attempts // Actualizar el número de intento
             try {
                 // Resetear el mensaje de error antes de cada intento
                 _errorMessage.value = ""
-                Log.d("PlotViewModel", "Intento ${attempts + 1} de $maxAttempts para obtener la altitud.")
+                Log.d("PlotViewModel", "Intento $attempts de $maxAttempts para obtener la altitud.")
 
                 // Realizar la solicitud de elevación
                 val response = service.getElevation("${currentLatLng.latitude},${currentLatLng.longitude}")
@@ -181,6 +186,8 @@ class PlotViewModel : ViewModel() {
                     Log.d("PlotViewModel", "Altitud obtenida: $elevation")
                 } else {
                     Log.e("PlotViewModel", "No se encontraron resultados para la altitud en ($currentLatLng).")
+                    _errorMessage.value = "Intento $attempts de $maxAttempts: No se encontraron resultados para la altitud en la ubicación actual."
+
                     // Ajustar latLng ligeramente para el próximo intento
                     currentLatLng = LatLng(
                         currentLatLng.latitude + 0.0001,
@@ -188,28 +195,25 @@ class PlotViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                attempts++
                 Log.e("PlotViewModel", "Error al obtener la altitud en el intento $attempts: ${e.message}")
 
-                if (attempts < maxAttempts) {
-                    // Ajustar latLng ligeramente antes del siguiente intento
-                    currentLatLng = LatLng(
-                        currentLatLng.latitude + 0.0001,
-                        currentLatLng.longitude + 0.0001
-                    )
+                // Mensaje de error con intento fallido
+                _errorMessage.value = "Error en el intento $attempts de $maxAttempts, latitud: ${currentLatLng.latitude}, longitud: ${currentLatLng.longitude} : ${e.message}"
 
-                    // Opcional: Agregar un retraso antes del siguiente intento
-                    delay(1000) // Esperar 1 segundo antes de reintentar
-                } else {
-                    // Mensaje final después de agotar los intentos
-                    _errorMessage.value = "Error al obtener la altitud después de $attempts intentos. Intente en otra ubicación o más tarde."
-                }
+                // Ajustar latLng ligeramente antes del siguiente intento
+                currentLatLng = LatLng(
+                    currentLatLng.latitude + 0.000001,
+                    currentLatLng.longitude + 0.000001
+                )
+
+                // Esperar antes de reintentar para evitar sobrecargar la API
+                delay(2000) // Esperar 2 segundos antes de reintentar
             }
         }
 
-        if (elevation == null && _errorMessage.value.isEmpty()) {
-            // Si no se obtuvo la elevación y no hay mensaje de error, asignar un mensaje genérico
-            _errorMessage.value = "No se pudo obtener la altitud."
+        if (elevation == null) {
+            // Asignar un mensaje de error después de agotar los intentos
+            _errorMessage.value = "Error al obtener la altitud después de $attempts intentos. Intente en otra ubicación o más tarde."
         }
 
         return elevation

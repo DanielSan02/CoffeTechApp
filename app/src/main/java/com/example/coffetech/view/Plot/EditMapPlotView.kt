@@ -12,7 +12,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,11 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
@@ -52,6 +56,9 @@ fun EditMapPlotView(
     val longitude by viewModel.longitude.collectAsState()
     val altitude by viewModel.altitude.collectAsState()
     val isAltitudeLoading by viewModel.isAltitudeLoading.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val hasLocationChanged by viewModel.hasLocationChanged.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     // Estado para saber si los permisos fueron denegados permanentemente
     var isPermissionDeniedPermanently by remember { mutableStateOf(false) }
@@ -131,6 +138,8 @@ fun EditMapPlotView(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)
+                                    .verticalScroll(rememberScrollState()) // Hace que el contenido sea scrolleable
+
                             ) {
                                 // Botón de cerrar o volver (BackButton)
                                 Row(
@@ -224,7 +233,7 @@ fun EditMapPlotView(
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 ReusableButton(
-                                    text = if (viewModel.isLoading.collectAsState().value) "Guardando..." else "Guardar",
+                                    text = if (isLoading) "Guardando..." else "Guardar",
                                     onClick = {
                                         viewModel.onUpdatePlotLocation(context, plotId)
                                     },
@@ -232,11 +241,12 @@ fun EditMapPlotView(
                                         .size(width = 160.dp, height = 48.dp)
                                         .align(Alignment.CenterHorizontally),
                                     buttonType = ButtonType.Green,
-                                    enabled = altitude != null && !isAltitudeLoading && !viewModel.isLoading.collectAsState().value // Deshabilitar si la altitud no está lista
+                                    enabled = hasLocationChanged && altitude != null && !isAltitudeLoading && !isLoading // Habilitar solo si la ubicación ha cambiado y no hay cargas en proceso
                                 )
-                                if (viewModel.errorMessage.collectAsState().value.isNotEmpty()) {
+
+                                if (errorMessage.isNotEmpty()) {
                                     Text(
-                                        text = "Intente agregar el lote luego: ${viewModel.errorMessage.collectAsState().value}",
+                                        text = "Intente agregar el lote luego: $errorMessage",
                                         color = Color.Red,
                                         modifier = Modifier.padding(top = 8.dp)
                                     )
@@ -285,5 +295,17 @@ fun EditMapPlotView(
                 }
             }
         }
+    )
+}
+@Preview(showBackground = true)
+@Composable
+fun EditMapPlotViewPreview() {
+    val navController = rememberNavController()
+    EditMapPlotView(
+        navController = navController,
+        plotId = 1,
+        initialLatitude = 37.7749,
+        initialLongitude = -122.4194,
+        initialAltitude = 15.0
     )
 }

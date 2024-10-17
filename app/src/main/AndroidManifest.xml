@@ -28,8 +28,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/CoffeeTech"
-            android:theme="@style/Theme.CoffeTech">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CoffeTech"
+            tools:ignore="ScreenOrientation">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

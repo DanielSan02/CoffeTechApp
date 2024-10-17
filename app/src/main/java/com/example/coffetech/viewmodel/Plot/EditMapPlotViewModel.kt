@@ -1,4 +1,3 @@
-// EditMapPlotViewModel.kt
 package com.example.coffetech.viewmodel.Plot
 
 import android.Manifest
@@ -19,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
 class EditMapPlotViewModel : ViewModel() {
 
@@ -57,6 +55,13 @@ class EditMapPlotViewModel : ViewModel() {
         retrofit.create(OpenElevationService::class.java)
     }
 
+    // Nuevas variables para rastrear la ubicación inicial y cambios
+    private var _initialLatitude: Double = 0.0
+    private var _initialLongitude: Double = 0.0
+
+    private val _hasLocationChanged = MutableStateFlow(false)
+    val hasLocationChanged: StateFlow<Boolean> = _hasLocationChanged.asStateFlow()
+
     fun checkLocationPermission(context: Context): Boolean {
         val permissionState = ContextCompat.checkSelfPermission(
             context,
@@ -74,6 +79,9 @@ class EditMapPlotViewModel : ViewModel() {
     fun onLocationChange(latLng: LatLng) {
         _latitude.value = latLng.latitude
         _longitude.value = latLng.longitude
+
+        // Determinar si la ubicación ha cambiado respecto a la inicial
+        _hasLocationChanged.value = (latLng.latitude != _initialLatitude) || (latLng.longitude != _initialLongitude)
 
         // Obtener altitud usando la API de Open Elevation
         fetchAltitude(latLng.latitude, latLng.longitude)
@@ -125,13 +133,17 @@ class EditMapPlotViewModel : ViewModel() {
         }
     }
 
-
-
-
     fun setInitialLocation(latitude: Double, longitude: Double, altitude: Double) {
         _latitude.value = latitude
         _longitude.value = longitude
         _altitude.value = altitude
+
+        // Establecer ubicación inicial
+        _initialLatitude = latitude
+        _initialLongitude = longitude
+
+        // Inicialmente, no hay cambios
+        _hasLocationChanged.value = false
     }
 
     fun onUpdatePlotLocation(context: Context, plotId: Int) {
@@ -163,6 +175,11 @@ class EditMapPlotViewModel : ViewModel() {
                     val responseBody = response.body()
                     if (responseBody?.status == "success") {
                         _updateSuccess.value = true
+                        // Resetear el estado de cambios después de una actualización exitosa
+                        _hasLocationChanged.value = false
+                        // Actualizar la ubicación inicial a la nueva ubicación guardada
+                        _initialLatitude = _latitude.value
+                        _initialLongitude = _longitude.value
                     } else {
                         _errorMessage.value = responseBody?.message ?: "Error desconocido."
                     }

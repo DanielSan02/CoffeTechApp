@@ -45,6 +45,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import android.location.LocationManager
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -257,6 +259,8 @@ fun CreateMapPlotView(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp)
+                                        .verticalScroll(rememberScrollState()) // Hace que el contenido sea scrolleable
+
                                 ) {
                                     // Botón de cerrar o volver (BackButton)
                                     Row(

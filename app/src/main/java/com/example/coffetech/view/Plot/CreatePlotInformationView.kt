@@ -2,7 +2,9 @@ package com.example.coffetech.view.Plot
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,8 +81,11 @@ fun CreatePlotInformationView(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()), // Hace que el contenido sea scrolleable
+
+                        horizontalAlignment = Alignment.CenterHorizontally
+
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(

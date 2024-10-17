@@ -18,7 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-
+/**
+ * ViewModel responsible for managing the state and logic of editing a plot's map location,
+ * including handling location permissions and updating plot coordinates.
+ */
 class EditMapPlotViewModel : ViewModel() {
 
     private val _latitude = MutableStateFlow(0.0)
@@ -61,7 +64,12 @@ class EditMapPlotViewModel : ViewModel() {
 
     private val _hasLocationChanged = MutableStateFlow(false)
     val hasLocationChanged: StateFlow<Boolean> = _hasLocationChanged.asStateFlow()
-
+    /**
+     * Checks whether the location permission has been granted.
+     *
+     * @param context The current context, needed to access permission status.
+     * @return `true` if location permission is granted, `false` otherwise.
+     */
     fun checkLocationPermission(context: Context): Boolean {
         val permissionState = ContextCompat.checkSelfPermission(
             context,
@@ -71,11 +79,19 @@ class EditMapPlotViewModel : ViewModel() {
         _locationPermissionGranted.value = granted
         return granted
     }
-
+    /**
+     * Updates the state of location permission based on user action.
+     *
+     * @param granted `true` if permission is granted, `false` otherwise.
+     */
     fun updateLocationPermissionStatus(granted: Boolean) {
         _locationPermissionGranted.value = granted
     }
-
+    /**
+     * Updates the plot's location and fetches the corresponding altitude.
+     *
+     * @param latLng The new location of the plot.
+     */
     fun onLocationChange(latLng: LatLng) {
         _latitude.value = latLng.latitude
         _longitude.value = latLng.longitude
@@ -86,7 +102,12 @@ class EditMapPlotViewModel : ViewModel() {
         // Obtener altitud usando la API de Open Elevation
         fetchAltitude(latLng.latitude, latLng.longitude)
     }
-
+    /**
+     * Fetches the altitude for the given latitude and longitude with retry logic.
+     *
+     * @param latitude The latitude of the plot.
+     * @param longitude The longitude of the plot.
+     */
     private fun fetchAltitude(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             _isAltitudeLoading.value = true
@@ -132,7 +153,13 @@ class EditMapPlotViewModel : ViewModel() {
             _isAltitudeLoading.value = false
         }
     }
-
+    /**
+     * Sets the initial location of the plot.
+     *
+     * @param latitude The initial latitude of the plot.
+     * @param longitude The initial longitude of the plot.
+     * @param altitude The initial altitude of the plot.
+     */
     fun setInitialLocation(latitude: Double, longitude: Double, altitude: Double) {
         _latitude.value = latitude
         _longitude.value = longitude
@@ -146,6 +173,12 @@ class EditMapPlotViewModel : ViewModel() {
         _hasLocationChanged.value = false
     }
 
+    /**
+     * Updates the plot's location on the server by sending the updated coordinates.
+     *
+     * @param context The current context, needed for accessing SharedPreferences.
+     * @param plotId The ID of the plot to be updated.
+     */
     fun onUpdatePlotLocation(context: Context, plotId: Int) {
         _isLoading.value = true
         _errorMessage.value = ""

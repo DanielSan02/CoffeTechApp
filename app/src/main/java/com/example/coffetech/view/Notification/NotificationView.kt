@@ -14,7 +14,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coffetech.common.TopBarWithBackArrow
 import com.example.coffetech.common.NotificationCard
-import com.example.coffetech.ui.theme.CoffeTechTheme
+
+/**
+ * Composable function that renders the notifications screen.
+ * This screen displays a list of notifications to the user, allowing them to accept or reject invitations.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [NotificationViewModel] that manages the state and logic for notifications.
+ */
 @Composable
 fun NotificationView(
     navController: NavController,

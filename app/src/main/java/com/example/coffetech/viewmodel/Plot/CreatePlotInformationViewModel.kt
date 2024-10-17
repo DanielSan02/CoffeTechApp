@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.net.Uri
-
+/**
+ * ViewModel responsible for managing the state and logic of creating plot information,
+ * including handling plot name and coffee variety selection.
+ */
 class CreatePlotInformationViewModel(
     private val savedStateHandle: SavedStateHandle // Agregamos SavedStateHandle
 ) : ViewModel() {
@@ -32,7 +35,11 @@ class CreatePlotInformationViewModel(
     private val _plotCoffeeVariety = MutableStateFlow<List<String>>(emptyList())
     val plotCoffeeVariety: StateFlow<List<String>> = _plotCoffeeVariety.asStateFlow()
 
-    // Funciones para actualizar plotName y selectedVariety
+    /**
+     * Updates the plot name when the user modifies it.
+     *
+     * @param newName The new plot name entered by the user.
+     */
     fun onPlotNameChange(newName: String) {
         _plotName.value = newName
         savedStateHandle["plotName"] = newName // Guardamos en SavedStateHandle
@@ -40,12 +47,20 @@ class CreatePlotInformationViewModel(
             _errorMessage.value = "" // Limpiar el mensaje de error si se ingresa un nombre válido
         }
     }
-
+    /**
+     * Updates the selected coffee variety when the user selects a new variety.
+     *
+     * @param newVariety The new coffee variety selected by the user.
+     */
     fun onVarietyChange(newVariety: String) {
         _selectedVariety.value = newVariety
         savedStateHandle["selectedVariety"] = newVariety // Guardamos en SavedStateHandle
     }
-
+    /**
+     * Validates the input fields for creating plot information.
+     *
+     * @return `true` if the inputs are valid, `false` otherwise.
+     */
     fun validateInputs(): Boolean {
         if (_plotName.value.isBlank()) {
             _errorMessage.value = "El nombre del lote no puede estar vacío."
@@ -53,7 +68,12 @@ class CreatePlotInformationViewModel(
         }
         return true
     }
-
+    /**
+     * Saves the plot information and navigates to the plot map view if validation is successful.
+     *
+     * @param navController The NavController for navigation.
+     * @param farmId The ID of the farm to which the plot belongs.
+     */
     fun saveAndNavigateToPlotMap(navController: NavController, farmId: Int) {
         if (!validateInputs()) {
             return
@@ -69,7 +89,11 @@ class CreatePlotInformationViewModel(
     }
 
 
-    // Cargar las variedades de café desde SharedPreferences o cualquier otra fuente
+    /**
+     * Loads the available coffee varieties from SharedPreferences or other data sources.
+     *
+     * @param context The current context, needed for accessing SharedPreferences.
+     */
     fun loadCoffeeVarieties(context: Context) {
         viewModelScope.launch {
             _isLoading.value = true

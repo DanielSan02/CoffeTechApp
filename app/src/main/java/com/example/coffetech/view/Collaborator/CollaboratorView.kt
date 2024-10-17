@@ -41,11 +41,14 @@ import com.example.coffetech.viewmodel.Collaborator.Collaborator
 import com.example.coffetech.viewmodel.Collaborator.CollaboratorViewModel
 
 /**
- * Composable function that renders the farm management screen.
- * This screen allows the user to view, search, and filter farms by role, as well as navigate to create a new farm or view details of an existing one.
+ * Composable function that renders the collaborators management screen.
+ * This screen allows the user to view, search, and filter collaborators by role, as well as navigate to add or edit collaborators.
  *
  * @param navController The [NavController] used for navigation between screens.
- * @param viewModel The [FarmViewModel] used to manage the state and logic for the farm view.
+ * @param farmId The unique identifier of the farm whose collaborators are being managed.
+ * @param farmName The name of the farm whose collaborators are being managed.
+ * @param role The role of the current user, used to determine permissions and available actions.
+ * @param viewModel The [CollaboratorViewModel] that manages the state and logic for the collaborators view.
  */
 @Composable
 fun CollaboratorView(

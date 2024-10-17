@@ -33,7 +33,12 @@ import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
-
+/**
+ * Composable function that renders a view for creating a new farm.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [CreateFarmViewModel] that manages the state and logic for creating a farm.
+ */
 @Composable
 fun CreateFarmView(
     navController: NavController,

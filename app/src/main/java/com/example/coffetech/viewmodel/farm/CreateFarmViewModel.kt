@@ -17,7 +17,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
+/**
+ * ViewModel responsible for managing the state and logic of creating a new farm.
+ */
 class CreateFarmViewModel : ViewModel() {
 
     // Estados para los datos
@@ -39,19 +41,35 @@ class CreateFarmViewModel : ViewModel() {
         private set
 
 
-
+    /**
+     * Updates the farm name when the user modifies it.
+     *
+     * @param newName The new farm name entered by the user.
+     */
     fun onFarmNameChange(newName: String) {
         _farmName.value = newName
     }
-
+    /**
+     * Updates the farm area when the user modifies it.
+     *
+     * @param newArea The new farm area entered by the user.
+     */
     fun onFarmAreaChange(newArea: String) {
         _farmArea.value = newArea
     }
-
+    /**
+     * Updates the selected unit of measure when the user selects a new unit.
+     *
+     * @param newUnit The new unit of measure selected by the user.
+     */
     fun onUnitChange(newUnit: String) {
         _selectedUnit.value = newUnit
     }
-
+    /**
+     * Loads the available unit measures from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     */
     fun loadUnitMeasuresFromSharedPreferences(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val units = sharedPreferencesHelper.getUnitMeasures()
@@ -61,7 +79,11 @@ class CreateFarmViewModel : ViewModel() {
             _areaUnits.value = areaUnitsList
         }
     }
-
+    /**
+     * Validates the input fields for creating a new farm.
+     *
+     * @return `true` if the inputs are valid, `false` otherwise.
+     */
     private fun validateInputs(): Boolean {
         if (_farmName.value.isBlank()) {
             errorMessage.value = "El nombre de la finca no puede estar vacío."
@@ -87,7 +109,12 @@ class CreateFarmViewModel : ViewModel() {
 
         return true
     }
-
+    /**
+     * Initiates the process of creating a new farm.
+     *
+     * @param navController The NavController for navigation.
+     * @param context The current context, needed for displaying toasts.
+     */
     fun onCreate(navController: NavController, context: Context) {
         if (!validateInputs()) {
             return

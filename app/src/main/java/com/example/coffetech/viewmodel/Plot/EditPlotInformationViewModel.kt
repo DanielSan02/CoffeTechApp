@@ -19,7 +19,10 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+/**
+ * ViewModel responsible for managing the state and logic of editing plot information,
+ * including plot name and coffee variety updates.
+ */
 class EditPlotInformationViewModel : ViewModel() {
 
     private val TAG = "EditPlotInfoViewModel"
@@ -46,7 +49,7 @@ class EditPlotInformationViewModel : ViewModel() {
     private val _hasChanges = MutableStateFlow(false)
     val hasChanges: StateFlow<Boolean> = _hasChanges.asStateFlow()
 
-    // Funciones para actualizar plotName y selectedVariety
+
     fun onPlotNameChange(newName: String) {
         if (_plotName.value != newName) {
             _plotName.value = newName
@@ -61,7 +64,14 @@ class EditPlotInformationViewModel : ViewModel() {
         }
     }
 
-    // Función para inicializar el ViewModel con los parámetros recibidos
+    /**
+     * Initializes the ViewModel with the plot's current details.
+     *
+     * @param plotId The ID of the plot to be edited.
+     * @param plotName The current name of the plot.
+     * @param selectedVariety The current coffee variety of the plot.
+     * @param context The current context, needed for accessing SharedPreferences.
+     */
     fun initialize(plotId: Int, plotName: String, selectedVariety: String, context: Context) {
         // Solo inicializar si el plotId actual es diferente al recibido
         if (_plotId.value != plotId) {
@@ -81,8 +91,11 @@ class EditPlotInformationViewModel : ViewModel() {
         loadCoffeeVarieties(context)
     }
 
-    // Cargar las variedades de café desde SharedPreferences o cualquier otra fuente
-    private fun loadCoffeeVarieties(context: Context) {
+    /**
+     * Loads the available coffee varieties from SharedPreferences or other data sources.
+     *
+     * @param context The current context, needed for accessing SharedPreferences.
+     */    private fun loadCoffeeVarieties(context: Context) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -98,8 +111,14 @@ class EditPlotInformationViewModel : ViewModel() {
         }
     }
 
-    // Función para guardar los cambios y realizar la llamada a la API
-    fun saveChanges(
+    /**
+     * Saves the changes made to the plot's information and updates the server.
+     *
+     * @param plotId The ID of the plot to be updated.
+     * @param navController The NavController for navigation after successful update.
+     * @param onSuccess Callback function to execute upon successful update.
+     * @param onError Callback function to execute upon encountering an error.
+     */    fun saveChanges(
         plotId: Int,
         navController: NavController,
         onSuccess: () -> Unit,

@@ -36,6 +36,18 @@ import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
 import com.example.coffetech.viewmodel.Collaborator.EditCollaboratorViewModel
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
+/**
+ * Composable function that renders a view for editing an existing collaborator's details.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param farmId The unique identifier of the farm to which the collaborator belongs.
+ * @param collaboratorId The unique identifier of the collaborator to be edited.
+ * @param collaboratorName The current name of the collaborator.
+ * @param collaboratorEmail The current email of the collaborator.
+ * @param selectedRole The current role assigned to the collaborator.
+ * @param role The role of the current user, used to determine available actions.
+ * @param viewModel The [EditCollaboratorViewModel] that manages the state and logic for editing a collaborator.
+ */
 @SuppressLint("RememberReturnType")
 @Composable
 fun EditCollaboratorView(

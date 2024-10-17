@@ -28,7 +28,9 @@ data class Farm(
     val role: String
 )
 
-
+/**
+ * ViewModel responsible for managing the state and logic of displaying and filtering farms.
+ */
 class FarmViewModel : ViewModel() {
 
     // Lista original de fincas (sin filtrar)
@@ -61,7 +63,11 @@ class FarmViewModel : ViewModel() {
     val errorMessage = mutableStateOf("")
 
 
-
+    /**
+     * Filters the list of farms based on the selected role.
+     *
+     * @param role The role to filter farms by.
+     */
     private fun filterFarmsByRole(role: String) {
         // Filtra las fincas según el rol seleccionado
         _farms.value = _allFarms.filter {
@@ -70,31 +76,49 @@ class FarmViewModel : ViewModel() {
     }
 
 
-    // Función para cargar los roles desde SharedPreferences
+    /**
+     * Loads the list of roles from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     */
     fun loadRolesFromSharedPreferences(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
         _roles.value = roles
     }
-    // Función para manejar el cambio del estado del menú desplegable
+    /**
+     * Sets the expansion state of the dropdown menu.
+     *
+     * @param isExpanded `true` if the dropdown menu is expanded, `false` otherwise.
+     */
     fun setDropdownExpanded(isExpanded: Boolean) {
         _isDropdownExpanded.value = isExpanded
     }
 
 
-    // Función para manejar el cambio de búsqueda
+    /**
+     * Handles changes to the search query for filtering farms.
+     *
+     * @param query The new search query entered by the user.
+     */
     fun onSearchQueryChanged(query: TextFieldValue) {
         _searchQuery.value = query
         filterFarms() // Aplica el filtrado combinado
     }
 
-    // Función para manejar la selección de roles
+    /**
+     * Selects a role for filtering farms.
+     *
+     * @param role The role selected by the user.
+     */
     fun selectRole(role: String?) {
         _selectedRole.value = role
         filterFarms() // Aplica el filtrado combinado
     }
 
-    // Filtrar las fincas según el rol y la búsqueda
+    /**
+     * Filters the list of farms based on the search query and selected role.
+     */
     private fun filterFarms() {
         val role = _selectedRole.value
         val query = _searchQuery.value.text
@@ -117,7 +141,11 @@ class FarmViewModel : ViewModel() {
         _farms.value = filteredFarms
     }
 
-    // Función para cargar fincas desde el servidor
+    /**
+     * Loads the list of farms from the server.
+     *
+     * @param context The current context, needed for displaying toasts.
+     */
     fun loadFarms(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val sessionToken = sharedPreferencesHelper.getSessionToken()
@@ -176,6 +204,12 @@ class FarmViewModel : ViewModel() {
     private val _selectedFarmId = mutableStateOf<Int?>(null)
     val selectedFarmId: State<Int?> = _selectedFarmId
 
+    /**
+     * Handles the event when a farm is clicked, navigating to the farm's information view.
+     *
+     * @param farm The farm that was clicked.
+     * @param navController The NavController for navigation.
+     */
     fun onFarmClick(farm: Farm, navController: NavController) {
         // Guarda el ID de la finca seleccionada
         _selectedFarmId.value = farm.farm_id

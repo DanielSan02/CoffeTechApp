@@ -36,7 +36,16 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import android.util.Log
 
-
+/**
+ * Composable function that renders a view displaying detailed information about a specific plot.
+ * This includes the plot's name, coffee variety, location details, and options to edit the plot or view its detection history.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param plotId The unique identifier of the plot whose information is to be displayed.
+ * @param farmName The name of the farm to which the plot belongs.
+ * @param farmId The unique identifier of the farm to which the plot belongs.
+ * @param viewModel The [PlotInformationViewModel] that manages the state and logic for displaying plot information.
+ */
 @Composable
 fun PlotInformationView(
     navController: NavController,

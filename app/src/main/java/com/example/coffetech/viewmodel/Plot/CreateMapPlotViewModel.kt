@@ -33,7 +33,10 @@ import okhttp3.Response
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
+/**
+ * ViewModel responsible for managing the state and logic of plot-related operations,
+ * including location handling and plot creation.
+ */
 class PlotViewModel : ViewModel() {
 
     // Estado para la ubicación seleccionada en el mapa (LatLng)
@@ -78,7 +81,11 @@ class PlotViewModel : ViewModel() {
     private val _longitude = MutableStateFlow("")
     val longitude: StateFlow<String> = _longitude.asStateFlow()
 
-    // Función para actualizar la ubicación del usuario (LatLng)
+    /**
+     * Updates the user's selected location on the map.
+     *
+     * @param latLng The new location selected by the user.
+     */
     fun onLocationChange(latLng: LatLng) {
         _location.value = latLng
         _latitude.value = latLng.latitude.toString()
@@ -92,7 +99,12 @@ class PlotViewModel : ViewModel() {
         }
     }
 
-    // Función para verificar el estado de los permisos
+    /**
+     * Checks whether the location permission has been granted.
+     *
+     * @param context The current context, needed to access permission status.
+     * @return `true` if location permission is granted, `false` otherwise.
+     */
     fun checkLocationPermission(context: Context): Boolean {
         val isGranted = ContextCompat.checkSelfPermission(
             context,
@@ -102,27 +114,45 @@ class PlotViewModel : ViewModel() {
         return isGranted
     }
 
-    // Función para actualizar el estado de los permisos
+    /**
+     * Updates the state of location permission based on user action.
+     *
+     * @param isGranted `true` if permission is granted, `false` otherwise.
+     */
     fun updateLocationPermissionStatus(isGranted: Boolean) {
         _locationPermissionGranted.value = isGranted
     }
-
+    /**
+     * Submits the plot creation form.
+     */
     fun onSubmit() {
         _isFormSubmitted.value = true
     }
-
+    /**
+     * Sets an error message to be displayed in the UI.
+     *
+     * @param message The error message to set.
+     */
     fun setErrorMessage(message: String) {
         _errorMessage.value = message
     }
-
+    /**
+     * Clears any existing error messages.
+     */
     fun clearErrorMessage() {
         _errorMessage.value = ""
     }
-
+    /**
+     * Saves the plot data after successful validation.
+     */
     fun savePlotData() {
         // Lógica para guardar los datos
     }
-
+    /**
+     * Fetches the user's current location.
+     *
+     * @param context The current context, needed for accessing location services.
+     */
     fun fetchLocation(context: Context) {
         viewModelScope.launch {
             setErrorMessage("")
@@ -163,7 +193,12 @@ class PlotViewModel : ViewModel() {
         }
     }
 
-    // Función para obtener la elevación con intentos y ajustes en latLng
+    /**
+     * Fetches the elevation for a given location with retry logic.
+     *
+     * @param latLng The location for which to fetch elevation.
+     * @return The elevation value if successful, `null` otherwise.
+     */
     suspend fun fetchElevation(latLng: LatLng): Double? {
         val maxAttempts = 3
         var attempts = 0
@@ -220,7 +255,15 @@ class PlotViewModel : ViewModel() {
     }
 
 
-
+    /**
+     * Creates a new plot by sending the plot data to the server.
+     *
+     * @param navController The NavController for navigation after plot creation.
+     * @param context The current context, needed for displaying toasts.
+     * @param farmId The ID of the farm to which the plot belongs.
+     * @param plotName The name of the new plot.
+     * @param coffeeVarietyName The variety of coffee planted in the plot.
+     */
     fun onCreatePlot(navController: NavController, context: Context, farmId: Int, plotName: String, coffeeVarietyName: String) {
         if (latitude.value.isBlank() || longitude.value.isBlank() || plotName.isBlank()) {
             _errorMessage.value = "Todos los campos deben estar completos."

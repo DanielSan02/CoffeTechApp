@@ -31,7 +31,13 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
 import kotlinx.coroutines.flow.map
-
+/**
+ * Composable function that renders a view displaying detailed information about a specific farm.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param farmId The unique identifier of the farm whose information is to be displayed.
+ * @param viewModel The [FarmInformationViewModel] that manages the state and logic for displaying farm information.
+ */
 @Composable
 fun FarmInformationView(
     navController: NavController,

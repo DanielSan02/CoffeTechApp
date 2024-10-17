@@ -36,7 +36,16 @@ import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.VarietyCoffeeDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Plot.EditPlotInformationViewModel
-
+/**
+ * Composable function that renders a view for editing an existing plot's information.
+ * Allows users to update the plot's name and coffee variety.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param plotId The unique identifier of the plot being edited.
+ * @param plotName The current name of the plot.
+ * @param selectedVariety The current coffee variety selected for the plot.
+ * @param viewModel The [EditPlotInformationViewModel] that manages the state and logic for editing plot information.
+ */
 @Composable
 fun EditPlotInformationView(
     navController: NavController,

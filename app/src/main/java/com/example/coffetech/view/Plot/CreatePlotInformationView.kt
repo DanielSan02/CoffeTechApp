@@ -33,7 +33,16 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
 
 
-
+/**
+ * Composable function that renders a view for entering plot information before selecting its location on the map.
+ * This includes entering the plot name and selecting the coffee variety.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param farmId The unique identifier of the farm to which the plot belongs.
+ * @param plotName The initial name of the plot (optional).
+ * @param selectedVariety The initially selected coffee variety for the plot (optional).
+ * @param viewModel The [CreatePlotInformationViewModel] that manages the state and logic for plot information.
+ */
 @Composable
 fun CreatePlotInformationView(
     navController: NavController,

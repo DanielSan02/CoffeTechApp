@@ -14,6 +14,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * ViewModel responsible for managing the state and logic of displaying plot information,
+ * including fetching plot details and handling navigation actions.
+ */
 class PlotInformationViewModel : ViewModel() {
     private val TAG = "PlotInformationViewModel"
 
@@ -49,7 +53,14 @@ class PlotInformationViewModel : ViewModel() {
     private val _plot = MutableStateFlow<Plot?>(null)
     val plot: StateFlow<Plot?> = _plot.asStateFlow()
 
-    // Funciones para navegar
+    /**
+     * Navigates to the EditPlotInformationView with the specified plot details.
+     *
+     * @param navController The NavController for navigation.
+     * @param plotId The ID of the plot to edit.
+     * @param plotName The name of the plot to edit.
+     * @param selectedVariety The coffee variety of the plot to edit.
+     */
     fun onEditPlot(
         navController: NavController,
         plotId: Int,
@@ -60,26 +71,50 @@ class PlotInformationViewModel : ViewModel() {
 
         navController.navigate("EditPlotInformationView/$plotId/$plotName/$selectedVariety")
     }
-
+    /**
+     * Navigates to the EditFaseView with the specified phase details.
+     *
+     * @param navController The NavController for navigation.
+     * @param faseName The name of the phase to edit.
+     * @param initialDate The initial date of the phase.
+     * @param endDate The end date of the phase.
+     */
     fun onEditFase(navController: NavController, faseName: String, initialDate: String, endDate: String) {
         navController.navigate("PlotEditView/$faseName/$initialDate/$endDate")
     }
-
+    /**
+     * Navigates to the EditUbicationView with the specified coordinates.
+     *
+     * @param navController The NavController for navigation.
+     * @param coordinatesUbication The coordinates of the plot's location.
+     */
     fun onEditUbication(navController: NavController, coordinatesUbication: String) {
         navController.navigate("PlotEditView/$coordinatesUbication")
     }
-
+    /**
+     * Navigates to the FloracionesView for managing plot flowering events.
+     *
+     * @param navController The NavController for navigation.
+     * @param plotId The ID of the plot for which to manage flowering events.
+     */
     fun onFloracionesClick(navController: NavController, plotId: Int) {
         navController.navigate("FloracionesView/$plotId")
     }
 
-    // Nueva función para actualizar el mensaje de error
-    fun setErrorMessage(message: String) {
+    /**
+     * Sets an error message to be displayed in the UI.
+     *
+     * @param message The error message to set.
+     */    fun setErrorMessage(message: String) {
         _errorMessage.value = message
     }
 
-    // Función para obtener el plot
-    fun getPlot(plotId: Int, sessionToken: String) {
+    /**
+     * Fetches the plot details from the server using the provided plot ID and session token.
+     *
+     * @param plotId The ID of the plot to fetch.
+     * @param sessionToken The session token for authorization.
+     */    fun getPlot(plotId: Int, sessionToken: String) {
         _isLoading.value = true
         _errorMessage.value = ""  // Limpiar cualquier mensaje de error anterior
 

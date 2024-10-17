@@ -57,7 +57,13 @@ import androidx.lifecycle.LifecycleOwner
 
 
 
-
+/**
+ * Composable function that renders a Google Map view.
+ * Allows users to select a location by clicking on the map, updating the selected location accordingly.
+ *
+ * @param location The initial [LatLng] representing the latitude and longitude to center the map.
+ * @param onLocationSelected Callback function invoked when a new location is selected on the map.
+ */
 @Composable
 fun GoogleMapView(
     location: LatLng, // Latitud y longitud inicial
@@ -85,8 +91,16 @@ fun GoogleMapView(
 
 
 
-// CreateMapPlotView.kt
-// CreateMapPlotView.kt
+/**
+ * Composable function that renders a view for creating a new plot on the map.
+ * This view handles location permissions, displays the map for selecting a plot location, and captures altitude data.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param farmId The unique identifier of the farm to which the plot belongs.
+ * @param plotName The name of the plot being created.
+ * @param selectedVariety The coffee variety selected for the plot.
+ * @param viewModel The [PlotViewModel] that manages the state and logic for creating a plot.
+ */
 @Composable
 fun CreateMapPlotView(
     navController: NavController,

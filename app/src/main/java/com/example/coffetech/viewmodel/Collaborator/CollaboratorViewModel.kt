@@ -27,7 +27,9 @@ data class Collaborator(
     val role: String, // Agrega también otras propiedades que necesitas
 )
 
-
+/**
+ * ViewModel responsible for managing the state and logic of displaying and filtering collaborators.
+ */
 class CollaboratorViewModel : ViewModel() {
 
     // Lista original de colaboradores (sin filtrar)
@@ -69,18 +71,29 @@ class CollaboratorViewModel : ViewModel() {
     val canEditAdministrador = hasPermission("edit_administrador_farm")
     val canEditOperador = hasPermission("edit_operador_farm")
 
-
+    /**
+     * Handles changes to the search query for filtering collaborators.
+     *
+     * @param query The new search query entered by the user.
+     */
     fun onSearchQueryChanged(query: TextFieldValue) {
         _searchQuery.value = query
         filterCollaborators() // Aplica el filtrado combinado
     }
 
-    // Función para manejar la selección de roles
+    /**
+     * Selects a role for filtering collaborators.
+     *
+     * @param role The role selected by the user.
+     */
     fun selectRole(role: String?) {
         _selectedRole.value = role
         filterCollaborators() // Aplica el filtrado combinado
     }
 
+    /**
+     * Filters the list of collaborators based on the search query and selected role.
+     */
     private fun filterCollaborators() {
         val role = _selectedRole.value
         val query = _searchQuery.value.text
@@ -104,7 +117,11 @@ class CollaboratorViewModel : ViewModel() {
     }
 
 
-    // Función para cargar los roles desde SharedPreferences
+    /**
+     * Loads the list of roles from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     */
     fun loadRolesFromSharedPreferences(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
@@ -112,13 +129,21 @@ class CollaboratorViewModel : ViewModel() {
     }
 
 
-
-    // Función para manejar el cambio del estado del menú desplegable
+    /**
+     * Sets the expansion state of the dropdown menu.
+     *
+     * @param isExpanded `true` if the dropdown menu is expanded, `false` otherwise.
+     */
     fun setDropdownExpanded(isExpanded: Boolean) {
         _isDropdownExpanded.value = isExpanded
     }
 
-    // Función para verificar si el rol tiene un permiso específico
+    /**
+     * Loads the permissions for the selected role from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     * @param selectedRoleName The name of the role whose permissions are to be loaded.
+     */
     fun loadRolePermissions(context: Context, selectedRoleName: String) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()
@@ -127,12 +152,22 @@ class CollaboratorViewModel : ViewModel() {
             _permissions.value = role.permissions.map { it.name }
         }
     }
-
+    /**
+     * Checks if the user has a specific permission.
+     *
+     * @param permission The permission to check.
+     * @return `true` if the user has the specified permission, `false` otherwise.
+     */
     fun hasPermission(permission: String): Boolean {
         return _permissions.value.contains(permission)
     }
 
-    // Función para cargar colaboradores desde el servidor
+    /**
+     * Loads the list of collaborators from the server.
+     *
+     * @param context The current context, needed for displaying toasts.
+     * @param farmId The ID of the farm whose collaborators are being loaded.
+     */
     fun loadCollaborators(context: Context, farmId: Int) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val sessionToken = sharedPreferencesHelper.getSessionToken()

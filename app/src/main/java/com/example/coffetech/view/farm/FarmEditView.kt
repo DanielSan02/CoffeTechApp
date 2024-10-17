@@ -30,7 +30,16 @@ import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.farm.FarmEditViewModel
-
+/**
+ * Composable function that renders a view for editing an existing farm's details.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param farmId The unique identifier of the farm to be edited.
+ * @param farmName The current name of the farm.
+ * @param farmArea The current area of the farm.
+ * @param unitOfMeasure The current unit of measure for the farm's area.
+ * @param viewModel The [FarmEditViewModel] that manages the state and logic for editing the farm.
+ */
 @Composable
 fun FarmEditView(
     navController: NavController,

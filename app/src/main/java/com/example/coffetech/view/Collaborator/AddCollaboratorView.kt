@@ -15,11 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -29,11 +27,18 @@ import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.RoleAddDropdown
-import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
-import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
 
+/**
+ * Composable function that renders a view for adding a new collaborator to a farm.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param farmId The unique identifier of the farm to which the collaborator is being added.
+ * @param farmName The name of the farm to which the collaborator is being added.
+ * @param role The role of the current user, used to determine available roles for the new collaborator.
+ * @param viewModel The [AddCollaboratorViewModel] that manages the state and logic for adding a collaborator.
+ */
 @Composable
 fun AddCollaboratorView(
     navController: NavController,

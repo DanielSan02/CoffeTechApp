@@ -21,7 +21,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
+/**
+ * ViewModel responsible for managing the state and logic of adding a collaborator.
+ */
 class AddCollaboratorViewModel : ViewModel() {
 
     // Estados para los datos
@@ -45,21 +47,39 @@ class AddCollaboratorViewModel : ViewModel() {
         private set
 
     private val _permissions = MutableStateFlow<List<String>>(emptyList())
-
+    /**
+     * Updates the collaborator's email when the user modifies it.
+     *
+     * @param newName The new email entered by the user.
+     */
     fun onCollaboratorEmailChange(newName: String) {
         _collaboratorEmail.value = newName
     }
-
+    /**
+     * Updates the collaborator's role when the user selects a new role.
+     *
+     * @param newRole The new role selected by the user.
+     */
     fun onCollaboratorRoleChange(newRole: String) {
         _selectedRole.value = newRole
     }
-
+    /**
+     * Loads the available roles from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     */
     fun loadRolesFromSharedPreferences(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
         _collaboratorRole.value = roles
     }
-    // Cargar roles disponibles para el dropdown según el rol que se recibió
+
+    /**
+     * Loads the roles available for the collaborator based on the user's role.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     * @param userRole The role of the current user.
+     */
     fun loadRolesForCollaborator(context: Context, userRole: String) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()
@@ -81,10 +101,11 @@ class AddCollaboratorViewModel : ViewModel() {
         }
     }
 
-
-
-
-
+    /**
+     * Validates the input fields for adding a collaborator.
+     *
+     * @return `true` if the inputs are valid, `false` otherwise.
+     */
     fun validateInputs(): Boolean {
         if (_collaboratorEmail.value.isBlank()) {
             errorMessage.value = "El correo del colaborador no puede estar vacío."
@@ -107,6 +128,13 @@ class AddCollaboratorViewModel : ViewModel() {
         return true
     }
 
+    /**
+     * Initiates the process of creating a collaborator invitation.
+     *
+     * @param navController The NavController for navigation.
+     * @param context The current context, needed for displaying toasts.
+     * @param farmId The ID of the farm to which the collaborator is being added.
+     */
     fun onCreate(navController: NavController, context: Context, farmId: Int) {
         if (!validateInputs()) {
             return

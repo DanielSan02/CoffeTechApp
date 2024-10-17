@@ -39,6 +39,17 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 
+/**
+ * Composable function that renders a view for editing the location of an existing plot on the map.
+ * Handles location permissions, displays the map with the current location, and allows users to select a new location.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param plotId The unique identifier of the plot being edited.
+ * @param initialLatitude The initial latitude of the plot's location.
+ * @param initialLongitude The initial longitude of the plot's location.
+ * @param initialAltitude The initial altitude of the plot's location.
+ * @param viewModel The [EditMapPlotViewModel] that manages the state and logic for editing a plot's location.
+ */
 @Composable
 fun EditMapPlotView(
     navController: NavController,

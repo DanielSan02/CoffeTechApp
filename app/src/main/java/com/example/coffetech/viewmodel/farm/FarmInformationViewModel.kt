@@ -19,7 +19,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.compose.ui.text.input.TextFieldValue
-
+/**
+ * ViewModel responsible for managing the state and logic of displaying farm information.
+ */
 class FarmInformationViewModel : ViewModel() {
 
     // Estados de nombre, área, y otros datos de la finca
@@ -62,9 +64,9 @@ class FarmInformationViewModel : ViewModel() {
     val lotes: StateFlow<List<Plot>> = _filteredLotes.asStateFlow()
 
     /**
-     * Maneja el cambio de la consulta de búsqueda.
+     * Handles changes to the search query for filtering plots.
      *
-     * @param query El nuevo valor de búsqueda como TextFieldValue.
+     * @param query The new search query entered by the user.
      */
     fun onSearchQueryChanged(query: TextFieldValue) {
         _searchQuery.value = query
@@ -73,7 +75,7 @@ class FarmInformationViewModel : ViewModel() {
     }
 
     /**
-     * Filtra los lotes basados en la consulta de búsqueda.
+     * Filters the list of plots based on the search query.
      */
     private fun filterLotes() {
         val queryText = _searchQuery.value.text
@@ -85,27 +87,53 @@ class FarmInformationViewModel : ViewModel() {
             }
         }
     }
-
+    /**
+     * Navigates to the FarmEditView with the specified farm details.
+     *
+     * @param navController The NavController for navigation.
+     * @param farmId The ID of the farm to edit.
+     * @param farmName The name of the farm to edit.
+     * @param farmArea The area of the farm to edit.
+     * @param unitOfMeasure The unit of measure of the farm to edit.
+     */
     fun onEditFarm(navController: NavController, farmId: Int, farmName: String, farmArea: Double, unitOfMeasure: String) {
         navController.navigate("FarmEditView/$farmId/$farmName/$farmArea/$unitOfMeasure")
     }
-
+    /**
+     * Navigates to the CollaboratorView to add a new collaborator.
+     *
+     * @param navController The NavController for navigation.
+     */
     fun onAddCollaborator(navController: NavController) {
         Log.d("FarmInfoViewModel", "Navigating to CollaboratorView")
         navController.navigate("CollaboratorView")
     }
-
+    /**
+     * Navigates to the AddLoteView to add a new plot.
+     *
+     * @param navController The NavController for navigation.
+     */
     fun onAddLote(navController: NavController) {
         Log.d("FarmInfoViewModel", "Navigating to AddLoteView")
         navController.navigate("AddLoteView")
     }
 
-    // Función para verificar si el rol tiene un permiso específico
+    /**
+     * Checks if the user has a specific permission.
+     *
+     * @param permission The permission to check.
+     * @return `true` if the user has the specified permission, `false` otherwise.
+     */
     fun hasPermission(permission: String): Boolean {
         return _permissions.value.contains(permission)
     }
 
-    // Función para cargar los permisos basados en el rol seleccionado
+    /**
+     * Loads the permissions for the selected role from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     * @param selectedRoleName The name of the role whose permissions are to be loaded.
+     */
     fun loadRolePermissions(context: Context, selectedRoleName: String) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()
@@ -117,11 +145,11 @@ class FarmInformationViewModel : ViewModel() {
     }
 
     /**
-     * Carga los detalles de la finca desde el backend haciendo una solicitud API.
+     * Loads the farm data from the backend via an API call.
      *
-     * @param farmId El ID de la finca para la cual se obtienen los detalles.
-     * @param sessionToken El token de sesión para la autorización.
-     * @param context El contexto para mostrar Toasts en caso de errores.
+     * @param farmId The ID of the farm to load data for.
+     * @param sessionToken The session token for authorization.
+     * @param context The current context, needed for displaying toasts.
      */
     fun loadFarmData(farmId: Int, sessionToken: String, context: Context) {
         if (sessionToken.isEmpty()) {
@@ -180,9 +208,9 @@ class FarmInformationViewModel : ViewModel() {
 
 
     /**
-     * Establece un mensaje de error para ser mostrado en la UI.
+     * Sets an error message to be displayed in the UI.
      *
-     * @param message El mensaje de error a establecer.
+     * @param message The error message to set.
      */
     fun setErrorMessage(message: String) {
         _errorMessage.value = message
@@ -190,10 +218,10 @@ class FarmInformationViewModel : ViewModel() {
     }
 
     /**
-     * Carga los lotes desde el backend y aplica el filtrado inicial.
+     * Loads the list of plots from the backend and applies initial filtering.
      *
-     * @param farmId El ID de la finca.
-     * @param sessionToken El token de sesión para la autorización.
+     * @param farmId The ID of the farm whose plots are being loaded.
+     * @param sessionToken The session token for authorization.
      */
     fun loadPlots(farmId: Int, sessionToken: String) {
         _isLoading.value = true

@@ -14,7 +14,9 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+/**
+ * ViewModel responsible for managing the state and logic of editing a collaborator.
+ */
 class EditCollaboratorViewModel : ViewModel() {
 
     // Estado del rol seleccionado
@@ -40,7 +42,12 @@ class EditCollaboratorViewModel : ViewModel() {
 
     private val _permissions = MutableStateFlow<List<String>>(emptyList())
 
-    // Cargar roles permitidos desde SharedPreferences en función de los permisos de edición
+    /**
+     * Loads the roles available for editing based on the user's role.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     * @param userRole The role of the current user.
+     */
     fun loadRolesForEditing(context: Context, userRole: String) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()
@@ -59,14 +66,21 @@ class EditCollaboratorViewModel : ViewModel() {
         }
     }
 
-    // Inicializar los valores iniciales
-
+    /**
+     * Initializes the ViewModel with the selected role of the collaborator.
+     *
+     * @param selectedRole The initial role of the collaborator.
+     */
     fun initializeValues(selectedRole: String) {
         initialSelectedRole = selectedRole
         _selectedRole.value = selectedRole
     }
 
-    // Validar la entrada para asegurarse de que el rol sea válido
+    /**
+     * Validates the input fields for editing a collaborator.
+     *
+     * @return `true` if the inputs are valid, `false` otherwise.
+     */
     private fun validateInputs(): Boolean {
         if (_selectedRole.value == "Seleccione un rol") {
             errorMessage.value = "Debe seleccionar una opción válida para el rol."
@@ -76,14 +90,25 @@ class EditCollaboratorViewModel : ViewModel() {
         return true
     }
 
-    // Cargar roles desde SharedPreferences
+    /**
+     * Loads the list of roles from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     */
     fun loadRolesFromSharedPreferences(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val roles = sharedPreferencesHelper.getRoles()?.map { it.name } ?: emptyList()
         _collaboratorRole.value = roles
     }
 
-    // Función para editar el colaborador
+    /**
+     * Initiates the process of editing a collaborator.
+     *
+     * @param context The current context, needed for displaying toasts.
+     * @param farmId The ID of the farm to which the collaborator belongs.
+     * @param collaboratorId The ID of the collaborator to be edited.
+     * @param navController The NavController for navigation.
+     */
     fun editCollaborator(context: Context, farmId: Int, collaboratorId: Int, navController: NavController) {
         if (!validateInputs()) return
 
@@ -133,17 +158,31 @@ class EditCollaboratorViewModel : ViewModel() {
         })
     }
 
-    // Función para manejar el cambio de rol
+    /**
+     * Handles changes to the collaborator's role.
+     *
+     * @param newRole The new role selected by the user.
+     */
     fun onCollaboratorRoleChange(newRole: String) {
         _selectedRole.value = newRole
         checkForChanges()
     }
 
-    // Verificar si hay cambios para habilitar/deshabilitar el botón de guardar
+    /**
+     * Checks if there are any changes made to the collaborator's role.
+     */
     private fun checkForChanges() {
         _hasChanges.value = _selectedRole.value != initialSelectedRole
     }
 
+    /**
+     * Initiates the process of deleting a collaborator.
+     *
+     * @param context The current context, needed for displaying toasts.
+     * @param farmId The ID of the farm to which the collaborator belongs.
+     * @param collaboratorId The ID of the collaborator to be deleted.
+     * @param navController The NavController for navigation.
+     */
     fun deleteCollaborator(context: Context, farmId: Int, collaboratorId: Int, navController: NavController) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val sessionToken = sharedPreferencesHelper.getSessionToken()

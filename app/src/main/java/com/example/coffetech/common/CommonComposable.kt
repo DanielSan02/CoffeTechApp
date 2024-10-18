@@ -181,12 +181,14 @@ fun ReusableTextField(
     // Expresión regular que detecta emojis y los filtra
     val emojiRegex = "[\\p{So}\\p{Cn}]".toRegex() // Detecta emojis y caracteres no definidos
     val numericRegex = "[^0-9]".toRegex()
+    val htmlRegex = "[<>\"&{}/]".toRegex() // Detecta caracteres peligrosos, incluidos {, }, y /
 
     Column {
         TextField(
             value = value.take(charLimit), // Limita la cantidad de caracteres a charLimit
             onValueChange = {
                 var filteredText = it.replace("\n", "").replace(emojiRegex, "") // Filtra los saltos de línea y emojis
+                    .replace(htmlRegex, "") // Elimina caracteres peligrosos
 
                 if (isNumeric) {
                     filteredText = filteredText.replace(numericRegex, "") // Filtra caracteres no numéricos

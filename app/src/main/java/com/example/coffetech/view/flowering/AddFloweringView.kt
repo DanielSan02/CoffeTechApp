@@ -148,13 +148,12 @@ fun AddFloweringView(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 ReusableTextField(
-                    value = flowering_date,
-                    onValueChange = { viewModel.onFloweringDateChange(it) },
+                    value = harvest_date,
+                    onValueChange = { viewModel.onHarvestDateChange(it) },
                     placeholder = "Fecha de cosecha",
                     charLimit = 50,
-                    isValid = flowering_date.isNotEmpty() || !isFormSubmitted.value,
+                    isValid = harvest_date.isNotEmpty() || !isFormSubmitted.value,
                     modifier = Modifier.fillMaxWidth(),
-                    errorMessage = if (flowering_date.isEmpty() && isFormSubmitted.value) "La fecha de floraciona no puede estar vacía" else ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

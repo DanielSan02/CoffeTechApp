@@ -1,11 +1,9 @@
-package com.example.coffetech.view.Collaborator
+package com.example.coffetech.view.flowering
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,66 +19,63 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.FloweringNameDropdown
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.RoleAddDropdown
-import com.example.coffetech.common.UnitDropdown
+import com.example.coffetech.common.VarietyCoffeeDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.Collaborator.AddCollaboratorViewModel
-import com.example.coffetech.viewmodel.Collaborator.EditCollaboratorViewModel
-import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
+import com.example.coffetech.view.Collaborator.AddCollaboratorView
+import com.example.coffetech.viewmodel.flowering.AddFloweringViewModel
+import com.example.coffetech.viewmodel.flowering.EditFloweringViewModel
 
-@SuppressLint("RememberReturnType")
+
 @Composable
-fun EditCollaboratorView(
+fun EditFloweringView(
     navController: NavController,
-    farmId: Int,
-    collaboratorId: Int,
-    collaboratorName: String,
-    collaboratorEmail: String,
-    selectedRole: String,
-    role: String,
-    viewModel: EditCollaboratorViewModel = viewModel()
+    plotId: Int,
+    floweringTypeName: String,
+    floweringDate: String,
+    harvestDate: String,
+
+    viewModel: EditFloweringViewModel = viewModel()
 ) {
+
     val context = LocalContext.current
     val showDeleteConfirmation = remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadRolesForEditing(context, role)
-        viewModel.initializeValues(selectedRole)
-    }
-
-    val currentRole by viewModel.selectedRole.collectAsState()
-    val collaboratorRoles by viewModel.collaboratorRole.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val currentFloweringName by viewModel.selectedFloweringName.collectAsState()
+    val floweringName by viewModel.floweringName.collectAsState()
+    val currentFlowering_date by viewModel.flowering_date.collectAsState()
+    val currentHarvest_date by viewModel.harvest_date.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
     val hasChanges by viewModel.hasChanges.collectAsState()
+    val isFormSubmitted = remember { mutableStateOf(false) }
 
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010)) // Fondo oscuro
-            .padding(16.dp),
+            .background(Color(0xFF101010))
+            .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
+                .fillMaxWidth(0.85f)
                 .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp) // Añadir padding interno
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -89,114 +84,89 @@ fun EditCollaboratorView(
                 ) {
                     BackButton(
                         navController = navController,
-                        modifier = Modifier.size(32.dp) // Tamaño más manejable
+                        modifier = Modifier.size(32.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Editar Colaborador",
+                    text = "Agregar Floración",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF49602D)      // Sobrescribir el color
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = Color(0xFF49602D)
                     ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(45.dp))
 
-                Text(
-                    text = "Nombre",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
-                    ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                ReusableTextField(
-                    value = collaboratorName,
-                    onValueChange = {},
-                    enabled = false,
-                    placeholder = "Nombre colaborador",
-                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = true,
-                    charLimit = 50,
-                    errorMessage = ""
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-
-                Text(
-                    text = "Correo",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
-                    ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
-                )
-
-                // Nombre de finca utilizando ReusableTextField
-                ReusableTextField(
-                    value = collaboratorEmail,
-                    onValueChange = { },
-                    enabled = false,
-                    placeholder = "Correo de colaborador",
-                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = true,
-                    charLimit = 50,
-                    errorMessage =""
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Rol Asignado",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
-                    ),
-                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-
-                // Rol seleccionado
-                RoleAddDropdown(
-                    selectedRole = currentRole,
-                    onCollaboratorRoleChange = viewModel::onCollaboratorRoleChange,
-                    roles = collaboratorRoles,
+                FloweringNameDropdown(
+                    selectedFloweringName = currentFloweringName,
+                    onFloweringNameChange = viewModel::onFloweringNameChange,
+                    flowerings = floweringName,  // Lista de roles obtenida del ViewModel
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
                 )
-
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
                 }
 
+                Text(
+                    text = "Fecha de Floración",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF3F3D3D)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Campo de texto para el nombre del lote
+                ReusableTextField(
+                    value = currentFlowering_date,
+                    onValueChange = { viewModel.onFloweringDateChange(it) },
+                    placeholder = "Fecha de floracion",
+                    charLimit = 50,
+                    isValid = currentFlowering_date.isNotEmpty() || !isFormSubmitted.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    errorMessage = if (currentFlowering_date.isEmpty() && isFormSubmitted.value) "La fecha de floracion no puede estar vacía" else ""
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Text(
+                    text = "Fecha de Cosecha (Opcional)",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF3F3D3D)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                ReusableTextField(
+                    value = currentHarvest_date,
+                    onValueChange = { viewModel.onFloweringDateChange(it) },
+                    placeholder = "Fecha de cosecha",
+                    charLimit = 50,
+                    isValid = currentHarvest_date.isNotEmpty() || !isFormSubmitted.value,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Botón para guardar cambios
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
-                        viewModel.editCollaborator(
+                        viewModel.editFlowering(
                             context = context,
-                            farmId = farmId,
-                            collaboratorId = collaboratorId, // Reemplaza con el ID real del colaborador
                             navController = navController
                         )
                     },
@@ -248,7 +218,7 @@ fun EditCollaboratorView(
                                 ) {
                                     // Descripción centrada
                                     Text(
-                                        text = "Este colaborador se eliminará permanentemente de tu lote. ¿Deseas continuar?",
+                                        text = "Esta floracion se eliminará permanentemente. ¿Deseas continuar?",
                                         color = Color.Black,
                                         fontWeight = FontWeight.Bold,
                                         textAlign = TextAlign.Center,
@@ -263,10 +233,8 @@ fun EditCollaboratorView(
                                 ReusableButton(
                                     text = if (isLoading) "Eliminando..." else "Eliminar",
                                     onClick = {
-                                        viewModel.deleteCollaborator(
+                                        viewModel.deleteFlowering(
                                             context = context,
-                                            farmId = farmId,
-                                            collaboratorId = collaboratorId,
                                             navController = navController
                                         )
                                         showDeleteConfirmation.value = false
@@ -301,20 +269,17 @@ fun EditCollaboratorView(
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
-fun EditCollaboratorViewPreview() {
+fun EditFloweringViewPreview() {
     val mockNavController = rememberNavController() // MockNavController
     CoffeTechTheme {
-        EditCollaboratorView(
+        EditFloweringView(
             navController = mockNavController,
-            farmId = 1, // Ejemplo de ID de la finca
-            collaboratorId = 1,
-            collaboratorName = "Juan Pérez", // Ejemplo de nombre de colaborador
-            collaboratorEmail = "juan.perez@example.com", // Ejemplo de email de colaborador
-            selectedRole = "Administrador",
-            role = ""
+            plotId = 1, // Ejemplo de ID de la finca
+            floweringTypeName= "Principal",
+            floweringDate= "15-08-2024",
+            harvestDate= "15-08-2025",
         )
     }
 }

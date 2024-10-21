@@ -17,6 +17,9 @@ class AddFloweringViewModel: ViewModel() {
     private val _flowering_date = MutableStateFlow("")
     val flowering_date: StateFlow<String> = _flowering_date.asStateFlow()
 
+    private val _harvest_date = MutableStateFlow("")
+    val harvest_date: StateFlow<String> = _harvest_date.asStateFlow()
+
     private val _floweringName = MutableStateFlow<List<String>>(emptyList())
     val floweringName: StateFlow<List<String>> = _floweringName.asStateFlow()
 
@@ -34,6 +37,10 @@ class AddFloweringViewModel: ViewModel() {
 
     fun onFloweringNameChange(newFloweringName: String) {
         _selectedFloweringName.value = newFloweringName
+    }
+
+    fun onHarvestDateChange(newDate: String) {
+        _harvest_date.value = newDate
     }
 
     /*fun loadNamesForFlowering(context: Context, userRole: String) {

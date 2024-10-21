@@ -167,6 +167,7 @@ fun TopBarWithBackArrow(
 
         // Título centrado entre el ícono y el final de la pantalla
         ReusableTittleSmall(
+            maxLines = 2,
             text = title,
             modifier = Modifier.align(Alignment.Center) // Céntralo en el espacio disponible
         )

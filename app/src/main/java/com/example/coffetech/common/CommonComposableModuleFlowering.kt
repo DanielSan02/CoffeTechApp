@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.navigation.NavController
 import com.example.coffetech.R
 import com.example.coffetech.model.Flowering
 import com.example.coffetech.model.Plot
+import com.example.coffetech.model.Task
 import com.example.coffetech.ui.theme.CoffeTechTheme
 
 @Composable
@@ -95,9 +97,7 @@ fun FloweringGeneralInfoCard(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp) // Espaciado entre los botones
             ) {
-                // Botón de información (verde)
 
-                // Botón de edición (rojo)
                 IconButton(
                     onClick = onEditClick,
                     modifier = Modifier
@@ -364,6 +364,78 @@ fun FloweringNameDropdown(
                     contentPadding = PaddingValues(vertical = 0.dp, horizontal = 5.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun TaskItemCard(
+    task: String,
+    start_date: String,
+    end_date: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp)) // Fondo verde con bordes redondeados
+            .padding(16.dp)
+    ) {
+        Column {
+            Text(
+                text = task,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = start_date,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = end_date,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+
+@Composable
+fun TasksList(
+    tasks: List<Task>, // Lista de objetos Lote
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = "Tareas",
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        tasks.forEach { task ->
+            Spacer(modifier = Modifier.height(8.dp))
+            TaskItemCard(
+                 task = task.task,
+                start_date = task.start_date,
+                end_date = task.end_date,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { } // Pasa el objeto Lote al hacer clic
+            )
         }
     }
 }

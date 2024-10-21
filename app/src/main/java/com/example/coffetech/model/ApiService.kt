@@ -551,6 +551,12 @@ data class FloweringDataWrapper(
     val flowering: Flowering
 )
 
+data class Task(
+    val task: String,
+    val start_date: String,
+    val end_date: String,
+)
+
 
 
 

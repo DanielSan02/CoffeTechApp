@@ -2,6 +2,7 @@ package com.example.coffetech.view.flowering
 
 import android.util.Log
 import android.widget.Toast
+import com.example.coffetech.viewmodel.flowering.MainFloweringViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
@@ -31,15 +32,13 @@ import com.example.coffetech.common.*
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
-import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
-import com.example.coffetech.viewmodel.flowering.FloweringInformationViewModel
-import kotlinx.coroutines.flow.map
+
 
 @Composable
-fun FloweringInformationView(
+fun MainFloweringView(
     navController: NavController,
     plotId: Int,
-    viewModel: FloweringInformationViewModel = viewModel() // Inyecta el ViewModel aquí
+    viewModel: MainFloweringViewModel = viewModel() // Inyecta el ViewModel aquí
 ) {
     // Obtener el contexto para acceder a SharedPreferences o cualquier otra fuente del sessionToken
     val context = LocalContext.current
@@ -59,18 +58,13 @@ fun FloweringInformationView(
     }*/
 
     // Obtener los estados del ViewModel
-    val selectedFloweringName by viewModel.selectedFloweringName
-    val expanded by viewModel.isDropdownExpanded
-    val plotName by viewModel.plotName.collectAsState()
-    val flowering_type_name by viewModel.flowering_type_name.collectAsState()
-    val status by viewModel.status.collectAsState()
-    val flowering_date by viewModel.flowering_date.collectAsState()
-    val flowerings by viewModel.flowerings.collectAsState() // Aquí están los lotes filtrados
+    val tasks by viewModel.tasks.collectAsState()
+    val start_date by viewModel.start_date.collectAsState()
+    val end_date by viewModel.end_date.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val flowerings_name by viewModel.flowerings_name.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val searchQuery by viewModel.searchQuery
-
+    val plotName by viewModel.plotName.collectAsState()
+    val flowering_date by viewModel.flowering_date.collectAsState()
 
     val displayedPlotName = if (plotName.length > 21) {
         plotName.take(17) + "..." // Si tiene más de 21 caracteres, corta y añade "..."
@@ -78,9 +72,10 @@ fun FloweringInformationView(
         plotName // Si es menor o igual a 21 caracteres, lo dejamos como está
     }
 
+
     // Vista principal
     HeaderFooterSubView(
-        title = "Floraciones",
+        title = "Recomendaciones\nFloracion Principal",
         currentView = "Fincas",
         navController = navController,
         onBackClick = { navController.navigate("${Routes.PlotInformationView}/$plotId")  },
@@ -97,84 +92,57 @@ fun FloweringInformationView(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState()) // Hacer la columna scrolleable verticalmente
             ) {
-                if (isLoading) {
+                /*if (isLoading) {
                     // Mostrar un indicador de carga
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Cargando datos de la finca...",
+                        text = "Cargando datos...",
                         color = Color.Black,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 } else if (errorMessage.isNotEmpty()) {
                     // Mostrar el error si ocurrió algún problema
                     Text(text = errorMessage, color = Color.Red)
-                } else {
+                } else {*/
 
-                    // Mostrar el rol seleccionado
-                    Text(text = "Nombre de lote: ${displayedPlotName.ifEmpty { "Sin Nombre de lote" }}", color = Color.Black)
-                    Spacer(modifier = Modifier.height(16.dp))
+                // Mostrar el rol seleccionado
+                Text(text = "Nombre de lote: ${displayedPlotName.ifEmpty { "Sin Nombre de lote" }}", color = Color.Black)
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    // Search bar para filtrar
+                // Search bar para filtrar
 
-                        ReusableSearchBar(
-                            query = searchQuery,
-                            onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                            text = "Buscar floracion por nombre",
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                Text(text = "Fecha Actual: ${flowering_date.ifEmpty { "Sin Fecha" }}", color = Color.Black)
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-
-                    // Componente reutilizable de Información General
-                    FloweringGeneralInfoCard(
-                        flowering_type_name = flowering_type_name,
-                        status = status,
-                        flowering_date = flowering_date,
-                        onEditClick = {},
-                        onInfoClick = {}
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    FloweringNameDropdown(
-                    selectedFloweringName = selectedFloweringName,
-                    onFloweringNameChange = { viewModel.selectFloweringName(it) },
-                    flowerings = flowerings_name,
-                    expanded = expanded,
-                    onExpandedChange = { viewModel.setDropdownExpanded(it) },
-                    expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
-                    arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon)
-                    )
-
-                        // Lista de Lotes usando el LotesList personalizado
-                        FloweringList(
-                            flowerings = flowerings, // Utilizar la lista filtrada de lotes
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-                // Botón flotante alineado al fondo derecho
-                CustomFloatingActionButton(
-                    onAddClick = {},
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp)
+                // Lista de labores
+                TasksList(
+                    tasks = tasks,
+                    modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                //}
+            }
+            // Botón flotante alineado al fondo derecho
+            CustomFloatingActionButton(
+                onAddClick = {},
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun FloweringInformationViewPreview() {
+fun MainFloweringViewPreview() {
     CoffeTechTheme {
-        FloweringInformationView(
+        MainFloweringView(
             navController = NavController(LocalContext.current),
             plotId = 1 // Valor simulado de farmId para la previsualización
         )

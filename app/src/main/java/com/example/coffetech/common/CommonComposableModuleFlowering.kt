@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -373,7 +375,8 @@ fun TaskItemCard(
     task: String,
     start_date: String,
     end_date: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onProgramClick: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -404,6 +407,15 @@ fun TaskItemCard(
                 color = Color.Black,
                 maxLines = 1
             )
+
+            ReusableButton(
+                text = "Programar", // Texto que aparece en el botón
+                onClick = { /* Acción a realizar */ },
+                modifier = Modifier.align(Alignment.End), // Alinearlo a la derecha
+                buttonType = ButtonType.Green, // Tipo de botón verde
+                minHeight = 48.dp, // Puedes ajustar los tamaños según sea necesario
+                minWidth = 120.dp
+            )
         }
     }
 }
@@ -413,6 +425,7 @@ fun TaskItemCard(
 fun TasksList(
     tasks: List<Task>, // Lista de objetos Lote
     modifier: Modifier = Modifier,
+    onProgramClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -432,6 +445,7 @@ fun TasksList(
                  task = task.task,
                 start_date = task.start_date,
                 end_date = task.end_date,
+                onProgramClick = onProgramClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { } // Pasa el objeto Lote al hacer clic
@@ -439,6 +453,92 @@ fun TasksList(
         }
     }
 }
+
+@Composable
+fun ReusableAlertDialog(
+    title: String,
+    description: String,
+    confirmButtonText: String,
+    cancelButtonText: String,
+    isLoading: Boolean = false,
+    onConfirmClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onDismissRequest: () -> Unit,
+    image: Painter // El parámetro de la imagen se agrega aquí
+) {
+    AlertDialog(
+        containerColor = Color.White,
+        modifier = Modifier.background(Color.Transparent),
+        onDismissRequest = { onDismissRequest() },
+        title = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Imagen en la parte superior
+                Icon(
+                    painter = image,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 207.dp, height = 160.dp)
+                        .padding(bottom = 6.dp), // Espaciado debajo de la imagen
+                    tint = Color.Unspecified // Evitar que se tiña la imagen
+                )
+
+                // Título
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFB31D34), // Color rojo para el título
+                    textAlign = TextAlign.Center,
+                    fontSize = 22.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        text = {
+            // Descripción del diálogo
+            Text(
+                text = description,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                fontSize = 22.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp) // Espaciado interno del texto
+            )
+        },
+        confirmButton = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ReusableButton(
+                        text = if (isLoading) "$confirmButtonText..." else confirmButtonText,
+                        onClick = onConfirmClick,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(0.7f), // Ajusta el ancho del botón
+                        buttonType = ButtonType.Red
+                    )
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaciado entre botones
+                    ReusableButton(
+                        text = cancelButtonText,
+                        onClick = onCancelClick,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(0.7f), // Ajusta el ancho del botón
+                        buttonType = ButtonType.Green
+                    )
+                }
+            }
+        }
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable

@@ -121,19 +121,13 @@ fun MainFloweringView(
                 // Lista de labores
                 TasksList(
                     tasks = tasks,
+                    onProgramClick = {},
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 //}
             }
-            // Botón flotante alineado al fondo derecho
-            CustomFloatingActionButton(
-                onAddClick = {},
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            )
         }
     }
 }
@@ -144,7 +138,7 @@ fun MainFloweringViewPreview() {
     CoffeTechTheme {
         MainFloweringView(
             navController = NavController(LocalContext.current),
-            plotId = 1 // Valor simulado de farmId para la previsualización
+            plotId = 1
         )
     }
 }

@@ -26,6 +26,7 @@ import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.FloweringNameDropdown
+import com.example.coffetech.common.ReusableAlertDialog
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.RoleAddDropdown
@@ -91,7 +92,7 @@ fun EditFloweringView(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Agregar Floración",
+                    text = "Editar Floración",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = Color(0xFF49602D)
@@ -190,76 +191,26 @@ fun EditFloweringView(
                     buttonType = ButtonType.Red,
                 )
 
+                val image = painterResource(id = R.drawable.delete_confirmation_icon)
                 //Confirmación para eliminar colaborador
                 if (showDeleteConfirmation.value) {
-                    Box(
-                        modifier = Modifier
-                    ) {
-                        AlertDialog(
-                            containerColor = Color.White,
-                            modifier = Modifier
-                                .background(Color.Transparent),
-                            onDismissRequest = { showDeleteConfirmation.value = false },
-                            title = {
-                                Text(
-                                    text = "¡Esta acción es irreversible!",
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.Center,
-                                )
-                            },
-                            text = {
-                                // Contenedor para el contenido del diálogo
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp), // Espacio alrededor del contenido
-                                    horizontalAlignment = Alignment.CenterHorizontally // Centrar el contenido
-                                ) {
-                                    // Descripción centrada
-                                    Text(
-                                        text = "Esta floracion se eliminará permanentemente. ¿Deseas continuar?",
-                                        color = Color.Black,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-                            },
-
-
-                            confirmButton = {
-                                // Botón para eliminar centrado
-                                ReusableButton(
-                                    text = if (isLoading) "Eliminando..." else "Eliminar",
-                                    onClick = {
-                                        viewModel.deleteFlowering(
-                                            context = context,
-                                            navController = navController
-                                        )
-                                        showDeleteConfirmation.value = false
-                                    },
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .fillMaxWidth(0.7f),
-                                    buttonType = ButtonType.Red,
-                                )
-                            },
-                            dismissButton = {
-                                // Botón cancelar
-                                ReusableButton(
-                                    text = "Cancelar",
-                                    onClick = { showDeleteConfirmation.value = false },
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .fillMaxWidth(0.7f),
-                                    buttonType = ButtonType.Green,
-                                )
-                            },
-
-                            shape = RoundedCornerShape(16.dp) // Esquinas redondeadas del diálogo
-                        )
-                    }
+                    ReusableAlertDialog(
+                        title = "¡ESTA ACCIÓN\nES IRREVERSIBLE!",
+                        description = "Esta floración se eliminará permanentemente. ¿Deseas continuar?",
+                        confirmButtonText = "Eliminar",
+                        cancelButtonText = "Cancelar",
+                        isLoading = isLoading,
+                        onConfirmClick = {
+                            viewModel.deleteFlowering(
+                                context = context,
+                                navController = navController
+                            )
+                            showDeleteConfirmation.value = false
+                        },
+                        onCancelClick = { showDeleteConfirmation.value = false },
+                        onDismissRequest = { showDeleteConfirmation.value = false },
+                        image = image
+                    )
                 }
 
 

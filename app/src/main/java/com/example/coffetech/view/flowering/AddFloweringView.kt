@@ -3,6 +3,8 @@ package com.example.coffetech.view.flowering
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.DatePickerComposable
 import com.example.coffetech.common.FloweringNameDropdown
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
@@ -38,23 +41,21 @@ import com.example.coffetech.viewmodel.flowering.AddFloweringViewModel
 fun AddFloweringView(
     navController: NavController,
     plotId: Int,
-    FloweringTypeName: String = "",
-    FloweringDate: String = "",
-    HarvestDate: String = "",
-
     viewModel: AddFloweringViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val selectedFloweringName by viewModel.selectedFloweringName.collectAsState()
     val floweringName by viewModel.floweringName.collectAsState()
     val flowering_date by viewModel.flowering_date.collectAsState()
-    val harvest_date by viewModel.flowering_date.collectAsState()
+    val harvest_date by viewModel.harvest_date.collectAsState() // Corregido aquí
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
 
     // Variable para indicar si el formulario fue enviado
-    val isFormSubmitted = remember { mutableStateOf(false) }
-
+    LaunchedEffect(Unit) {
+        viewModel.loadFloweringTypes()
+    }
 
     Box(
         modifier = Modifier
@@ -101,16 +102,13 @@ fun AddFloweringView(
                 FloweringNameDropdown(
                     selectedFloweringName = selectedFloweringName,
                     onFloweringNameChange = { viewModel.onFloweringNameChange(it) },
-                    flowerings = floweringName,  // Lista de roles obtenida del ViewModel
+                    flowerings = floweringName,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Mostrar mensaje de error si lo hay
-                if (errorMessage.isNotEmpty()) {
-                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-                }
+
 
                 Text(
                     text = "Fecha de Floración",
@@ -121,17 +119,14 @@ fun AddFloweringView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Campo de texto para el nombre del lote
-                ReusableTextField(
-                    value = flowering_date,
-                    onValueChange = { viewModel.onFloweringDateChange(it) },
-                    placeholder = "Fecha de floracion",
-                    charLimit = 50,
-                    isValid = flowering_date.isNotEmpty() || !isFormSubmitted.value,
-                    modifier = Modifier.fillMaxWidth(),
-                    errorMessage = if (flowering_date.isEmpty() && isFormSubmitted.value) "La fecha de floraciona no puede estar vacía" else ""
+                DatePickerComposable(
+                    label = "Fecha de floración",
+                    selectedDate = flowering_date,
+                    onDateSelected = { viewModel.onFloweringDateChange(it) },
+                    errorMessage = if (isFormSubmitted && flowering_date.isBlank()) "La fecha de floración no puede estar vacía." else null
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -145,29 +140,30 @@ fun AddFloweringView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                ReusableTextField(
-                    value = harvest_date,
-                    onValueChange = { viewModel.onHarvestDateChange(it) },
-                    placeholder = "Fecha de cosecha",
-                    charLimit = 50,
-                    isValid = harvest_date.isNotEmpty() || !isFormSubmitted.value,
-                    modifier = Modifier.fillMaxWidth(),
+                DatePickerComposable(
+                    label = "Fecha de cosecha",
+                    selectedDate = harvest_date,
+                    onDateSelected = { viewModel.onHarvestDateChange(it) },
+                    onClearDate = { viewModel.clearHarvestDate() }, // Pasar el callback para limpiar la fecha
+                    errorMessage = null // Opcional, ya que es opcional
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+                // Mostrar mensaje de error si lo hay
+                if (errorMessage.isNotEmpty()) {
+                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(bottom = 16.dp))
+                }
 
                 ReusableButton(
                     text = if (isLoading) "Creando..." else "Crear",
                     onClick = {
-                        if (viewModel.validateInputs()) {
-                            viewModel.onCreate(navController, context, plotId)  // Enviar farmId
-                        }
+                        viewModel.onCreate(navController, context, plotId)
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     buttonType = ButtonType.Green,
-                    enabled = !isLoading
+                    enabled = !isLoading && errorMessage.isEmpty() // Activado solo si no está cargando y no hay error
                 )
             }
         }

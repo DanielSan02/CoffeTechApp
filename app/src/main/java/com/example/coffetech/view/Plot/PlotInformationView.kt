@@ -127,7 +127,6 @@ fun PlotInformationView(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
                     // General Information Card
                     GeneralPlotInfoCard(
                         plotName = plotName,
@@ -158,7 +157,9 @@ fun PlotInformationView(
                     ActionCard(
                         buttonText = "Floraciones",
                         onClick = {
-                            Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
+                            Log.d("EditFloweringView", "Enviando datos : /$plotId/$plotName/$farmName/$farmId")
+
+                            navController.navigate("${Routes.FloweringInformationView}/$plotId/$plotName/$farmName/$farmId")
                         },
                         modifier = Modifier
                             .width(198.dp)

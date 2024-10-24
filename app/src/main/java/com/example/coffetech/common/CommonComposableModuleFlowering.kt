@@ -1,5 +1,7 @@
 package com.example.coffetech.common
 
+import android.app.DatePickerDialog
+import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,14 +19,20 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,6 +57,9 @@ import com.example.coffetech.model.Flowering
 import com.example.coffetech.model.Plot
 import com.example.coffetech.model.Task
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun FloweringGeneralInfoCard(
@@ -59,6 +70,9 @@ fun FloweringGeneralInfoCard(
     onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Determinar si se debe mostrar el botón de información
+    val showInfoButton = flowering_type_name != "Mitaca"
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -115,18 +129,21 @@ fun FloweringGeneralInfoCard(
                     )
                 }
 
-                IconButton(
-                    onClick = onInfoClick,
-                    modifier = Modifier
-                        .size(36.dp) // Tamaño del botón
-                        .background(Color(0xFF8AA72A), shape = CircleShape) // Verde
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.info_icon), // Usa el icono de información
-                        contentDescription = "Información",
-                        tint = Color.White,
-                        modifier = Modifier.size(29.dp)
-                    )
+                // Mostrar el botón de información solo si showInfoButton es true
+                if (showInfoButton) {
+                    IconButton(
+                        onClick = onInfoClick,
+                        modifier = Modifier
+                            .size(36.dp) // Tamaño del botón
+                            .background(Color(0xFF8AA72A), shape = CircleShape) // Verde
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.info_icon), // Usa el icono de información
+                            contentDescription = "Información",
+                            tint = Color.White,
+                            modifier = Modifier.size(29.dp)
+                        )
+                    }
                 }
             }
         }
@@ -140,67 +157,76 @@ fun FloweringItemCard(
     flowering_type_name: String,
     status: String,
     harvest_date: String,
+    onEditClick: () -> Unit,
+    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp)) // Fondo verde con bordes redondeados
+            .background(
+                Color(0xFFF5F5F5),
+                RoundedCornerShape(12.dp)
+            ) // Fondo gris claro con bordes redondeados
             .padding(16.dp)
     ) {
-        Column {
-            Text(
-                text = flowering_type_name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = status,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = harvest_date,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                maxLines = 1
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
+            ) {
+                Text(
+                    text = flowering_type_name,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = status,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = harvest_date,
+                    color = Color.DarkGray,
+                    fontSize = 12.sp
+                )
+
+            }
         }
     }
 }
 
 @Composable
 fun FloweringList(
-    flowerings: List<Flowering>, // Lista de objetos Lote
+    flowerings: List<Flowering>, // Lista de objetos Flowering
     modifier: Modifier = Modifier,
+    onEditClick: (Flowering) -> Unit, // Lambda para manejar clic en editar
+    onInfoClick: (Flowering) -> Unit // Lambda para manejar clic en info
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        Text(
-            text = "Historial de Floraciones",
-            color = Color.Black,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
 
         flowerings.forEach { flowering ->
             Spacer(modifier = Modifier.height(8.dp))
             FloweringItemCard(
                 flowering_type_name = flowering.flowering_type_name,
                 status = flowering.status,
-                harvest_date = flowering.harvest_date,
+                harvest_date = flowering.harvest_date ?: "No hay fecha de cosecha",
+                onEditClick = { onEditClick(flowering) },
+                onInfoClick = { onInfoClick(flowering) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { } // Pasa el objeto Lote al hacer clic
+                    .clickable { } // Pasa el objeto Lote al hacer clic si es necesario
             )
         }
     }
@@ -221,7 +247,10 @@ fun FloweringNameDropdown(
             .wrapContentWidth()
             .padding(bottom = 15.dp)
             .padding(horizontal = 8.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp)) // Fondo blanco con esquinas redondeadas
+            .background(
+                Color.White,
+                shape = RoundedCornerShape(20.dp)
+            ) // Fondo blanco con esquinas redondeadas
             .size(width = 200.dp, height = 32.dp) // Tamaño del área del botón
     ) {
         OutlinedButton(
@@ -293,7 +322,10 @@ fun FloweringNameDropdown(
     expandedArrowDropUp: Painter,
     arrowDropDown: Painter,
     onFloweringNameChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    showArrow: Boolean = true
+
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -310,13 +342,14 @@ fun FloweringNameDropdown(
                 .size(width = 300.dp, height = 56.dp)
         ) {
             OutlinedButton(
-                onClick = { expanded = !expanded },
+                onClick = { if (enabled) expanded = !expanded },
                 modifier = Modifier
                     .fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color(0xFF49602D)
                 ),
-                contentPadding = PaddingValues(start = 10.dp, end = 4.dp)
+                contentPadding = PaddingValues(start = 10.dp, end = 4.dp),
+                enabled = enabled  // Aplicar el parámetro enabled
             ) {
                 Row(
                     modifier = Modifier
@@ -334,12 +367,14 @@ fun FloweringNameDropdown(
                         overflow = TextOverflow.Ellipsis, // Manejo del desbordamiento con puntos suspensivos
                         modifier = Modifier.weight(1f)
                     )
-                    Icon(
-                        painter = if (expanded) expandedArrowDropUp else arrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color(0xFF5D8032)
-                    )
+                    if (showArrow) { // Mostrar ícono solo si showArrow es true
+                        Icon(
+                            painter = if (expanded) expandedArrowDropUp else arrowDropDown,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color(0xFF5D8032)
+                        )
+                    }
                 }
             }
         }
@@ -375,47 +410,61 @@ fun TaskItemCard(
     task: String,
     start_date: String,
     end_date: String,
+    programar: String,
     modifier: Modifier = Modifier,
     onProgramClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp)) // Fondo verde con bordes redondeados
+            .background(
+                Color(0xFFF5F5F5),
+                RoundedCornerShape(12.dp)
+            ) // Fondo gris claro con bordes redondeados
             .padding(16.dp)
     ) {
-        Column {
-            Text(
-                text = task,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = start_date,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = end_date,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                maxLines = 1
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = task,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Inicio: $start_date",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Fin: $end_date",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,
+                    maxLines = 1
+                )
+            }
 
-            ReusableButton(
-                text = "Programar", // Texto que aparece en el botón
-                onClick = { /* Acción a realizar */ },
-                modifier = Modifier.align(Alignment.End), // Alinearlo a la derecha
-                buttonType = ButtonType.Green, // Tipo de botón verde
-                minHeight = 48.dp, // Puedes ajustar los tamaños según sea necesario
-                minWidth = 120.dp
-            )
+            if (programar.equals("Sí", ignoreCase = true)) {
+                Spacer(modifier = Modifier.height(8.dp))
+                ReusableButton(
+                    text = "Programar", // Texto que aparece en el botón
+                    onClick = onProgramClick,
+                    modifier = Modifier.align(Alignment.CenterVertically), // Centrado vertical y alineado a la izquierda
+                    buttonType = ButtonType.Green, // Tipo de botón verde
+                    minHeight = 48.dp, // Puedes ajustar los tamaños según sea necesario
+                    minWidth = 120.dp
+                )
+            }
         }
     }
 }
@@ -423,16 +472,16 @@ fun TaskItemCard(
 
 @Composable
 fun TasksList(
-    tasks: List<Task>, // Lista de objetos Lote
+    tasks: List<Task>, // Lista de objetos Task
     modifier: Modifier = Modifier,
-    onProgramClick: () -> Unit
+    onProgramClick: (Task) -> Unit // Recibe la tarea para programar
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
     ) {
         Text(
-            text = "Tareas",
+            text = "Recomendaciones",
             color = Color.Black,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
@@ -442,13 +491,11 @@ fun TasksList(
         tasks.forEach { task ->
             Spacer(modifier = Modifier.height(8.dp))
             TaskItemCard(
-                 task = task.task,
+                task = task.task,
                 start_date = task.start_date,
                 end_date = task.end_date,
-                onProgramClick = onProgramClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { } // Pasa el objeto Lote al hacer clic
+                programar = task.programar,
+                onProgramClick = { onProgramClick(task) }
             )
         }
     }
@@ -538,6 +585,283 @@ fun ReusableAlertDialog(
         }
     )
 }
+
+@Composable
+fun HistoryFilterDropdowns(
+    selectedTypeFilter: String,
+    onTypeFilterChange: (String) -> Unit,
+    selectedOrderFilter: String,
+    onOrderFilterChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Dropdown para Filtrar por Tipo de Floración
+        FloweringTypeFilterDropdown(
+            selectedType = selectedTypeFilter,
+            onSelectedTypeChange = onTypeFilterChange,
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp) // Espaciado entre los dropdowns
+        )
+
+        // Dropdown para Ordenar el Historial de Floraciones
+        FloweringOrderDropdown(
+            selectedOrder = selectedOrderFilter,
+            onSelectedOrderChange = onOrderFilterChange,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp) // Espaciado entre los dropdowns
+        )
+    }
+}
+
+@Composable
+fun FloweringTypeFilterDropdown(
+    selectedType: String,
+    onSelectedTypeChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = listOf("Todos los tipos", "Principal", "Mitaca")
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .background(Color.White, RoundedCornerShape(20.dp))
+    ) {
+        OutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF49602D)
+            ),
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedType,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = if (expanded) painterResource(id = R.drawable.arrowdropup_icon) else painterResource(id = R.drawable.arrowdropdown_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF5D8032)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 150.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option, color = Color.Black) },
+                    onClick = {
+                        onSelectedTypeChange(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FloweringOrderDropdown(
+    selectedOrder: String,
+    onSelectedOrderChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = listOf("Ordenar por", "Más antiguo", "Más reciente")
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .background(Color.White, RoundedCornerShape(20.dp))
+    ) {
+        OutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF49602D)
+            ),
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedOrder,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = if (expanded) painterResource(id = R.drawable.arrowdropup_icon) else painterResource(id = R.drawable.arrowdropdown_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF5D8032)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 180.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option, color = Color.Black) },
+                    onClick = {
+                        onSelectedOrderChange(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerComposable(
+    label: String,
+    selectedDate: String?,
+    onDateSelected: (String) -> Unit,
+    onClearDate: (() -> Unit)? = null,
+    errorMessage: String? = null,
+    enabled: Boolean = true
+) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // Formateador de fecha
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
+    // Convertir la fecha seleccionada a Calendar si no es nula
+    selectedDate?.let {
+        try {
+            val date = dateFormat.parse(it)
+            date?.let { parsedDate ->
+                calendar.time = parsedDate
+            }
+        } catch (e: Exception) {
+            // Manejar el error de parsing si es necesario
+        }
+    }
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    // Estilos similares a ReusableTextField
+    Column(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = selectedDate ?: "",
+            onValueChange = {},
+            label = { Text(text = label) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) { if (enabled) showDialog = true }, // Condicional
+            enabled = false, // Deshabilitar la edición manual
+            trailingIcon = {
+                Row {
+                    // Ícono de eliminar, visible solo si hay una fecha seleccionada y se ha proporcionado onClearDate
+                    if (!selectedDate.isNullOrEmpty() && onClearDate != null) {
+                        IconButton(
+                            onClick = { onClearDate() },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Eliminar fecha",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(40.dp)
+
+                            )
+                        }
+                    }
+                }
+            },
+            isError = errorMessage != null,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedPlaceholderColor = Color.Gray,
+                unfocusedPlaceholderColor = Color.Gray,
+                focusedBorderColor = if (errorMessage != null) Color.Red else Color(0xFF5D8032),
+                unfocusedBorderColor = if (errorMessage != null) Color.Red else Color.Gray,
+                disabledBorderColor = Color.Gray,
+                containerColor = Color.White,
+                errorBorderColor = Color.Red
+            ),
+            shape = RoundedCornerShape(4.dp),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = Color.Black,
+                fontSize = 16.sp
+            )
+        )
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
+
+        if (showDialog) {
+            DatePickerDialog(
+                context,
+                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                    calendar.set(year, month, dayOfMonth)
+                    val selected = dateFormat.format(calendar.time)
+                    onDateSelected(selected)
+                    showDialog = false
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).apply {
+                setOnCancelListener {
+                    showDialog = false
+                }
+                show()
+            }
+        }
+    }
+}
+
 
 
 @Preview(showBackground = true)

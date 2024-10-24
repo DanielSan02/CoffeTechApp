@@ -1,5 +1,6 @@
 package com.example.coffetech.view.flowering
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
+import com.example.coffetech.common.DatePickerComposable
 import com.example.coffetech.common.FloweringNameDropdown
 import com.example.coffetech.common.ReusableAlertDialog
 import com.example.coffetech.common.ReusableButton
@@ -40,13 +42,16 @@ import com.example.coffetech.viewmodel.flowering.EditFloweringViewModel
 @Composable
 fun EditFloweringView(
     navController: NavController,
-    plotId: Int,
+    floweringId: Int,
     floweringTypeName: String,
     floweringDate: String,
     harvestDate: String,
-
+    plotId: Int,
     viewModel: EditFloweringViewModel = viewModel()
 ) {
+
+    Log.d("EditFloweringView", "Iniciando EditFloweringView con ID: $floweringId")
+
 
     val context = LocalContext.current
     val showDeleteConfirmation = remember { mutableStateOf(false) }
@@ -57,8 +62,15 @@ fun EditFloweringView(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val hasChanges by viewModel.hasChanges.collectAsState()
-    val isFormSubmitted = remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        viewModel.initialize(
+            floweringId = floweringId,
+            floweringTypeName = floweringTypeName,
+            floweringDate = floweringDate,
+            harvestDate = harvestDate
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -104,17 +116,19 @@ fun EditFloweringView(
 
                 FloweringNameDropdown(
                     selectedFloweringName = currentFloweringName,
-                    onFloweringNameChange = viewModel::onFloweringNameChange,
-                    flowerings = floweringName,  // Lista de roles obtenida del ViewModel
+                    onFloweringNameChange = {}, // No permitir cambios
+                    flowerings = floweringName,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.LightGray, RoundedCornerShape(4.dp))
+                        .padding(vertical = 4.dp),
+                    enabled = false,
+                    showArrow = false
                 )
 
-                // Mostrar mensaje de error si lo hay
-                if (errorMessage.isNotEmpty()) {
-                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-                }
+
 
                 Text(
                     text = "Fecha de Floración",
@@ -127,21 +141,20 @@ fun EditFloweringView(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                // Campo de texto para el nombre del lote
-                ReusableTextField(
-                    value = currentFlowering_date,
-                    onValueChange = { viewModel.onFloweringDateChange(it) },
-                    placeholder = "Fecha de floracion",
-                    charLimit = 50,
-                    isValid = currentFlowering_date.isNotEmpty() || !isFormSubmitted.value,
-                    modifier = Modifier.fillMaxWidth(),
-                    errorMessage = if (currentFlowering_date.isEmpty() && isFormSubmitted.value) "La fecha de floracion no puede estar vacía" else ""
+
+                DatePickerComposable(
+                    label = "Fecha de Floración",
+                    selectedDate = currentFlowering_date,
+                    onDateSelected = {}, // No permitir cambios
+                    onClearDate = null, // No permitir limpiar
+                    errorMessage = null,
+                    enabled = false // Deshabilitar interacción
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Fecha de Cosecha (Opcional)",
+                    text = "Fecha de Cosecha",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleSmall.copy(
                         color = Color(0xFF3F3D3D)
@@ -151,17 +164,20 @@ fun EditFloweringView(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                ReusableTextField(
-                    value = currentHarvest_date,
-                    onValueChange = { viewModel.onFloweringDateChange(it) },
-                    placeholder = "Fecha de cosecha",
-                    charLimit = 50,
-                    isValid = currentHarvest_date.isNotEmpty() || !isFormSubmitted.value,
-                    modifier = Modifier.fillMaxWidth(),
+
+                DatePickerComposable(
+                    label = "Fecha de cosecha",
+                    selectedDate = currentHarvest_date.ifEmpty { "" },
+                    onDateSelected = { viewModel.onHarvestDateChange(it) },
+                    errorMessage = null // Opcional, ya que es opcional
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Mostrar mensaje de error si lo hay
+                if (errorMessage.isNotEmpty()) {
+                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(bottom = 16.dp))
+                }
                 // Botón para guardar cambios
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
@@ -175,7 +191,7 @@ fun EditFloweringView(
                         .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
                         .align(Alignment.CenterHorizontally),
                     buttonType = ButtonType.Green,
-                    enabled = hasChanges && !isLoading
+                    enabled = hasChanges && !isLoading && errorMessage.isEmpty()
                 )
 
                 // Botón para eliminar el colaborador
@@ -227,10 +243,11 @@ fun EditFloweringViewPreview() {
     CoffeTechTheme {
         EditFloweringView(
             navController = mockNavController,
-            plotId = 1, // Ejemplo de ID de la finca
+            floweringId = 1, // Ejemplo de ID de la finca
             floweringTypeName= "Principal",
             floweringDate= "15-08-2024",
-            harvestDate= "15-08-2025",
+            harvestDate= "",
+            plotId = 1,
         )
     }
 }

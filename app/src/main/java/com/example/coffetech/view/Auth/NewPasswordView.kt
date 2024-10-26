@@ -78,7 +78,7 @@ fun NewPasswordView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(5.dp)
+            .padding(30.dp)
             .background(Color(0xFFF2F2F2)),
         contentAlignment = Alignment.Center
     ) {

@@ -126,34 +126,38 @@ fun TopBarWithBackArrow(
     title: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .size(90.dp)
-            .height(90.dp)
-            .padding(16.dp)
-            .statusBarsPadding(), // Ajusta el padding para la barra de estado (notificaciones)
-
-
-        verticalAlignment = Alignment.CenterVertically
+            .height(74.dp) // Altura fija para la barra
+            .background(Color.White)
+            .padding(horizontal = 10.dp)
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                painter = painterResource(R.drawable.back_arrow),
-                contentDescription = "Back",
-                tint = Color(0xFF2B2B2B),
-                modifier = Modifier.size(56.dp)
-
-            )
-
+        // Icono alineado a la izquierda
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.align(Alignment.CenterStart)
+        ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.back_arrow),
+                    contentDescription = "Back",
+                    tint = Color(0xFF2B2B2B),
+                    modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
+                )
+            }
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
+
+        // Título centrado entre el ícono y el final de la pantalla
+        ReusableTittleSmall(
+            maxLines = 3,
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = Color(0xFF2B2B2B)
+            modifier = Modifier.align(Alignment.Center) // Céntralo en el espacio disponible
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 
 }

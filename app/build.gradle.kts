@@ -13,7 +13,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 3 // Este es el código de versión
-        versionName = "2.1.1"  // Este es el nombre de la versión
+        versionName = "3.1.2"  // Este es el nombre de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -81,7 +81,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("com.google.android.gms:play-services-maps:18.0.2")
     implementation("com.google.maps.android:maps-compose:2.8.0")
-    implementation("com.google.accompanist:accompanist-permissions:0.30.1") // Verifica la última versión
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
@@ -89,6 +89,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx")
 
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 
 
 

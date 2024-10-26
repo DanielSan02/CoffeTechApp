@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -54,18 +56,20 @@ fun VerifyAccountView(
     val errorMessage by viewModel.errorMessage
     val context = LocalContext.current
     val isLoading by viewModel.isLoading
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
-            .navigationBarsPadding() // Ajusta el padding para la barra de navegación
-            .padding(10.dp),
+            .navigationBarsPadding(), // Ajusta el padding para la barra de navegación
+
         contentAlignment = Alignment.Center
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.padding(25.dp).verticalScroll(scrollState)
         ) {
             // Title for the verification screen
             ReusableTittleLarge(text = "Verifica tu cuenta", modifier = Modifier.padding(top = 30.dp, bottom = 30.dp))

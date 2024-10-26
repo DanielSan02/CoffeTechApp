@@ -44,7 +44,7 @@ fun ChangePasswordView(
     val confirmPassword by viewModel.confirmPassword
     val errorMessage by viewModel.errorMessage
     val isPasswordChanged by viewModel.isPasswordChanged
-    val context = LocalContext.current // Obtener el contexto aquí
+    val context = LocalContext.current
     val isLoading by viewModel.isLoading
 
     LaunchedEffect(isPasswordChanged) {
@@ -52,14 +52,16 @@ fun ChangePasswordView(
             navController.popBackStack() // Navegar a la pantalla anterior
         }
     }
-         // Ajusta el padding para la barra de estado (notificaciones)
-    Column(modifier = modifier.fillMaxSize()
-        .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
-        .navigationBarsPadding(), // Ajusta el padding para la barra de navegación
 
+    // Ajusta el padding para la barra de estado (notificaciones)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding() // Ajusta el padding para la barra de estado (notificaciones)
+            .navigationBarsPadding(), // Ajusta el padding para la barra de navegación
     ) {
         TopBarWithBackArrow(
-            onBackClick = { navController.navigate(Routes.ProfileView)},
+            onBackClick = { navController.navigate(Routes.ProfileView) },
             title = "Actualizar contraseña"
         )
 
@@ -76,7 +78,6 @@ fun ChangePasswordView(
                 text = "Contraseña actual",
                 modifier = Modifier.padding(start = 25.dp),
                 textAlign = TextAlign.Left // Cambia el alineamiento a la izquierda
-
             )
             Spacer(modifier = Modifier.height(5.dp))
 
@@ -86,8 +87,7 @@ fun ChangePasswordView(
                 placeholder = "Contraseña actual",
                 isPassword = true,
                 modifier = Modifier.fillMaxWidth(),
-
-                )
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -104,8 +104,7 @@ fun ChangePasswordView(
                 placeholder = "Nueva contraseña",
                 isPassword = true,
                 modifier = Modifier.fillMaxWidth()
-
-                )
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -120,14 +119,17 @@ fun ChangePasswordView(
                 value = confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChange(it) },
                 placeholder = "Confirme nueva contraseña",
+                isPassword = true,
                 modifier = Modifier.fillMaxWidth(),
-
-                isPassword = true
             )
 
             // Mostrar el mensaje de error si las contraseñas no cumplen con los requisitos de seguridad
             if (errorMessage.isNotEmpty()) {
-                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -140,18 +142,19 @@ fun ChangePasswordView(
                     }
                 },
                 buttonType = ButtonType.Green,  // Botón verde
-                enabled = !isLoading,
+                enabled = !isLoading && errorMessage.isEmpty(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             ReusableTextButton(
                 navController = navController,
-                destination = Routes.ProfileView // Aquí puedes definir a qué ruta navegar cuando presionas "Cancelar"
+                destination = Routes.ProfileView // Define a dónde navegar cuando presionas "Cancelar"
             )
         }
     }
 }
+
 
 
 

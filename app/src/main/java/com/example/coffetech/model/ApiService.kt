@@ -343,7 +343,7 @@ data class Notification(
 data class NotificationResponse(
     val status: String,
     val message: String,
-    val data: List<Notification>
+    val data: Any
 )
 
 /**

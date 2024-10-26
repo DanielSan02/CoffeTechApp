@@ -5,6 +5,7 @@ package com.example.coffetech.navigation
 import NotificationView
 import android.content.Context // Importar el Context correcto
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +19,7 @@ import com.example.coffetech.Routes.Routes
 import com.example.coffetech.Routes.Routes.AddFloweringView
 import com.example.coffetech.Routes.Routes.EditFloweringView
 import com.example.coffetech.Routes.Routes.FloweringInformationView
+import com.example.coffetech.utils.GlobalEventBus
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.Auth.LoginView
 import com.example.coffetech.view.Auth.RegisterView
@@ -46,6 +48,8 @@ import com.example.coffetech.view.flowering.EditFloweringView
 import com.example.coffetech.view.flowering.FloweringInformationView
 import com.example.coffetech.view.flowering.RecommendationFloweringView
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 /**
@@ -70,6 +74,24 @@ fun AppNavHost(context: Context) {
         // No action performed, back gesture is disabled
     }
 
+    LaunchedEffect(Unit) {
+        launch {
+            GlobalEventBus.logoutEvent.collectLatest {
+                // Limpiar datos de sesión
+                sharedPreferencesHelper.clearSession()
+
+                // Navegar a LoginView y limpiar la pila de navegación
+                navController.navigate(Routes.LoginView)
+
+                // Mostrar un Toast indicando el cierre de sesión
+                Toast.makeText(
+                    context,
+                    "Credenciales expiradas.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
     // Navigation host for defining the navigation graph and initial destination
     NavHost(
         navController = navController,

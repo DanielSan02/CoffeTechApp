@@ -213,7 +213,7 @@ fun FarmEditView(
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
                         .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Red,
+                    buttonType = ButtonType.Green,
                     enabled = hasChanges && !isLoading
                 )
             }

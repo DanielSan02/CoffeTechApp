@@ -1,5 +1,5 @@
-// CulturalWorkTaskInformationView.kt
 package com.example.coffetech.view.CulturalWorkTask
+
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CulturalWorkTaskInformationView(
+fun CulturalWorkTaskGeneralView(
     navController: NavController,
     farmId: Int,
     farmName: String,
@@ -163,7 +163,7 @@ fun CulturalWorkTaskInformationView(
                     } else {
                         LazyColumn { // Reemplaza el forEach con LazyColumn para mejor rendimiento
                             items(tasks) { task ->
-                                CulturalWorkTaskCard(task = task, onClick = {
+                                CulturalWorkTaskGeneralCard(task = task, onClick = {
                                     Toast.makeText(
                                         context,
                                         "Clicked on ${task.name}",
@@ -190,27 +190,27 @@ fun CulturalWorkTaskInformationView(
 }
 
 
-    @Preview(showBackground = true)
-    @Composable
-    fun CulturalWorkTaskCardPreview() {
-        CoffeTechTheme {
-            CulturalWorkTaskCard(
-                task = CulturalWorkTask(
-                    id = 1,
-                    name = "Recolección de Café",
-                    assignedTo = "me",
-                    assignedToName = "Juan Pérez",
-                    state = "Por hacer",
-                    date = 1672531199000L
-                ),
-                onClick = {}
-            )
-        }
+@Preview(showBackground = true)
+@Composable
+fun CulturalWorkTaskCard2Preview() {
+    CoffeTechTheme {
+        CulturalWorkTaskCard(
+            task = CulturalWorkTask(
+                id = 1,
+                name = "Recolección de Café",
+                assignedTo = "me",
+                assignedToName = "Juan Pérez",
+                state = "Por hacer",
+                date = 1672531199000L
+            ),
+            onClick = {}
+        )
     }
+}
 
 @Preview(showBackground = true)
 @Composable
-fun CulturalWorkTaskInformationViewPreview() {
+fun CulturalWorkTaskGeneralViewPreview() {
     CoffeTechTheme {
         // Simulación de un NavController para previsualización
         val navController = rememberNavController()
@@ -247,7 +247,7 @@ fun CulturalWorkTaskInformationViewPreview() {
         val previewViewModel = CulturalWorkTaskViewModel(initialTasks = preloadedTasks)
 
         // Llamada a la vista de previsualización con el ViewModel predefinido
-        CulturalWorkTaskInformationView(
+        CulturalWorkTaskGeneralView(
             navController = navController,
             farmId = 1, // Valores simulados
             farmName = "Finca Ejemplo",

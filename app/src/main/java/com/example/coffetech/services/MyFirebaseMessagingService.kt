@@ -20,17 +20,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d("FCM", "From: ${remoteMessage.from}")
 
         // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            Log.d("FCM", "Message Notification Body: ${it.body}")
-            sendNotification(it.body!!)
+        remoteMessage.notification?.let { notification ->
+            val title = notification.title ?: "Notificación"
+            val body = notification.body ?: ""
+            Log.d("FCM", "Message Notification Title: $title")
+            Log.d("FCM", "Message Notification Body: $body")
+            sendNotification(title, body)
         }
     }
 
-    private fun sendNotification(messageBody: String) {
+    private fun sendNotification(title: String, messageBody: String) {
         val channelId = "default_channel"
         val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.logo) // Cambia esto por el ícono de tu notificación
-            .setContentTitle("FCM Message")
+            .setSmallIcon(R.drawable.logored) // Cambia esto por el ícono de tu notificación
+            .setContentTitle(title)
             .setContentText(messageBody)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
@@ -58,11 +61,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
 
             // Registrar el canal en el sistema
-            val notificationManager: NotificationManager =
+            val systemNotificationManager: NotificationManager =
                 getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            systemNotificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(0, builder.build())
+        notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
+
 }

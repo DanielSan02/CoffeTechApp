@@ -13,4 +13,7 @@
     <color name="green_light">#95A94B</color>
     <color name="green_dark">#49602D</color>
     <color name="blue_light">#DBF7F0</color>
+    <color name="green">#49602D</color> <!-- Usando el color secundario definido -->
+
+
 </resources>

@@ -203,7 +203,7 @@ fun FarmInformationView(
             }
             if (userHasPermissionAddPlots && errorMessage.isEmpty()){
             CustomFloatingActionButton(
-                onAddLoteClick = {
+                onAddClick = {
                     // Navegamos a CreatePlotInformationView con el farmId
                     navController.navigate("${Routes.CreatePlotInformationView}/$farmId")
                 },

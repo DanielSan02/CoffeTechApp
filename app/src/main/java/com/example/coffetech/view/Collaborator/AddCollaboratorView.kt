@@ -2,7 +2,9 @@ package com.example.coffetech.view.Collaborator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +55,8 @@ fun AddCollaboratorView(
     val selectedRole by viewModel.selectedRole.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val scrollState = rememberScrollState()
+
 
     val isFormSubmitted = remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -77,6 +81,8 @@ fun AddCollaboratorView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp) // Añadir padding interno
+                    .verticalScroll(scrollState)
+
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(

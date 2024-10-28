@@ -19,6 +19,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -56,11 +57,13 @@ fun RegisterView(
     viewModel: RegisterViewModel = viewModel()
 ) {
     // Solo inicializar los valores si no están vacíos
-    if (name.isNotEmpty() && viewModel.name.value.isEmpty()) {
-        viewModel.onNameChange(name)
-    }
-    if (email.isNotEmpty() && viewModel.email.value.isEmpty()) {
-        viewModel.onEmailChange(email)
+    LaunchedEffect(Unit) {
+        if (name.isNotEmpty() && viewModel.name.value.isEmpty()) {
+            viewModel.onNameChange(name)
+        }
+        if (email.isNotEmpty() && viewModel.email.value.isEmpty()) {
+            viewModel.onEmailChange(email)
+        }
     }
 
     val name by viewModel.name
@@ -116,14 +119,16 @@ fun RegisterView(
                         value = name,
                         onValueChange = { viewModel.onNameChange(it) },
                         placeholder = "Nombre o apodo",
-                        charLimit = 40
+                        charLimit = 40,
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     ReusableTextField(
                         value = email,
                         onValueChange = { viewModel.onEmailChange(it) },
                         placeholder = "Correo Electrónico",
-                        charLimit = 80
+                        charLimit = 80,
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     // Checkbox para aceptar términos y condiciones

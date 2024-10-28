@@ -5,6 +5,7 @@ package com.example.coffetech.navigation
 import NotificationView
 import android.content.Context // Importar el Context correcto
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +16,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.coffetech.Routes.Routes
+import com.example.coffetech.Routes.Routes.AddFloweringView
+import com.example.coffetech.Routes.Routes.EditFloweringView
+import com.example.coffetech.Routes.Routes.FloweringInformationView
+import com.example.coffetech.utils.GlobalEventBus
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.Auth.LoginView
 import com.example.coffetech.view.Auth.RegisterView
@@ -38,7 +43,13 @@ import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
 import com.example.coffetech.view.farm.FarmView
+import com.example.coffetech.view.flowering.AddFloweringView
+import com.example.coffetech.view.flowering.EditFloweringView
+import com.example.coffetech.view.flowering.FloweringInformationView
+import com.example.coffetech.view.flowering.RecommendationFloweringView
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 /**
@@ -63,6 +74,24 @@ fun AppNavHost(context: Context) {
         // No action performed, back gesture is disabled
     }
 
+    LaunchedEffect(Unit) {
+        launch {
+            GlobalEventBus.logoutEvent.collectLatest {
+                // Limpiar datos de sesión
+                sharedPreferencesHelper.clearSession()
+
+                // Navegar a LoginView y limpiar la pila de navegación
+                navController.navigate(Routes.LoginView)
+
+                // Mostrar un Toast indicando el cierre de sesión
+                Toast.makeText(
+                    context,
+                    "Credenciales expiradas.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
     // Navigation host for defining the navigation graph and initial destination
     NavHost(
         navController = navController,
@@ -332,6 +361,7 @@ fun AppNavHost(context: Context) {
         }
 
 
+        ///PLOTS
 
         composable(
             route = "createPlotInformationView/{farmId}?plotName={plotName}&selectedVariety={selectedVariety}",
@@ -450,6 +480,118 @@ fun AppNavHost(context: Context) {
                 initialAltitude = altitude
             )
         }
+
+
+        ///FlOWERING
+
+        composable(
+            route = "${Routes.FloweringInformationView}/{plotId}/{plotName}/{farmName}/{farmId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmId") { type = NavType.IntType },
+
+
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            FloweringInformationView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                farmId = farmId,
+                farmName = farmName
+            )
+        }
+
+        composable(
+            route = "${Routes.AddFloweringView}/{plotId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("plotId") ?: 0
+
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            // Llama a la vista `EditCollaboratorView` con los parámetros necesarios
+            AddFloweringView(
+                navController = navController,
+                plotId = farmId,
+            )
+        }
+
+
+        composable(
+            route = "${Routes.EditFloweringView}/{floweringId}/{floweringTypeName}/{floweringDate}/{plotId}?harvestDate={harvestDate}",
+            arguments = listOf(
+                navArgument("floweringId") { type = NavType.IntType },
+                navArgument("floweringTypeName") { type = NavType.StringType },
+                navArgument("floweringDate") { type = NavType.StringType },
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("harvestDate") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            val floweringId = backStackEntry.arguments?.getInt("floweringId") ?: 0
+            val floweringTypeName = backStackEntry.arguments?.getString("floweringTypeName") ?: ""
+            val floweringDate = backStackEntry.arguments?.getString("floweringDate") ?: ""
+            val harvestDate = backStackEntry.arguments?.getString("harvestDate") ?: ""
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+
+            EditFloweringView(
+                navController = navController,
+                floweringId = floweringId,
+                floweringTypeName = floweringTypeName,
+                floweringDate = floweringDate,
+                harvestDate = harvestDate,
+                plotId = plotId
+            )
+        }
+
+        composable(
+            route = "${Routes.RecommendationFloweringViewPreview}/{plotId}/{plotName}/{farmName}/{farmId}/{floweringId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("floweringId") { type = NavType.IntType }
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val floweringId = backStackEntry.arguments?.getInt("floweringId") ?: 0
+
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            RecommendationFloweringView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                farmName = farmName,
+                farmId = farmId,
+                floweringId = floweringId
+                )
+        }
+
+
 
 
     }}

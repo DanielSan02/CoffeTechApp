@@ -3,8 +3,11 @@ package com.example.coffetech.view.Collaborator
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -73,6 +76,7 @@ fun EditCollaboratorView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val hasChanges by viewModel.hasChanges.collectAsState()
+    val scrollState = rememberScrollState()
 
 
     Box(
@@ -92,6 +96,9 @@ fun EditCollaboratorView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp) // Añadir padding interno
+                    .verticalScroll(scrollState)
+
+
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -235,11 +242,11 @@ fun EditCollaboratorView(
                 if (showDeleteConfirmation.value) {
                     Box(
                         modifier = Modifier
-                            .background(Color.White)
                     ) {
                         AlertDialog(
+                            containerColor = Color.White,
                             modifier = Modifier
-                                .background(Color.White),
+                                .background(Color.Transparent),
                             onDismissRequest = { showDeleteConfirmation.value = false },
                             title = {
                                 Text(
@@ -267,6 +274,8 @@ fun EditCollaboratorView(
                                     )
                                 }
                             },
+
+
                             confirmButton = {
                                 // Botón para eliminar centrado
                                 ReusableButton(
@@ -297,6 +306,7 @@ fun EditCollaboratorView(
                                     buttonType = ButtonType.Green,
                                 )
                             },
+
                             shape = RoundedCornerShape(16.dp) // Esquinas redondeadas del diálogo
                         )
                     }

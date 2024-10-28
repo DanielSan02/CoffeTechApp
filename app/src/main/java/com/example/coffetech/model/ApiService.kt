@@ -343,7 +343,7 @@ data class Notification(
 data class NotificationResponse(
     val status: String,
     val message: String,
-    val data: List<Notification>
+    val data: Any
 )
 
 /**
@@ -511,6 +511,104 @@ data class PlotLocationData(
     val latitude: String,
     val longitude: String,
     val altitude: String
+)
+
+//MODULE FLOWERINGS
+data class Flowering(
+    val flowering_id: Int,
+    val plot_id: Int,
+    val flowering_date: String,
+    val harvest_date: String? = null,
+    val status: String,
+    val flowering_type_name: String,
+)
+
+data class ListFloweringsResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringsData
+)
+
+data class GetFloweringHistoryResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringHistoryData
+)
+
+data class FloweringHistoryData(
+    val flowerings: List<Flowering>
+)
+
+
+data class FloweringDataWrapper(
+    val flowering: Flowering
+)
+
+
+data class GetActiveFloweringsResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringsData
+)
+
+data class FloweringsData(
+    val flowerings: List<Flowering>
+)
+
+data class CreateFloweringRequest(
+    val plot_id: Int,
+    val flowering_type_name: String,
+    val flowering_date: String, // Formato "YYYY-MM-DD"
+    val harvest_date: String? = null // Opcional
+)
+
+
+data class CreateFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringDataWrapper? = null
+)
+
+data class UpdateFloweringRequest(
+    val flowering_id: Int,
+    val harvest_date: String
+)
+
+data class DeleteFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
+)
+
+data class UpdateFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringDataWrapper? = null
+)
+
+data class Task(
+    val task: String,
+    val start_date: String,
+    val end_date: String,
+    val programar: String // Agregado el campo 'programar'
+)
+
+data class RecommendationsData(
+    val recommendations: Recommendation
+)
+
+data class Recommendation(
+    val flowering_id: Int,
+    val flowering_type_name: String,
+    val flowering_date: String,
+    val current_date: String,
+    val tasks: List<Task>
+)
+
+data class GetRecommendationsResponse(
+    val status: String,
+    val message: String,
+    val data: RecommendationsData
 )
 
 
@@ -751,6 +849,49 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: UpdatePlotLocationRequest
     ): Call<UpdatePlotLocationResponse>
+
+    @GET("/flowering/get-active-flowerings/{plot_id}")
+    fun getActiveFlowerings(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetActiveFloweringsResponse>
+
+    @GET("/flowering/get-flowering-history/{plot_id}")
+    fun getFloweringHistory(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetFloweringHistoryResponse>
+
+    /**
+     * Crea una nueva floración.
+     *
+     * @param sessionToken El token de sesión del usuario.
+     * @param request La solicitud para crear la floración.
+     * @return Un [Call] con la respuesta de la creación de la floración.
+     */
+    @POST("/flowering/create-flowering")
+    fun createFlowering(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateFloweringRequest
+    ): Call<CreateFloweringResponse>
+
+    @POST("flowering/update-flowering")
+    fun updateFlowering(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdateFloweringRequest
+    ): Call<UpdateFloweringResponse>
+
+    @POST("flowering/delete-flowering/{flowering_id}")
+    fun deleteFlowering(
+        @Path("flowering_id") floweringId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<DeleteFloweringResponse>
+
+    @GET("/flowering/get-recommendations/{flowering_id}")
+    fun getRecommendations(
+        @Path("flowering_id") floweringId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetRecommendationsResponse>
 
 
 }

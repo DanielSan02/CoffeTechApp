@@ -36,6 +36,19 @@ import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 import android.util.Log
 
+@Preview(showBackground = true)
+@Composable
+fun PlotInformationViewPreview() {
+    val navController = rememberNavController()
+    CoffeTechTheme {
+        PlotInformationView(
+            navController = navController,
+            plotId = 11,
+            farmName = "Finca Ejemplo",
+            farmId = 0
+        )
+    }
+}
 /**
  * Composable function that renders a view displaying detailed information about a specific plot.
  * This includes the plot's name, coffee variety, location details, and options to edit the plot or view its detection history.
@@ -63,13 +76,20 @@ fun PlotInformationView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val plotName by viewModel.plotName.collectAsState()
     val plotCoffeeVariety by viewModel.plotCoffeeVariety.collectAsState()
+    val coordinatesUbication by viewModel.coordinatesUbication.collectAsState()
+    val selectedVariety by viewModel.selectedVariety.collectAsState()
+    val faseName by viewModel.faseName.collectAsState()
+    val initialDate by viewModel.initialDate.collectAsState()
+    val endDate by viewModel.endDate.collectAsState()
+    Log.d(TAG, "Estados obtenidos del ViewModel: plotName=$plotName, plotCoffeeVariety=$plotCoffeeVariety")
 
-    // Cargar los datos del lote cuando el Composable se inicie
+    // Llamar a getPlot cuando el Composable se inicie
     LaunchedEffect(Unit) {
         if (sessionToken != null) {
             viewModel.getPlot(plotId, sessionToken)
         } else {
             viewModel.setErrorMessage("Token de sesión no encontrado.")
+            // Opcional: Navegar al Login si el token no está disponible
             Toast.makeText(context, "Token de sesión no encontrado. Por favor, inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
             navController.navigate(Routes.LoginView) {
                 popUpTo(Routes.StartView) { inclusive = true }
@@ -87,7 +107,6 @@ fun PlotInformationView(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFEFEFEF))
-                .padding(16.dp),
         ) {
             when {
                 isLoading -> {
@@ -149,48 +168,33 @@ fun PlotInformationView(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            ActionCard(
-                                buttonText = "Floraciones",
-                                onClick = {
-                                    Toast.makeText(context, "Función disponible próximamente", Toast.LENGTH_SHORT).show()
-                                },
-                                modifier = Modifier
-                                    .width(198.dp)
-                                    .height(159.dp)
-                                    .padding(start = 2.5.dp)
-                            )
+                    ActionCard(
+                        buttonText = "Floraciones",
+                        onClick = {
+                            Log.d("EditFloweringView", "Enviando datos : /$plotId/$plotName/$farmName/$farmId")
+
+                            navController.navigate("${Routes.FloweringInformationView}/$plotId/$plotName/$farmName/$farmId")
+                        },
+                        modifier = Modifier
+                            .width(198.dp)
+                            .height(159.dp)
+                            .padding(start = 2.5.dp)
+                    )
 
                             Spacer(modifier = Modifier.height(50.dp))
 
-                            Text(
-                                text = "Historial de detecciones",
-                                fontSize = 18.sp,
-                                color = Color.Black,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
+                    Text(
+                        text = "Historial de detecciones",
+                        fontSize = 18.sp,
+                        color = Color.Black,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-                            // Aquí puedes implementar las tarjetas de historial de detecciones
-                        }
-                    }
+                    // Implementa las tarjetas de historial de detecciones aquí
                 }
             }
         }
     }
-}
+}}}
 
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun PlotInformationViewPreview() {
-    val navController = rememberNavController()
-    CoffeTechTheme {
-        PlotInformationView(
-            navController = navController,
-            plotId = 11,
-            farmName = "Finca Ejemplo",
-            farmId = 0
-        )
-    }
-}

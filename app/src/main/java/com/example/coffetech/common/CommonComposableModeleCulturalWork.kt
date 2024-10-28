@@ -5,7 +5,6 @@ import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -20,13 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.coffetech.R
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.viewmodel.cultural.CulturalWorkTask
@@ -112,63 +109,91 @@ fun GenericDropdown(
         }
     }
 }
+
+
 @Composable
 fun CulturalWorkTaskGeneralCard(
     task: CulturalWorkTask,
-    onClick: () -> Unit
+    farmName: String,
+    plotName: String,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
             .padding(vertical = 8.dp),  // Espaciado alrededor de la tarjeta
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White) // Fondo blanco
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Nombre de la tarea
-            Text(
-                text = task.name,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically // Alineación vertical al centro
+        ) {
+            Column(
+                modifier = Modifier.weight(1f) // Esto permite que la columna ocupe el espacio restante
+            ) {
+                // Nombre de la tarea
+                Text(
+                    text = task.name,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Asignado a
+                Text(
+                    text = "Asignada a: ${task.assignedToName}",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Estado
+                Text(
+                    text = "Estado: ${task.state}",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Fecha formateada
+                val formattedDate = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(task.date))
+                Text(
+                    text = "Fecha: $formattedDate",
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(text = "Finca: $farmName", color = Color.Black, fontSize = 12.sp)
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(text = "Lote: $plotName", color = Color.Black, fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Botón alineado a la derecha
+            ReusableButton(
+                text = "Comenzar",
+                onClick = {},
+                modifier = Modifier
+                    .size(width = 160.dp, height = 48.dp),
+                buttonType = ButtonType.Green
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Asignado a
-            Text(
-                text = "Asignado a: ${task.assignedToName}",
-                color = Color.Black,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Estado
-            Text(
-                text = "Estado: ${task.state}",
-                color = Color.Black,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Fecha formateada
-            val formattedDate = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(task.date))
-            Text(
-                text = "Fecha: $formattedDate",
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
-
-    
-
         }
     }
 }
+
 
 @Composable
 fun CulturalWorkTaskCard(

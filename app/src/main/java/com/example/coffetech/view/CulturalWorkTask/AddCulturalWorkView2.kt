@@ -29,6 +29,7 @@ import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel1
+import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel2
 
 
 @Composable
@@ -37,12 +38,8 @@ fun AddCulturalWorkView2(
     farmId: Int,
     plotName: String = "",
     selectedVariety: String = "",
-    viewModel: AddCulturalWorkViewModel1 = viewModel()
+    viewModel: AddCulturalWorkViewModel2 = viewModel()
 ) {
-    val flowering_date by viewModel.flowering_date.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val typeCulturalWork by viewModel.typeCulturalWork.collectAsState()
-    val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
 
     // Variable para indicar si el formulario fue enviado
 

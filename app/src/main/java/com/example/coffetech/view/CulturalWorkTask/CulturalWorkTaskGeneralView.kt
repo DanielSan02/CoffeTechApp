@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items // Importación correcta
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
@@ -16,11 +16,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -31,9 +28,8 @@ import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterSubView
+import com.example.coffetech.viewmodel.CulturalWorkTask.CulturalWorkTaskGeneralViewModel
 import com.example.coffetech.viewmodel.cultural.CulturalWorkTask
-import com.example.coffetech.viewmodel.cultural.CulturalWorkTaskViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +39,7 @@ fun CulturalWorkTaskGeneralView(
     farmName: String,
     plotId: Int,
     plotName: String,
-    viewModel: CulturalWorkTaskViewModel = viewModel()
+    viewModel: CulturalWorkTaskGeneralViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
@@ -58,10 +54,8 @@ fun CulturalWorkTaskGeneralView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val stateFilter by viewModel.stateFilter.collectAsState()
     val assignedToFilter by viewModel.assignedToFilter.collectAsState()
-    val dateOrder by viewModel.dateOrder.collectAsState()
     val expandedState by viewModel.isEstadoDropdownExpanded.collectAsState()
     val expandedAssigned by viewModel.isAssignedDropdownExpanded.collectAsState()
-    val expandedDateOrder by viewModel.isDateOrderDropdownExpanded.collectAsState()
     val estados by viewModel.estadoOptions.collectAsState()
     val assignedToOptions by viewModel.assignedToOptions.collectAsState()
     val dateOrderOptions by viewModel.dateOrderOptions.collectAsState()
@@ -88,7 +82,7 @@ fun CulturalWorkTaskGeneralView(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                if (isLoading) {
+               /* if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -100,11 +94,12 @@ fun CulturalWorkTaskGeneralView(
                     )
                 } else if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red)
-                } else {
+                } else {*/
+
                     // Barra de búsqueda conectada al ViewModel
                     ReusableSearchBar(
                         query = searchQuery,
-                        onQueryChanged = { viewModel.onSearchQueryChanged(it) },
+                        onQueryChanged = { },
                         text = "Buscar Tarea por nombre",
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -120,15 +115,11 @@ fun CulturalWorkTaskGeneralView(
                         GenericDropdown(
                             modifier = Modifier.weight(1f),
                             selectedOption = stateFilter,
-                            onOptionSelected = { nuevoEstado ->
-                                viewModel.setStateFilter(nuevoEstado)
-                            },
+                            onOptionSelected = {},
                             options = estados,
                             expanded = expandedState,
-                            onExpandedChange = { isExpanded ->
-                                viewModel.setEstadoDropdownExpanded(isExpanded)
-                            },
-                            label = "Estado",
+                            onExpandedChange = {},
+                            label = "Finca",
                             expandedArrowDropUp = expandedArrowDropUp,
                             arrowDropDown = arrowDropDown
                         )
@@ -137,23 +128,27 @@ fun CulturalWorkTaskGeneralView(
                         GenericDropdown(
                             modifier = Modifier.weight(1f),
                             selectedOption = assignedToFilter,
-                            onOptionSelected = { nuevoAsignado ->
-                                viewModel.setAssignedToFilter(nuevoAsignado)
-                            },
+                            onOptionSelected = {},
                             options = assignedToOptions,
                             expanded = expandedAssigned,
-                            onExpandedChange = { isExpanded ->
-                                viewModel.setAssignedDropdownExpanded(isExpanded)
-                            },
-                            label = "Asignado",
+                            onExpandedChange = {},
+                            label = "Lote",
+                            expandedArrowDropUp = expandedArrowDropUp,
+                            arrowDropDown = arrowDropDown
+                        )
+
+                        GenericDropdown(
+                            modifier = Modifier.weight(1f),
+                            selectedOption = stateFilter,
+                            onOptionSelected = {},
+                            options = estados,
+                            expanded = expandedState,
+                            onExpandedChange = {},
+                            label = "Fecha",
                             expandedArrowDropUp = expandedArrowDropUp,
                             arrowDropDown = arrowDropDown
                         )
                     }
-
-                    Text(text = "Finca: $farmName", color = Color.Black)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Lote: $plotName", color = Color.Black)
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -163,28 +158,17 @@ fun CulturalWorkTaskGeneralView(
                     } else {
                         LazyColumn { // Reemplaza el forEach con LazyColumn para mejor rendimiento
                             items(tasks) { task ->
-                                CulturalWorkTaskGeneralCard(task = task, onClick = {
-                                    Toast.makeText(
-                                        context,
-                                        "Clicked on ${task.name}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                })
+                                CulturalWorkTaskGeneralCard(
+                                    task = task,
+                                    farmName = "Nombre de la Finca", // Reemplaza con el nombre de la finca adecuado
+                                    plotName = "Nombre del Lote" // Reemplaza con el nombre del lote adecuado
+                                )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
-                }
+                //}
             }
-
-            // Botón flotante para agregar una nueva tarea cultural
-            FloatingActionButtonGroup(
-                onMainButtonClick = { navController.navigate("CreateFarmView") },
-                mainButtonIcon = painterResource(id = R.drawable.plus_icon),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            )
         }
     }
 }
@@ -194,7 +178,7 @@ fun CulturalWorkTaskGeneralView(
 @Composable
 fun CulturalWorkTaskCard2Preview() {
     CoffeTechTheme {
-        CulturalWorkTaskCard(
+        CulturalWorkTaskGeneralCard(
             task = CulturalWorkTask(
                 id = 1,
                 name = "Recolección de Café",
@@ -203,7 +187,8 @@ fun CulturalWorkTaskCard2Preview() {
                 state = "Por hacer",
                 date = 1672531199000L
             ),
-            onClick = {}
+            farmName = "Finca 1",
+            plotName = "Lote 1"
         )
     }
 }
@@ -243,8 +228,6 @@ fun CulturalWorkTaskGeneralViewPreview() {
             )
         )
 
-        // Crear una instancia del ViewModel con tareas predefinidas
-        val previewViewModel = CulturalWorkTaskViewModel(initialTasks = preloadedTasks)
 
         // Llamada a la vista de previsualización con el ViewModel predefinido
         CulturalWorkTaskGeneralView(
@@ -252,8 +235,7 @@ fun CulturalWorkTaskGeneralViewPreview() {
             farmId = 1, // Valores simulados
             farmName = "Finca Ejemplo",
             plotId = 1, // Valores simulados
-            plotName = "Plot A",
-            viewModel = previewViewModel
+            plotName = "Plot A"
         )
     }
 }

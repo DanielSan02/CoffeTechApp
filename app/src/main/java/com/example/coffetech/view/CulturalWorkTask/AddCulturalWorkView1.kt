@@ -146,7 +146,7 @@ fun AddCulturalWorkView1(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 DatePickerComposable(
-                    label = "Fecha de floración",
+                    label = "Fecha de completación",
                     selectedDate = "",
                     onDateSelected = { },
                     errorMessage = if (isFormSubmitted && flowering_date.isBlank()) "La fecha de floración no puede estar vacía." else null

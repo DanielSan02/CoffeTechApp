@@ -212,8 +212,8 @@ fun EditCulturalWorkView(
                 if (showDeleteConfirmation.value) {
                     ReusableAlertDialog(
                         title = "¡ESTA ACCIÓN\nES IRREVERSIBLE!",
-                        description = "Esta floración se eliminará permanentemente. ¿Deseas continuar?",
-                        confirmButtonText = "Eliminar",
+                        description = "Todos tus datos relacionados a esta labor cutural se perderán. ¿Deseas continuar?",
+                        confirmButtonText = "Eliminar labor",
                         cancelButtonText = "Cancelar",
                         isLoading = isLoading,
                         onConfirmClick = {},

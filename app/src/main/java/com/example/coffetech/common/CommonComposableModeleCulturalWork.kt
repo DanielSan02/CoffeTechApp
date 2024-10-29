@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.coffetech.R
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.model.Collaborator
 import com.example.coffetech.model.CulturalWorkTask
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -837,4 +838,86 @@ fun OrderFilterDropdown(
     }
 }
 
+@Composable
+fun CollaboratorDropdown(
+    selectedCollaboratorName: String,
+    collaborators: List<Collaborator>,
+    expandedArrowDropUp: Painter,
+    arrowDropDown: Painter,
+    onCollaboratorChange: (Collaborator) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
 
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(bottom = 5.dp)
+                .padding(horizontal = 8.dp)
+                .background(Color.White, shape = RoundedCornerShape(20.dp))
+                .size(width = 300.dp, height = 56.dp)
+        ) {
+            OutlinedButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF49602D)
+                ),
+                contentPadding = PaddingValues(start = 10.dp, end = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(3.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedCollaboratorName,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // Manejo del desbordamiento con puntos suspensivos
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        painter = if (expanded) expandedArrowDropUp else arrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(0xFF5D8032)
+                    )
+                }
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 200.dp)
+        ) {
+            collaborators.forEach { collaborator ->
+                DropdownMenuItem(
+                    text = { Text(
+                        text = collaborator.name.trim(),
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                    ) },
+                    onClick = {
+                        onCollaboratorChange(collaborator)
+                        expanded = false
+                    },
+                    modifier = Modifier.padding(vertical = 0.dp), // Puedes ajustar este valor para reducir el espaciado
+                    contentPadding = PaddingValues(vertical = 0.dp, horizontal = 5.dp)
+                )
+            }
+        }
+    }
+}

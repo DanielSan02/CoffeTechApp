@@ -176,8 +176,6 @@ fun PlotInformationView(
                             navController.navigate("${Routes.FloweringInformationView}/$plotId/$plotName/$farmName/$farmId")
                         },
                         modifier = Modifier
-                            .width(198.dp)
-                            .height(159.dp)
                             .padding(start = 2.5.dp)
                     )
                             ActionCard(
@@ -188,8 +186,7 @@ fun PlotInformationView(
                                     navController.navigate("${Routes.CulturalWorkTaskInformationView}/$plotId/$plotName/$farmName/$farmId")
                                 },
                                 modifier = Modifier
-                                    .width(198.dp)
-                                    .height(159.dp)
+
                                     .padding(start = 2.5.dp)
                             )
                             Spacer(modifier = Modifier.height(50.dp))

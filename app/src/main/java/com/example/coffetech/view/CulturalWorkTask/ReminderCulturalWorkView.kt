@@ -24,11 +24,16 @@ import com.example.coffetech.viewmodel.CulturalWorkTask.ReminderViewModel
 fun ReminderCulturalWorkView(
     navController: NavController,
     viewModel: ReminderViewModel = viewModel(),
-    farmId: Int,
-    plotName: String = ""
+    plotId: Int,
+    plotName: String = "",
+    culturalWorkType: String,
+    date: String,
+    collaboratorUserId: Int,
 ) {
     val isReminderForUser by viewModel.isReminderForUser.collectAsState()
     val isReminderForCollaborator by viewModel.isReminderForCollaborator.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     Box(
         modifier = Modifier
@@ -55,7 +60,6 @@ fun ReminderCulturalWorkView(
                 ) {
                     BackButton(
                         navController = navController,
-                        onClick = { navController.navigate("PreviousView/${farmId}") },
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -74,7 +78,7 @@ fun ReminderCulturalWorkView(
                 Spacer(modifier = Modifier.height(22.dp))
 
                 Text(
-                    text = "Seleccione los recordatorios que desea establecer y de click en guardar",
+                    text = "Seleccione los recordatorios que desea establecer y haga clic en guardar",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = Color(0xFF3F3D3D)
                     ),
@@ -108,6 +112,7 @@ fun ReminderCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Checkbox para enviar recordatorio al colaborador
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -119,7 +124,7 @@ fun ReminderCulturalWorkView(
                             checkedColor = Color(0xFF5D8032),
                             uncheckedColor = Color.Gray,
                             checkmarkColor = Color.White
-                    )
+                        )
                     )
                     Text(
                         text = "Enviar recordatorio al colaborador asignado",
@@ -131,17 +136,35 @@ fun ReminderCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(30.dp))
 
+                // Mostrar mensaje de error si existe
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color.Red,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    )
+                }
+
                 // Botón de guardar
                 ReusableButton(
-                    text = "Guardar",
+                    text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
-                        viewModel.saveReminders()
-                        navController.navigate("PreviousView/${farmId}") // Navegar a la vista anterior o de confirmación
+                        viewModel.saveReminders(
+                            plotId = plotId,
+                            culturalWorkType = culturalWorkType,
+                            date = date,
+                            collaboratorUserId = collaboratorUserId,
+                            navController = navController
+                        )
                     },
                     modifier = Modifier
-                        .size(width = 160.dp, height = 48.dp)
-                        .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green
+                        .fillMaxWidth(0.5f)
+                        .height(48.dp),
+                    buttonType = ButtonType.Green,
+                    enabled = !isLoading
                 )
             }
         }
@@ -156,7 +179,11 @@ fun ReminderCulturalWorkViewPreview() {
     CoffeTechTheme {
         ReminderCulturalWorkView(
             navController = navController,
-            farmId= 1
+            plotId=1,
+            plotName = "",
+            culturalWorkType= "",
+            date= "",
+            collaboratorUserId=1,
         )
     }
 }

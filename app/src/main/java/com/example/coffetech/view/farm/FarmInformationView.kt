@@ -150,12 +150,6 @@ fun FarmInformationView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(159.dp), // Altura de 159dp como en el diseño
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
                         if (userHasPermissionReadCollaborators) {
                             ActionCard(
                                 buttonText = "Colaboradores", // Texto para el primer botón
@@ -164,10 +158,7 @@ fun FarmInformationView(
                                     Log.d("FarmInformationView", "Navigating to CollaboratorView with role: $roleToSend")
 
                                     navController.navigate("CollaboratorView/$farmId/$farmName/$roleToSend")
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 7.5.dp) // Mitad del padding para separar los botones
+                                }
                             )
                         }
                         if (userHasPermissionReadReports) {
@@ -176,13 +167,11 @@ fun FarmInformationView(
                                 buttonText = "Reportes", // Texto para el segundo botón
                                 onClick = {
                                     Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 7.5.dp) // Mitad del padding para separar los botones
+                                }
+
                             )
                         }
-                    }
+
 
                     Spacer(modifier = Modifier.height(16.dp))
                     if (userHasPermissionReadPlots) {

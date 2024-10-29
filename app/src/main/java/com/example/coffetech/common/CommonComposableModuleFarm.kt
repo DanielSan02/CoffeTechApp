@@ -174,7 +174,7 @@ fun ActionCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(159.dp)
+            .height(90.dp)
             .padding(8.dp)
             .background(Color(0xFFE52542), shape = RoundedCornerShape(16.dp))
             .clickable(onClick = onClick) // Hacer el botón clickable

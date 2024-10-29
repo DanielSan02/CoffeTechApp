@@ -35,7 +35,10 @@ import com.example.coffetech.view.Plot.PlotInformationView
 import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
+import com.example.coffetech.view.CulturalWorkTask.AddCulturalWorkView1
+import com.example.coffetech.view.CulturalWorkTask.AddCulturalWorkView2
 import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskInformationView
+import com.example.coffetech.view.CulturalWorkTask.ReminderCulturalWorkView
 import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
 import com.example.coffetech.view.Plot.EditMapPlotView
@@ -621,6 +624,84 @@ fun AppNavHost(context: Context) {
                 farmName = farmName
             )
         }
+
+        composable(
+            route = "${Routes.AddCulturalWorkView1}/{plotId}/{plotName}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            AddCulturalWorkView1(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+            )
+        }
+
+        composable(
+            route = "${Routes.AddCulturalWorkView2}/{plotId}/{plotName}/{culturalWorkType}/{date}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("culturalWorkType") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType },
+
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val culturalWorkType = backStackEntry.arguments?.getString("culturalWorkType") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            AddCulturalWorkView2(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                culturalWorkType = culturalWorkType,
+                date = date
+
+            )
+        }
+
+        composable(
+            route = "${Routes.ReminderCulturalWorkView}/{plotId}/{plotName}/{culturalWorkType}/{date}/{collaboratorUserId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("culturalWorkType") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType },
+                navArgument("collaboratorUserId") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val culturalWorkType = backStackEntry.arguments?.getString("culturalWorkType") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            val collaboratorUserId = backStackEntry.arguments?.getInt("collaboratorUserId") ?: 0
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            ReminderCulturalWorkView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                culturalWorkType = culturalWorkType,
+                date = date,
+                collaboratorUserId = collaboratorUserId
+            )
+        }
+
+
 
 
 

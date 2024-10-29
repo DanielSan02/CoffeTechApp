@@ -46,5 +46,7 @@ object Routes {
 
     //CulturalWorkTask
     const val CulturalWorkTaskInformationView = "culturalWorkTaskInformationView"
-
+    const val AddCulturalWorkView1 = "addCulturalWorkView1"
+    const val  AddCulturalWorkView2 = "addCulturalWorkView2"
+    const val  ReminderCulturalWorkView = "reminderCulturalWorkView"
 }

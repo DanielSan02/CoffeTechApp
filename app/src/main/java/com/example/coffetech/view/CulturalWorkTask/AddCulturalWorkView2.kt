@@ -1,16 +1,13 @@
 package com.example.coffetech.view.CulturalWorkTask
 
-
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,34 +25,48 @@ import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel1
 import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel2
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCulturalWorkView2(
     navController: NavController,
-    farmId: Int,
+    plotId: Int,
     plotName: String = "",
-    selectedVariety: String = "",
+    culturalWorkType: String,
+    date: String,
     viewModel: AddCulturalWorkViewModel2 = viewModel()
 ) {
-
-    // Variable para indicar si el formulario fue enviado
-
-    // Cargar las variedades de café
     val context = LocalContext.current
-    LaunchedEffect(Unit) {}
 
-    /*// Inicializar el ViewModel con los valores pasados si están presentes
-    LaunchedEffect(plotName, selectedVariety) {
-        if (plotName.isNotEmpty()) {
-            viewModel.onPlotNameChange(plotName)
+    // Obtener los estados del ViewModel
+    val collaborators by viewModel.collaborators.collectAsState()
+    val selectedCollaboratorId by viewModel.selectedCollaboratorId.collectAsState()
+    val buttonText by viewModel.buttonText.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isFetchingCollaborators by viewModel.isFetchingCollaborators.collectAsState()
+    val isSendingRequest by viewModel.isSendingRequest.collectAsState()
+
+    // Variables para el dropdown
+    var selectedCollaboratorName by remember { mutableStateOf("Seleccione un colaborador") }
+
+    // Efecto para cargar colaboradores y determinar el texto del botón
+    LaunchedEffect(Unit) {
+        viewModel.fetchCollaborators(plotId)
+        viewModel.determineButtonText(date)
+    }
+
+    // Mostrar mensajes de error si los hay
+    if (errorMessage != null) {
+        LaunchedEffect(errorMessage) {
+            // Aquí podrías mostrar un Snackbar o cualquier otro mecanismo para notificar el error
         }
-        if (selectedVariety.isNotEmpty()) {
-            viewModel.onVarietyChange(selectedVariety)
-        }
-    }*/
+        Text(
+            text = errorMessage ?: "",
+            color = Color.Red,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -74,9 +85,7 @@ fun AddCulturalWorkView2(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-
                 horizontalAlignment = Alignment.CenterHorizontally
-
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -85,7 +94,6 @@ fun AddCulturalWorkView2(
                 ) {
                     BackButton(
                         navController = navController,
-                        onClick = { navController.navigate("FarmInformationView/${farmId}") },
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -107,8 +115,25 @@ fun AddCulturalWorkView2(
                     text = "Lote: $plotName",
                     style = MaterialTheme.typography.titleSmall.copy(
                         color = Color(0xFF94A84B)
-                    ),
-                    color = Color(0xFF94A84B))
+                    )
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "$culturalWorkType",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF94A84B)
+                    )
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = "Fecha: $date",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF94A84B)
+                    )
+                )
 
                 Spacer(modifier = Modifier.height(22.dp))
 
@@ -121,48 +146,83 @@ fun AddCulturalWorkView2(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                ReusableTextField(
-                    value = "",
-                    onValueChange = { },
-                    placeholder = "Nombre de Colaborador",
-                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = true,
-                    charLimit = 50,
-                    errorMessage = "" //if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
-                )
+                // Dropdown de colaboradores o mensaje si no hay
+                when {
+                    isFetchingCollaborators -> {
+                        // Mostrar un círculo cargando
+                        CircularProgressIndicator(
+                            color = Color(0xFF5D8032),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    collaborators.isEmpty() -> {
+                        // Mostrar mensaje si no hay colaboradores
+                        Text(
+                            text = "Usted no tiene colaboradores operadores de campo en su finca, agréguelos para continuar.",
+                            color = Color.Red,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
+
+                    else -> {
+                        CollaboratorDropdown(
+                            selectedCollaboratorName = selectedCollaboratorName,
+                            collaborators = collaborators,
+                            expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                            arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                            onCollaboratorChange = { collaborator ->
+                                selectedCollaboratorName = collaborator.name.trim()
+                                viewModel.setSelectedCollaboratorId(collaborator.user_id)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Botón Siguiente
+                // Botón dinámico
                 ReusableButton(
-                    text = "Siguiente",
-                    onClick = {},
+                    text = if (isSendingRequest) "Guardando" else buttonText,
+                    onClick = {
+                        viewModel.onButtonClick(
+                            plotId = plotId,
+                            culturalWorkType = culturalWorkType,
+                            date = date,
+                            plotName = plotName,
+                            navController = navController
+                        )
+                    },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
                         .align(Alignment.CenterHorizontally),
-                    buttonType = ButtonType.Green
+                    buttonType = ButtonType.Green, // Siempre verde
+                    enabled = selectedCollaboratorId != null && !isSendingRequest && collaborators.isNotEmpty()
                 )
             }
         }
     }
 }
+    // Preview de la vista
+    @Preview(showBackground = true)
+    @Composable
+    fun AddCulturalWorkView2Preview() {
+        val navController = rememberNavController() // Usar rememberNavController para la vista previa
 
-
-
-
-
-// Mueve la función Preview fuera de la función CreatePlotView
-@Preview(showBackground = true)
-@Composable
-fun AddCulturalWorkView2Preview() {
-    val navController = rememberNavController() // Usar rememberNavController para la vista previa
-
-    CoffeTechTheme {
-        AddCulturalWorkView2(
-            navController = navController,
-            farmId= 1
-        )
+        CoffeTechTheme {
+            AddCulturalWorkView2(
+                navController = navController,
+                plotId = 1,
+                plotName = "Lote 1",
+                culturalWorkType = "Chequeo de Salud",
+                date = "2024-10-22" // Ajusta la fecha para probar
+            )
+        }
     }
-}
+

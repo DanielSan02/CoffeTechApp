@@ -177,7 +177,7 @@ fun CulturalWorkTaskInformationView(
                 CustomFloatingActionButton(
                     onAddClick = {
                         // Navegar a la pantalla para crear una nueva floración
-                        navController.navigate("${Routes.AddFloweringView}/$plotId")
+                        navController.navigate("${Routes.AddCulturalWorkView1}/$plotId/$plotName")
                     },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)

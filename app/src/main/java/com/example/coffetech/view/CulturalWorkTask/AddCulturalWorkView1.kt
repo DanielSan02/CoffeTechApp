@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
+import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
@@ -32,31 +33,28 @@ import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel
 @Composable
 fun AddCulturalWorkView1(
     navController: NavController,
-    farmId: Int,
+    plotId: Int,
     plotName: String = "",
-    selectedVariety: String = "",
     viewModel: AddCulturalWorkViewModel1 = viewModel()
 ) {
     val flowering_date by viewModel.flowering_date.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val typeCulturalWork by viewModel.typeCulturalWork.collectAsState()
+    val typeCulturalWorkList by viewModel.typeCulturalWorkList.collectAsState()
+    val selectedTypeCulturalWork by viewModel.selectedTypeCulturalWork.collectAsState()
     val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
+    val isFormValid by viewModel.isFormValid.collectAsState()
 
-    // Variable para indicar si el formulario fue enviado
-
-    // Cargar las variedades de café
     val context = LocalContext.current
-    LaunchedEffect(Unit) {}
+    LaunchedEffect(Unit) {
+        // Simula la carga de tipos de labores culturales
+        viewModel.setTypeCulturalWorkList(listOf("Chequeo de Salud", "Chequeo de estado de maduración"))
+    }
 
-    /*// Inicializar el ViewModel con los valores pasados si están presentes
-    LaunchedEffect(plotName, selectedVariety) {
+    LaunchedEffect(plotName) {
         if (plotName.isNotEmpty()) {
-            viewModel.onPlotNameChange(plotName)
+            viewModel.updatePlotName(plotName)
         }
-        if (selectedVariety.isNotEmpty()) {
-            viewModel.onVarietyChange(selectedVariety)
-        }
-    }*/
+    }
 
     Box(
         modifier = Modifier
@@ -75,18 +73,14 @@ fun AddCulturalWorkView1(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-
                 horizontalAlignment = Alignment.CenterHorizontally
-
             ) {
-                // Botón de cerrar o volver (BackButton)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     BackButton(
                         navController = navController,
-                        onClick = { navController.navigate("FarmInformationView/${farmId}") },
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -96,9 +90,7 @@ fun AddCulturalWorkView1(
                 Text(
                     text = "Añadir Labor",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = Color(0xFF49602D)
-                    ),
+                    style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF49602D)),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -106,28 +98,27 @@ fun AddCulturalWorkView1(
 
                 Text(
                     text = "Lote: $plotName",
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        color = Color(0xFF94A84B)
-                    ),
-                    color = Color(0xFF94A84B))
+                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF94A84B)),
+                    color = Color(0xFF94A84B)
+                )
 
                 Spacer(modifier = Modifier.height(22.dp))
 
                 Text(
                     text = "Tipo Labor Cultural",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        color = Color(0xFF3F3D3D)
-                    ),
+                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
 
                 TypeCulturalWorkDropdown(
-                    selectedCulturalWork = "",
-                    onTypeCulturalWorkChange = { },
-                    cultural_work = typeCulturalWork,  // Lista de roles obtenida del ViewModel
+                    selectedCulturalWork = selectedTypeCulturalWork,
+                    onTypeCulturalWorkChange = { selected ->
+                        viewModel.setSelectedTypeCulturalWork(selected)
+                    },
+                    cultural_work = typeCulturalWorkList,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
@@ -138,27 +129,33 @@ fun AddCulturalWorkView1(
                 Text(
                     text = "Fecha",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        color = Color(0xFF3F3D3D)
-                    ),
+                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Spacer(modifier = Modifier.height(2.dp))
 
                 DatePickerComposable(
-                    label = "Fecha de completación",
-                    selectedDate = "",
-                    onDateSelected = { },
-                    errorMessage = if (isFormSubmitted && flowering_date.isBlank()) "La fecha de floración no puede estar vacía." else null
+                    label = "Fecha de la tarea",
+                    selectedDate = flowering_date,  // Pasa la fecha actual
+                    onDateSelected = { date ->
+                        // Actualiza la fecha seleccionada en el ViewModel
+                        viewModel.updateFloweringDate(date)
+                    },
+                    errorMessage = if (isFormSubmitted && flowering_date.isBlank())
+                        "La fecha de floración no puede estar vacía."
+                    else null
                 )
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botón Siguiente
                 ReusableButton(
                     text = "Siguiente",
-                    onClick = {},
+                    onClick = {
+                        navController.navigate("${Routes.AddCulturalWorkView2}/$plotId/$plotName/${selectedTypeCulturalWork ?: ""}/${flowering_date}")
+
+                    },
+                    enabled = isFormValid,
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
                         .align(Alignment.CenterHorizontally),
@@ -173,6 +170,7 @@ fun AddCulturalWorkView1(
 
 
 
+
 // Mueve la función Preview fuera de la función CreatePlotView
 @Preview(showBackground = true)
 @Composable
@@ -182,7 +180,7 @@ fun AddCulturalWorkView1Preview() {
     CoffeTechTheme {
         AddCulturalWorkView1(
             navController = navController,
-            farmId= 1
+            plotId= 1
         )
     }
 }

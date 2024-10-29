@@ -632,6 +632,53 @@ data class ListCulturalWorkTasksResponse(
     val data: CulturalWorkTasksData
 )
 
+// Data class para un colaborador
+data class Collaborator(
+    val user_id: Int,
+    val name: String
+)
+
+// Data class para la respuesta de colaboradores
+data class CollaboratorsData(
+    val collaborators: List<Collaborator>
+)
+
+data class CollaboratorsResponse(
+    val status: String,
+    val message: String,
+    val data: CollaboratorsData
+)
+
+// Data class para la solicitud de creación de tarea cultural
+data class CreateCulturalWorkTaskRequest(
+    val cultural_works_name: String,
+    val plot_id: Int,
+    val reminder_owner: Boolean,
+    val reminder_collaborator: Boolean,
+    val collaborator_user_id: Int,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+// Data class para la respuesta de creación de tarea cultural
+data class CreateCulturalWorkTaskResponseData(
+    val cultural_work_tasks_id: Int,
+    val cultural_works_id: Int,
+    val plot_id: Int,
+    val status: String,
+    val reminder_owner: Boolean,
+    val reminder_collaborator: Boolean,
+    val collaborator_user_id: Int,
+    val owner_user_id: Int,
+    val created_at: String,
+    val task_date: String
+)
+
+data class CreateCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: CreateCulturalWorkTaskResponseData
+)
+
 
 // API service interface for interacting with backend services
 
@@ -920,6 +967,18 @@ interface ApiService {
         @Path("plot_id") plotId: Int,
         @Query("session_token") sessionToken: String
     ): Call<ListCulturalWorkTasksResponse>
+
+    @GET("/culturalWorkTask/collaborators-with-complete-permission")
+    suspend fun getCollaboratorsWithCompletePermission(
+        @Query("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): CollaboratorsResponse
+
+    @POST("/culturalWorkTask/create-cultural-work-task")
+    suspend fun createCulturalWorkTask(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateCulturalWorkTaskRequest
+    ): CreateCulturalWorkTaskResponse
 
 
 }

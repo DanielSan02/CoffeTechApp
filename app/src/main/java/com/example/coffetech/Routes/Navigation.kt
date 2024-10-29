@@ -35,6 +35,7 @@ import com.example.coffetech.view.Plot.PlotInformationView
 import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
+import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskInformationView
 import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
 import com.example.coffetech.view.Plot.EditMapPlotView
@@ -590,6 +591,37 @@ fun AppNavHost(context: Context) {
                 floweringId = floweringId
                 )
         }
+
+        ///CULTURALWORKTASK
+        composable(
+            route = "${Routes.CulturalWorkTaskInformationView}/{plotId}/{plotName}/{farmName}/{farmId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmId") { type = NavType.IntType },
+
+
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            CulturalWorkTaskInformationView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                farmId = farmId,
+                farmName = farmName
+            )
+        }
+
 
 
 

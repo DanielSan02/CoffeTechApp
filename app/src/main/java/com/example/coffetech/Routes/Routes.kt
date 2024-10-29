@@ -44,4 +44,7 @@ object Routes {
     const val EditFloweringView= "editFloweringView"
     const val RecommendationFloweringViewPreview = "recommendationFloweringViewPreview"
 
+    //CulturalWorkTask
+    const val CulturalWorkTaskInformationView = "culturalWorkTaskInformationView"
+
 }

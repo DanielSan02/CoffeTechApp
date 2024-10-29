@@ -3,7 +3,7 @@ package com.example.coffetech.viewmodel.CulturalWorkTask
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coffetech.viewmodel.cultural.CulturalWorkTask
+import com.example.coffetech.model.CulturalWorkTask
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,14 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class CulturalWorkTask(
-    val id: Int,
-    val name: String,
-    val assignedTo: String, // "me" o "otros colaboradores"
-    val assignedToName: String, // Nombre del colaborador asignado
-    val state: String,
-    val date: Long // Timestamp en milisegundos
-)
+
 
 class CulturalWorkTaskGeneralViewModel(
 initialTasks: List<CulturalWorkTask> = emptyList() // Tareas iniciales opcionales
@@ -82,31 +75,22 @@ initialTasks: List<CulturalWorkTask> = emptyList() // Tareas iniciales opcionale
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Simulación de carga de tareas
                 val loadedTasks = listOf(
                     CulturalWorkTask(
-                        id = 1,
-                        name = "Recolección de Café",
-                        assignedTo = "me",
-                        assignedToName = "Juan Pérez",
-                        state = "Por hacer",
-                        date = 1672531199000L
+                        cultural_work_task_id = 1,
+                        cultural_works_name = "Recolección de Café",
+                        collaborator_name = "naty rmu",
+                        owner_name = "Natalia Rodríguez Mu",
+                        status = "Por hacer",
+                        task_date = "2024-10-28"
                     ),
                     CulturalWorkTask(
-                        id = 2,
-                        name = "Poda de Árboles",
-                        assignedTo = "otros colaboradores",
-                        assignedToName = "María García",
-                        state = "Terminado",
-                        date = 1672617599000L
-                    ),
-                    CulturalWorkTask(
-                        id = 3,
-                        name = "Aplicación de Fertilizantes",
-                        assignedTo = "me",
-                        assignedToName = "Juan Pérez",
-                        state = "Por hacer",
-                        date = 1672703999000L
+                        cultural_work_task_id = 2,
+                        cultural_works_name = "Poda de Árboles",
+                        collaborator_name = "otros colaboradores",
+                        owner_name = "María García",
+                        status = "Terminado",
+                        task_date = "2024-10-27"
                     )
                 )
                 _tasks.value = loadedTasks
@@ -131,7 +115,7 @@ initialTasks: List<CulturalWorkTask> = emptyList() // Tareas iniciales opcionale
         // Filtrar por estado
         state?.let { stateValue ->
             filtered = filtered.filter { task ->
-                task.state == stateValue
+                task.status == stateValue
             }
         }
 
@@ -143,22 +127,22 @@ initialTasks: List<CulturalWorkTask> = emptyList() // Tareas iniciales opcionale
                 else -> assignedValue
             }
             filtered = filtered.filter { task ->
-                task.assignedTo == assignedToNormalized
+                task.collaborator_name == assignedToNormalized
             }
         }
 
         // Filtrar por nombre de tarea
         if (query.text.isNotBlank()) {
             filtered = filtered.filter { task ->
-                task.name.contains(query.text, ignoreCase = true)
+                task.cultural_works_name.contains(query.text, ignoreCase = true)
             }
         }
 
         // Ordenar por fecha
         if (isRecentFirst) {
-            filtered.sortedByDescending { it.date }
+            filtered.sortedByDescending { it.task_date }
         } else {
-            filtered.sortedBy { it.date }
+            filtered.sortedBy { it.task_date }
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 }

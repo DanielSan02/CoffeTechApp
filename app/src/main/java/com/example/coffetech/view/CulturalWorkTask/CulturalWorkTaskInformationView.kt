@@ -1,81 +1,93 @@
 // CulturalWorkTaskInformationView.kt
 package com.example.coffetech.view.CulturalWorkTask
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items // Importación correcta
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.R
 import com.example.coffetech.Routes.Routes
-
+import com.example.coffetech.common.CustomFloatingActionButton
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
-import com.example.coffetech.viewmodel.cultural.CulturalWorkTask
 import com.example.coffetech.viewmodel.cultural.CulturalWorkTaskViewModel
 import kotlinx.coroutines.launch
 
+// CulturalWorkTaskInformationView.kt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CulturalWorkTaskInformationView(
     navController: NavController,
-    farmId: Int,
-    farmName: String,
     plotId: Int,
     plotName: String,
+    farmId: Int,
+    farmName: String,
     viewModel: CulturalWorkTaskViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
+    // Obtener el token de sesión desde SharedPreferences u otro método
+    val sessionToken = remember { SharedPreferencesHelper(context).getSessionToken() }
+    Log.d("CulturalWorkTaskInfoView", "Token de sesión obtenido: $sessionToken")
+
     // Cargar las tareas cuando el composable se monta
-    LaunchedEffect(farmName, plotName) {
-        viewModel.loadTasks(farmName, plotName)
+    LaunchedEffect(plotId, sessionToken) {
+        try {
+            Log.d("CulturalWorkTaskInfoView", "LaunchedEffect iniciado con plotId: $plotId y sessionToken: $sessionToken")
+            if (!sessionToken.isNullOrBlank()) {
+                viewModel.loadTasks(plotId, sessionToken)
+                Log.d("CulturalWorkTaskInfoView", "Cargando tareas con plotId: $plotId")
+            } else {
+                Log.e("CulturalWorkTaskInfoView", "Token de sesión no disponible.")
+                viewModel.setErrorMessage("Token de sesión no disponible.")
+                Toast.makeText(context, "Error: Token de sesión no disponible.", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            Log.e("CulturalWorkTaskInfoView", "Excepción en LaunchedEffect: ${e.message}", e)
+            viewModel.setErrorMessage("Error inesperado al cargar tareas.")
+            Toast.makeText(context, "Error inesperado al cargar tareas.", Toast.LENGTH_LONG).show()
+        }
     }
 
     // Estados del ViewModel
     val tasks by viewModel.filteredTasks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val stateFilter by viewModel.stateFilter.collectAsState()
-    val assignedToFilter by viewModel.assignedToFilter.collectAsState()
-    val dateOrder by viewModel.dateOrder.collectAsState()
-    val expandedState by viewModel.isEstadoDropdownExpanded.collectAsState()
-    val expandedAssigned by viewModel.isAssignedDropdownExpanded.collectAsState()
-    val expandedDateOrder by viewModel.isDateOrderDropdownExpanded.collectAsState()
-    val estados by viewModel.estadoOptions.collectAsState()
-    val assignedToOptions by viewModel.assignedToOptions.collectAsState()
-    val dateOrderOptions by viewModel.dateOrderOptions.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState() // Obtener la consulta de búsqueda
+    val statusFilter by viewModel.statusFilter.collectAsState()
+    val orderFilter by viewModel.orderFilter.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
-    // Iconos para los dropdowns
-    val expandedArrowDropUp: Painter = painterResource(id = R.drawable.arrowdropup_icon)
-    val arrowDropDown: Painter = painterResource(id = R.drawable.arrowdropdown_icon)
+    Log.d("CulturalWorkTaskInfoView", "Estado de carga: $isLoading, Mensaje de error: $errorMessage, Número de tareas: ${tasks.size}")
 
     HeaderFooterSubView(
-        title = "Tarea labor cultural",
+        title = "Tarea Labor Cultural",
         currentView = "Labores",
         navController = navController,
-        onBackClick = { navController.navigate("${Routes.PlotInformationView}/$plotId$farmName$farmId") },
+        onBackClick = {
+            Log.d("CulturalWorkTaskInfoView", "Navegando hacia PlotInformationView")
+            navController.navigate("${Routes.PlotInformationView}/$plotId/$farmName/$farmId")
+        },
     ) {
         Box(
             modifier = Modifier
@@ -86,127 +98,96 @@ fun CulturalWorkTaskInformationView(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
                 if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Cargando tareas de labor cultural...",
-                        color = Color.Black,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    // Indicador de carga
+                    Log.d("CulturalWorkTaskInfoView", "Mostrando indicador de carga")
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Cargando tareas de labor cultural...",
+                            color = Color.Black
+                        )
+                    }
                 } else if (errorMessage.isNotEmpty()) {
+                    // Mostrar mensaje de error
+                    Log.e("CulturalWorkTaskInfoView", "Mostrando mensaje de error: $errorMessage")
                     Text(text = errorMessage, color = Color.Red)
                 } else {
-                    // Barra de búsqueda conectada al ViewModel
+                    // Mostrar información de finca y lote
+                    Log.d("CulturalWorkTaskInfoView", "Mostrando información de finca y lote")
+                    Text(text = "Finca: $farmName", color = Color.Black)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Lote: $plotName", color = Color.Black)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     ReusableSearchBar(
                         query = searchQuery,
                         onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                        text = "Buscar Tarea por nombre",
+                        text = "Buscar tarea por 'Asignado a'",
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
 
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Dropdown para filtrar por estado
-                        GenericDropdown(
-                            modifier = Modifier.weight(1f),
-                            selectedOption = stateFilter,
-                            onOptionSelected = { nuevoEstado ->
-                                viewModel.setStateFilter(nuevoEstado)
-                            },
-                            options = estados,
-                            expanded = expandedState,
-                            onExpandedChange = { isExpanded ->
-                                viewModel.setEstadoDropdownExpanded(isExpanded)
-                            },
-                            label = "Estado",
-                            expandedArrowDropUp = expandedArrowDropUp,
-                            arrowDropDown = arrowDropDown
-                        )
-
-                        // Dropdown para filtrar por asignación
-                        GenericDropdown(
-                            modifier = Modifier.weight(1f),
-                            selectedOption = assignedToFilter,
-                            onOptionSelected = { nuevoAsignado ->
-                                viewModel.setAssignedToFilter(nuevoAsignado)
-                            },
-                            options = assignedToOptions,
-                            expanded = expandedAssigned,
-                            onExpandedChange = { isExpanded ->
-                                viewModel.setAssignedDropdownExpanded(isExpanded)
-                            },
-                            label = "Asignado",
-                            expandedArrowDropUp = expandedArrowDropUp,
-                            arrowDropDown = arrowDropDown
-                        )
-                    }
-
-                    Text(text = "Finca: $farmName", color = Color.Black)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Lote: $plotName", color = Color.Black)
+                    // Dropdowns para filtrar y ordenar
+                    CulturalTaskFilterDropdowns(
+                        selectedStatusFilter = statusFilter,
+                        onStatusFilterChange = { selectedStatus ->
+                            viewModel.selectStatusFilter(selectedStatus)
+                        },
+                        selectedOrderFilter = orderFilter,
+                        onOrderFilterChange = { selectedOrder ->
+                            viewModel.selectOrderFilter(selectedOrder)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Lista de tareas culturales
                     if (tasks.isEmpty()) {
+                        Log.d("CulturalWorkTaskInfoView", "No hay tareas para mostrar")
                         Text("No hay tareas de labor cultural para mostrar", color = Color.Gray)
                     } else {
-                        LazyColumn { // Reemplaza el forEach con LazyColumn para mejor rendimiento
+                        Log.d("CulturalWorkTaskInfoView", "Mostrando lista de tareas: ${tasks.size} tareas")
+                        LazyColumn {
                             items(tasks) { task ->
-                                CulturalWorkTaskCard(task = task, onClick = {
-                                    Toast.makeText(
-                                        context,
-                                        "Clicked on ${task.name}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                CulturalWorkTaskCard(task = task, onEdit = {
+                                    Log.d("CulturalWorkTaskInfoView", "Editar tarea: ${task.cultural_works_name}")
+                                    // Navegar a la pantalla de edición, pasando el ID de la tarea
+                                    navController.navigate("EditCulturalWorkTaskView/${task.cultural_work_task_id}")
                                 })
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
                 }
+
             }
 
             // Botón flotante para agregar una nueva tarea cultural
-            FloatingActionButtonGroup(
-                onMainButtonClick = { navController.navigate("CreateFarmView") },
-                mainButtonIcon = painterResource(id = R.drawable.plus_icon),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            )
+            if (errorMessage.isEmpty()) {
+                Log.d("CulturalWorkTaskInfoView", "Mostrando botón flotante")
+                CustomFloatingActionButton(
+                    onAddClick = {
+                        // Navegar a la pantalla para crear una nueva floración
+                        navController.navigate("${Routes.AddFloweringView}/$plotId")
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                )
+            }
         }
     }
 }
 
-
-    @Preview(showBackground = true)
-    @Composable
-    fun CulturalWorkTaskCardPreview() {
-        CoffeTechTheme {
-            CulturalWorkTaskCard(
-                task = CulturalWorkTask(
-                    id = 1,
-                    name = "Recolección de Café",
-                    assignedTo = "me",
-                    assignedToName = "Juan Pérez",
-                    state = "Por hacer",
-                    date = 1672531199000L
-                ),
-                onClick = {}
-            )
-        }
-    }
 
 @Preview(showBackground = true)
 @Composable
@@ -215,43 +196,17 @@ fun CulturalWorkTaskInformationViewPreview() {
         // Simulación de un NavController para previsualización
         val navController = rememberNavController()
 
-        // Lista de tareas predefinidas para la vista previa
-        val preloadedTasks = listOf(
-            CulturalWorkTask(
-                id = 1,
-                name = "Recolección de Café",
-                assignedTo = "me",
-                assignedToName = "Juan Pérez",
-                state = "Por hacer",
-                date = 1672531199000L
-            ),
-            CulturalWorkTask(
-                id = 2,
-                name = "Poda de Árboles",
-                assignedTo = "otros colaboradores",
-                assignedToName = "María García",
-                state = "Terminado",
-                date = 1672617599000L
-            ),
-            CulturalWorkTask(
-                id = 3,
-                name = "Aplicación de Fertilizantes",
-                assignedTo = "me",
-                assignedToName = "Juan Pérez",
-                state = "Por hacer",
-                date = 1672703999000L
-            )
-        )
-
         // Crear una instancia del ViewModel con tareas predefinidas
-        val previewViewModel = CulturalWorkTaskViewModel(initialTasks = preloadedTasks)
+        val previewViewModel = CulturalWorkTaskViewModel().apply {
+            // Puedes cargar tareas predefinidas si es necesario
+        }
 
         // Llamada a la vista de previsualización con el ViewModel predefinido
         CulturalWorkTaskInformationView(
             navController = navController,
-            farmId = 1, // Valores simulados
+            farmId = 1,
             farmName = "Finca Ejemplo",
-            plotId = 1, // Valores simulados
+            plotId = 1,
             plotName = "Plot A",
             viewModel = previewViewModel
         )

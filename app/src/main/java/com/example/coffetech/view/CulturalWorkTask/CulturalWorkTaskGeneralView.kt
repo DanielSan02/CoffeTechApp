@@ -26,10 +26,10 @@ import com.example.coffetech.Routes.Routes
 
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableSearchBar
+import com.example.coffetech.model.CulturalWorkTask
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.CulturalWorkTask.CulturalWorkTaskGeneralViewModel
-import com.example.coffetech.viewmodel.cultural.CulturalWorkTask
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -179,14 +179,13 @@ fun CulturalWorkTaskGeneralView(
 fun CulturalWorkTaskCard2Preview() {
     CoffeTechTheme {
         CulturalWorkTaskGeneralCard(
-            task = CulturalWorkTask(
-                id = 1,
-                name = "Recolección de Café",
-                assignedTo = "me",
-                assignedToName = "Juan Pérez",
-                state = "Por hacer",
-                date = 1672531199000L
-            ),
+            task =                    CulturalWorkTask(
+                cultural_work_task_id = 1,
+                cultural_works_name = "Recolección de Café",
+                collaborator_name = "naty rmu",
+                owner_name = "Natalia Rodríguez Mu",
+                status = "Por hacer",
+                task_date = "2024-10-28"),
             farmName = "Finca 1",
             plotName = "Lote 1"
         )
@@ -203,29 +202,26 @@ fun CulturalWorkTaskGeneralViewPreview() {
         // Lista de tareas predefinidas para la vista previa
         val preloadedTasks = listOf(
             CulturalWorkTask(
-                id = 1,
-                name = "Recolección de Café",
-                assignedTo = "me",
-                assignedToName = "Juan Pérez",
-                state = "Por hacer",
-                date = 1672531199000L
-            ),
+                cultural_work_task_id = 1,
+                cultural_works_name = "Recolección de Café",
+                collaborator_name = "naty rmu",
+                owner_name = "Natalia Rodríguez Mu",
+                status = "Por hacer",
+                task_date = "2024-10-28"),
             CulturalWorkTask(
-                id = 2,
-                name = "Poda de Árboles",
-                assignedTo = "otros colaboradores",
-                assignedToName = "María García",
-                state = "Terminado",
-                date = 1672617599000L
-            ),
+                cultural_work_task_id = 1,
+                cultural_works_name = "Recolección de Café",
+                collaborator_name = "naty rmu",
+                owner_name = "Natalia Rodríguez Mu",
+                status = "Por hacer",
+                task_date = "2024-10-28"),
             CulturalWorkTask(
-                id = 3,
-                name = "Aplicación de Fertilizantes",
-                assignedTo = "me",
-                assignedToName = "Juan Pérez",
-                state = "Por hacer",
-                date = 1672703999000L
-            )
+                cultural_work_task_id = 1,
+                cultural_works_name = "Recolección de Café",
+                collaborator_name = "naty rmu",
+                owner_name = "Natalia Rodríguez Mu",
+                status = "Por hacer",
+                task_date = "2024-10-28")
         )
 
 

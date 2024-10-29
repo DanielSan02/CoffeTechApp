@@ -5,6 +5,7 @@ import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -19,16 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.coffetech.R
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.viewmodel.cultural.CulturalWorkTask
+import com.example.coffetech.model.CulturalWorkTask
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 // GenericDropdown.kt
@@ -135,7 +140,7 @@ fun CulturalWorkTaskGeneralCard(
             ) {
                 // Nombre de la tarea
                 Text(
-                    text = task.name,
+                    text = task.cultural_works_name,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -145,7 +150,7 @@ fun CulturalWorkTaskGeneralCard(
 
                 // Asignado a
                 Text(
-                    text = "Asignada a: ${task.assignedToName}",
+                    text = "Asignada a: ${task.collaborator_name}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
@@ -155,7 +160,7 @@ fun CulturalWorkTaskGeneralCard(
 
                 // Estado
                 Text(
-                    text = "Estado: ${task.state}",
+                    text = "Estado: ${task.status}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
@@ -164,7 +169,7 @@ fun CulturalWorkTaskGeneralCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 // Fecha formateada
-                val formattedDate = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(task.date))
+                val formattedDate = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(task.task_date))
                 Text(
                     text = "Fecha: $formattedDate",
                     color = Color.Gray,
@@ -194,61 +199,109 @@ fun CulturalWorkTaskGeneralCard(
     }
 }
 
-
 @Composable
 fun CulturalWorkTaskCard(
     task: CulturalWorkTask,
-    onClick: () -> Unit
+    onEdit: (() -> Unit)? = null
 ) {
-    Card(
+    // Define el formato de entrada y el formato deseado
+    val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val outputFormat = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // Intenta parsear la fecha de la tarea
+    val parsedDate: Date? = try {
+        inputFormat.parse(task.task_date)
+    } catch (e: ParseException) {
+        null
+    }
+
+    // Formatea la fecha si el parseo fue exitoso
+    val formattedDate = parsedDate?.let { outputFormat.format(it) } ?: task.task_date
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp),  // Espaciado alrededor de la tarjeta
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Fondo blanco
+            .background(Color.White, RoundedCornerShape(16.dp))
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Nombre de la tarea
-            Text(
-                text = task.name,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Nombre de la tarea
+                Text(
+                    text = task.cultural_works_name,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            // Asignado a
-            Text(
-                text = "Asignado a: ${task.assignedToName}",
-                color = Color.Black,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
+                // Asignado a
+                Text(
+                    text = "Asignado a: ${task.collaborator_name}",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(2.dp))
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Asignado por: ${task.owner_name}",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
 
-            // Estado
-            Text(
-                text = "Estado: ${task.state}",
-                color = Color.Black,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
+                Spacer(modifier = Modifier.height(2.dp))
 
-            Spacer(modifier = Modifier.height(4.dp))
+                // Estado
+                Text(
+                    text = "Estado: ${task.status}",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
 
-            // Fecha formateada
-            val formattedDate = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(task.date))
-            Text(
-                text = "Fecha: $formattedDate",
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Fecha formateada
+                Text(
+                    text = "Fecha: $formattedDate",
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
+            }
+
+            // Icono de edición
+            if (task.status == "Por hacer") {
+                IconButton(
+                    onClick = { onEdit?.invoke() },
+                    modifier = Modifier
+                        .offset(x = -10.dp)
+                        .size(24.dp)
+                        .background(Color(0xFFB31D34), shape = CircleShape)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.edit_icon),
+                        contentDescription = "Editar Información Tarea Cultural",
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
         }
     }
 }
+
+
 
 
 
@@ -614,5 +667,174 @@ fun ReusableAlertDialog(
     )
 }
 
+
+
+@Composable
+fun CulturalTaskFilterDropdowns(
+    selectedStatusFilter: String,
+    onStatusFilterChange: (String) -> Unit,
+    selectedOrderFilter: String,
+    onOrderFilterChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Dropdown para Filtrar por Estado
+        StatusFilterDropdown(
+            selectedStatus = selectedStatusFilter,
+            onSelectedStatusChange = onStatusFilterChange,
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp) // Espaciado entre los dropdowns
+        )
+
+        // Dropdown para Ordenar las Tareas
+        OrderFilterDropdown(
+            selectedOrder = selectedOrderFilter,
+            onSelectedOrderChange = onOrderFilterChange,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp) // Espaciado entre los dropdowns
+        )
+    }
+}
+
+@Composable
+fun StatusFilterDropdown(
+    selectedStatus: String,
+    onSelectedStatusChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = listOf("Todos", "Por hacer", "Terminado")
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .background(Color.White, RoundedCornerShape(20.dp))
+    ) {
+        OutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF49602D)
+            ),
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedStatus,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = if (expanded) painterResource(id = R.drawable.arrowdropup_icon) else painterResource(id = R.drawable.arrowdropdown_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF5D8032)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 150.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option, color = Color.Black) },
+                    onClick = {
+                        onSelectedStatusChange(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OrderFilterDropdown(
+    selectedOrder: String,
+    onSelectedOrderChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = listOf("Ordenar por", "Más antiguo", "Más reciente")
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .background(Color.White, RoundedCornerShape(20.dp))
+    ) {
+        OutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF49602D)
+            ),
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedOrder,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = if (expanded) painterResource(id = R.drawable.arrowdropup_icon) else painterResource(id = R.drawable.arrowdropdown_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF5D8032)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 180.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option, color = Color.Black) },
+                    onClick = {
+                        onSelectedOrderChange(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
 
 

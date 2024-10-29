@@ -611,6 +611,26 @@ data class GetRecommendationsResponse(
     val data: RecommendationsData
 )
 
+//CulturalWorksTask
+
+data class CulturalWorkTask(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val owner_name: String,
+    val collaborator_name: String,
+    val status: String,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+data class CulturalWorkTasksData(
+    val tasks: List<CulturalWorkTask>
+)
+
+data class ListCulturalWorkTasksResponse(
+    val status: String,
+    val message: String,
+    val data: CulturalWorkTasksData
+)
 
 
 // API service interface for interacting with backend services
@@ -892,6 +912,14 @@ interface ApiService {
         @Path("flowering_id") floweringId: Int,
         @Query("session_token") sessionToken: String
     ): Call<GetRecommendationsResponse>
+
+    // CulturalWorkTask
+
+    @GET("/culturalWorkTask/list-cultural-work-tasks/{plot_id}")
+    fun listCulturalWorkTasks(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListCulturalWorkTasksResponse>
 
 
 }

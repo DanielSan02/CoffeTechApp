@@ -680,6 +680,27 @@ data class CreateCulturalWorkTaskResponse(
 )
 
 
+data class GeneralCulturalWorkTask(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_id: Int,
+    val collaborator_name: String,
+    val owner_name: String,
+    val status: String,
+    val task_date: String, // Formato "yyyy-MM-dd"
+    val farm_name: String,
+    val plot_name: String
+)
+
+data class GeneralCulturalWorkTasksData(
+    val tasks: List<GeneralCulturalWorkTask>
+)
+
+data class GeneralListCulturalWorkTasksResponse(
+    val status: String,
+    val message: String,
+    val data: GeneralCulturalWorkTasksData
+)
 // API service interface for interacting with backend services
 
 /**
@@ -979,6 +1000,13 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: CreateCulturalWorkTaskRequest
     ): CreateCulturalWorkTaskResponse
+
+
+    @GET("/culturalWorkTask/my-cultural-work-tasks")
+    suspend fun getMyCulturalWorkTasks(
+        @Query("session_token") sessionToken: String
+    ): GeneralListCulturalWorkTasksResponse // Usamos la nueva clase de respuesta
+
 
 
 }

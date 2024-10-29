@@ -52,7 +52,7 @@ fun AddCulturalWorkView2(
 
     // Efecto para cargar colaboradores y determinar el texto del botón
     LaunchedEffect(Unit) {
-        viewModel.fetchCollaborators(plotId)
+        viewModel.fetchCollaborators(plotId, context)
         viewModel.determineButtonText(date)
     }
 
@@ -196,7 +196,9 @@ fun AddCulturalWorkView2(
                             culturalWorkType = culturalWorkType,
                             date = date,
                             plotName = plotName,
-                            navController = navController
+                            navController = navController,
+                            context = context
+
                         )
                     },
                     modifier = Modifier

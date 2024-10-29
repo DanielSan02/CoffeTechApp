@@ -2,6 +2,7 @@
 package com.example.coffetech.view.CulturalWorkTask
 
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,6 +32,7 @@ import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.model.Collaborator
 import com.example.coffetech.model.CulturalWorkTask
+import com.example.coffetech.model.GeneralCulturalWorkTask
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -116,89 +118,100 @@ fun GenericDropdown(
     }
 }
 
-
 @Composable
 fun CulturalWorkTaskGeneralCard(
-    task: CulturalWorkTask,
+    task: GeneralCulturalWorkTask,
     farmName: String,
     plotName: String,
+
 ) {
-    Card(
+    val context = LocalContext.current
+
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // Intenta parsear y formatear la fecha
+    val formattedDate = try {
+        inputFormat.parse(task.task_date)?.let { outputFormat.format(it) }
+    } catch (e: ParseException) {
+        task.task_date
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),  // Espaciado alrededor de la tarjeta
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Fondo blanco
+            .background(Color.White, RoundedCornerShape(16.dp))
+            .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically // Alineación vertical al centro
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.weight(1f) // Esto permite que la columna ocupe el espacio restante
-            ) {
-                // Nombre de la tarea
-                Text(
-                    text = task.cultural_works_name,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+            // Nombre de la tarea
+            Text(
+                text = task.cultural_works_name,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-                // Asignado a
-                Text(
-                    text = "Asignada a: ${task.collaborator_name}",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
+            // Asignado a
+            Text(
+                text = "Asignada por: ${task.owner_name}",
+                color = Color.Black,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-                // Estado
-                Text(
-                    text = "Estado: ${task.status}",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
+            // Estado
+            Text(
+                text = "Estado: ${task.status}",
+                color = Color.Black,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-                // Fecha formateada
-                val formattedDate = java.text.SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(task.task_date))
-                Text(
-                    text = "Fecha: $formattedDate",
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
+            // Fecha formateada
+            Text(
+                text = "Fecha: $formattedDate",
+                color = Color.Black,
+                fontSize = 16.sp
+            )
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-                Text(text = "Finca: $farmName", color = Color.Black, fontSize = 12.sp)
+            // Información de la finca y lote
+            Text(text = "Finca: $farmName", color = Color.Black, fontSize = 16.sp)
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-                Text(text = "Lote: $plotName", color = Color.Black, fontSize = 12.sp)
-            }
+            Text(text = "Lote: $plotName", color = Color.Black, fontSize = 16.sp)
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón alineado a la derecha
+            // Botón Comenzar, debajo de Lote
             ReusableButton(
                 text = "Comenzar",
-                onClick = {},
+                onClick = {
+                    Toast.makeText(context, "Función disponible próximamente", Toast.LENGTH_SHORT).show()
+                },
                 modifier = Modifier
-                    .size(width = 160.dp, height = 48.dp),
+                    .fillMaxWidth()
+                    .height(48.dp),
                 buttonType = ButtonType.Green
             )
         }
     }
 }
+
+
 
 @Composable
 fun CulturalWorkTaskCard(
@@ -250,7 +263,7 @@ fun CulturalWorkTaskCard(
                     text = "Asignado a: ${task.collaborator_name}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(2.dp))
 
@@ -258,7 +271,7 @@ fun CulturalWorkTaskCard(
                     text = "Asignado por: ${task.owner_name}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -268,7 +281,7 @@ fun CulturalWorkTaskCard(
                     text = "Estado: ${task.status}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -277,7 +290,7 @@ fun CulturalWorkTaskCard(
                 Text(
                     text = "Fecha: $formattedDate",
                     color = Color.Black,
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
             }
 
@@ -916,6 +929,195 @@ fun CollaboratorDropdown(
                     },
                     modifier = Modifier.padding(vertical = 0.dp), // Puedes ajustar este valor para reducir el espaciado
                     contentPadding = PaddingValues(vertical = 0.dp, horizontal = 5.dp)
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CulturalTaskFilterDropdowns(
+    farmOptions: List<String>,
+    selectedFarm: String,
+    onFarmSelected: (String) -> Unit,
+    plotOptions: List<String>,
+    selectedPlot: String,
+    onPlotSelected: (String) -> Unit,
+    selectedOrder: String,
+    onOrderSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Dropdown para Finca
+            FarmFilterDropdown(
+                options = farmOptions,
+                selectedFarm = selectedFarm,
+                onSelectedFarmChange = onFarmSelected,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            )
+
+            // Dropdown para Lote
+            PlotFilterDropdown(
+                options = plotOptions,
+                selectedPlot = selectedPlot,
+                onSelectedPlotChange = onPlotSelected,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Dropdown para Ordenar
+            OrderFilterDropdown(
+                selectedOrder = selectedOrder,
+                onSelectedOrderChange = onOrderSelected,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            )
+
+            // Espacio vacío para igualar el ancho
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+    }
+}
+@Composable
+fun FarmFilterDropdown(
+    options: List<String>,
+    selectedFarm: String,
+    onSelectedFarmChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .background(Color.White, RoundedCornerShape(20.dp))
+    ) {
+        OutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF49602D)),
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedFarm,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = if (expanded) painterResource(id = R.drawable.arrowdropup_icon)
+                    else painterResource(id = R.drawable.arrowdropdown_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF5D8032)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 180.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option, color = Color.Black) },
+                    onClick = {
+                        onSelectedFarmChange(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PlotFilterDropdown(
+    options: List<String>,
+    selectedPlot: String,
+    onSelectedPlotChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .background(Color.White, RoundedCornerShape(20.dp))
+    ) {
+        OutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF49602D)),
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedPlot,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = if (expanded) painterResource(id = R.drawable.arrowdropup_icon)
+                    else painterResource(id = R.drawable.arrowdropdown_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(0xFF5D8032)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 180.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option, color = Color.Black) },
+                    onClick = {
+                        onSelectedPlotChange(option)
+                        expanded = false
+                    }
                 )
             }
         }

@@ -1,5 +1,7 @@
 package com.example.coffetech.viewmodel.CulturalWorkTask
 
+import android.content.Context
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -7,6 +9,7 @@ import com.example.coffetech.Routes.Routes
 import com.example.coffetech.model.Collaborator
 import com.example.coffetech.model.CreateCulturalWorkTaskRequest
 import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -38,8 +41,7 @@ class AddCulturalWorkViewModel2 : ViewModel() {
     private val _isSendingRequest = MutableStateFlow(false)
     val isSendingRequest: StateFlow<Boolean> = _isSendingRequest.asStateFlow()
 
-    // Token de sesión (debería obtenerse de manera segura, por ejemplo, desde un repositorio)
-    private val sessionToken = "OGBTS1Adblk5Mjc3J3qHfbcwYMdSvdRq" // Reemplazar con la obtención real
+
 
     // Función para establecer el colaborador seleccionado
     fun setSelectedCollaboratorId(id: Int) {
@@ -47,10 +49,11 @@ class AddCulturalWorkViewModel2 : ViewModel() {
     }
 
     // Función para obtener los colaboradores
-    fun fetchCollaborators(plotId: Int) {
+    fun fetchCollaborators(plotId: Int, context: Context) {
         viewModelScope.launch {
             _isFetchingCollaborators.value = true
             try {
+                val sessionToken = SharedPreferencesHelper(context).getSessionToken() ?: ""
                 val response = RetrofitInstance.api.getCollaboratorsWithCompletePermission(plotId, sessionToken)
                 if (response.status == "success") {
                     _collaborators.value = response.data.collaborators
@@ -101,7 +104,8 @@ class AddCulturalWorkViewModel2 : ViewModel() {
         culturalWorkType: String,
         date: String,
         plotName: String,
-        navController: NavController
+        navController: NavController,
+        context: Context
     ) {
         viewModelScope.launch {
             if (_buttonText.value == "Guardar") {
@@ -122,6 +126,7 @@ class AddCulturalWorkViewModel2 : ViewModel() {
 
                 _isSendingRequest.value = true
                 try {
+                    val sessionToken = SharedPreferencesHelper(context).getSessionToken() ?: ""
                     val response = RetrofitInstance.api.createCulturalWorkTask(sessionToken, request)
                     if (response.status == "success") {
                         // Navegar dos pantallas atrás
@@ -137,7 +142,7 @@ class AddCulturalWorkViewModel2 : ViewModel() {
                 }
 
             } else {
-                // "Siguiente" acción: navegar a otra ruta con los datos necesarios
+                // Acción "Siguiente": navegar a otra ruta con los datos necesarios
                 val collaboratorId = _selectedCollaboratorId.value
                 if (collaboratorId == null) {
                     _errorMessage.value = "Debe seleccionar un colaborador."

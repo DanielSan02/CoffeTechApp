@@ -1,6 +1,7 @@
 package com.example.coffetech.view.CulturalWorkTask
 
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -27,49 +28,42 @@ import com.example.coffetech.Routes.Routes
 import com.example.coffetech.common.FloatingActionButtonGroup
 import com.example.coffetech.common.ReusableSearchBar
 import com.example.coffetech.model.CulturalWorkTask
+import com.example.coffetech.model.GeneralCulturalWorkTask
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.view.common.HeaderFooterSubView
-import com.example.coffetech.viewmodel.CulturalWorkTask.CulturalWorkTaskGeneralViewModel
+import com.example.coffetech.view.common.HeaderFooterView
+import com.example.coffetech.viewmodel.CulturalWorkTask.GeneralCulturalWorkTaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CulturalWorkTaskGeneralView(
     navController: NavController,
-    farmId: Int,
-    farmName: String,
-    plotId: Int,
-    plotName: String,
-    viewModel: CulturalWorkTaskGeneralViewModel = viewModel()
+    viewModel: GeneralCulturalWorkTaskViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
-    // Cargar las tareas cuando el composable se monta
-    LaunchedEffect(farmName, plotName) {
-        viewModel.loadTasks(farmName, plotName)
+    // Cargar las tareas cuando el Composable se monta
+    LaunchedEffect(Unit) {
+        viewModel.loadTasks(context)
     }
 
-    // Estados del ViewModel
+    // Obtener los estados del ViewModel
     val tasks by viewModel.filteredTasks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val stateFilter by viewModel.stateFilter.collectAsState()
-    val assignedToFilter by viewModel.assignedToFilter.collectAsState()
-    val expandedState by viewModel.isEstadoDropdownExpanded.collectAsState()
-    val expandedAssigned by viewModel.isAssignedDropdownExpanded.collectAsState()
-    val estados by viewModel.estadoOptions.collectAsState()
-    val assignedToOptions by viewModel.assignedToOptions.collectAsState()
-    val dateOrderOptions by viewModel.dateOrderOptions.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState() // Obtener la consulta de búsqueda
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
-    // Iconos para los dropdowns
-    val expandedArrowDropUp: Painter = painterResource(id = R.drawable.arrowdropup_icon)
-    val arrowDropDown: Painter = painterResource(id = R.drawable.arrowdropdown_icon)
+    // Estados de los filtros
+    val farmOptions by viewModel.farmOptions.collectAsState()
+    val selectedFarm by viewModel.selectedFarm.collectAsState()
+    val plotOptions by viewModel.plotOptions.collectAsState()
+    val selectedPlot by viewModel.selectedPlot.collectAsState()
+    val selectedOrder by viewModel.selectedOrder.collectAsState()
 
-    HeaderFooterSubView(
-        title = "Tarea labor cultural",
+    HeaderFooterView(
+        title = "Mis Tareas",
         currentView = "Labores",
-        navController = navController,
-        onBackClick = { navController.navigate("${Routes.PlotInformationView}/$plotId$farmName$farmId") },
+        navController = navController
     ) {
         Box(
             modifier = Modifier
@@ -80,115 +74,76 @@ fun CulturalWorkTaskGeneralView(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
-               /* if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Cargando tareas de labor cultural...",
-                        color = Color.Black,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                } else if (errorMessage.isNotEmpty()) {
-                    Text(text = errorMessage, color = Color.Red)
-                } else {*/
-
-                    // Barra de búsqueda conectada al ViewModel
-                    ReusableSearchBar(
-                        query = searchQuery,
-                        onQueryChanged = { },
-                        text = "Buscar Tarea por nombre",
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                if (isLoading) {
+                    // Indicador de carga
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Dropdown para filtrar por estado
-                        GenericDropdown(
-                            modifier = Modifier.weight(1f),
-                            selectedOption = stateFilter,
-                            onOptionSelected = {},
-                            options = estados,
-                            expanded = expandedState,
-                            onExpandedChange = {},
-                            label = "Finca",
-                            expandedArrowDropUp = expandedArrowDropUp,
-                            arrowDropDown = arrowDropDown
-                        )
-
-                        // Dropdown para filtrar por asignación
-                        GenericDropdown(
-                            modifier = Modifier.weight(1f),
-                            selectedOption = assignedToFilter,
-                            onOptionSelected = {},
-                            options = assignedToOptions,
-                            expanded = expandedAssigned,
-                            onExpandedChange = {},
-                            label = "Lote",
-                            expandedArrowDropUp = expandedArrowDropUp,
-                            arrowDropDown = arrowDropDown
-                        )
-
-                        GenericDropdown(
-                            modifier = Modifier.weight(1f),
-                            selectedOption = stateFilter,
-                            onOptionSelected = {},
-                            options = estados,
-                            expanded = expandedState,
-                            onExpandedChange = {},
-                            label = "Fecha",
-                            expandedArrowDropUp = expandedArrowDropUp,
-                            arrowDropDown = arrowDropDown
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Cargando tareas de labor cultural...",
+                            color = Color.Black
                         )
                     }
+                } else if (errorMessage != null) {
+                    // Mostrar mensaje de error
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color.Red,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                } else {
+
+                    // Barra de búsqueda
+                    ReusableSearchBar(
+                        query = searchQuery,
+                        onQueryChanged = { viewModel.onSearchQueryChanged(it) },
+                        text = "Buscar tarea por 'Asignado a'",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Dropdowns para filtrar y ordenar
+                    CulturalTaskFilterDropdowns(
+                        farmOptions = farmOptions,
+                        selectedFarm = selectedFarm,
+                        onFarmSelected = { viewModel.selectFarm(it) },
+                        plotOptions = plotOptions,
+                        selectedPlot = selectedPlot,
+                        onPlotSelected = { viewModel.selectPlot(it) },
+                        selectedOrder = selectedOrder,
+                        onOrderSelected = { viewModel.selectOrder(it) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Lista de tareas culturales
                     if (tasks.isEmpty()) {
-                        Text("No hay tareas de labor cultural para mostrar", color = Color.Gray)
+                        Text(
+                            text = "No hay tareas de labor cultural para mostrar",
+                            color = Color.Gray,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
                     } else {
-                        LazyColumn { // Reemplaza el forEach con LazyColumn para mejor rendimiento
+                        LazyColumn {
                             items(tasks) { task ->
                                 CulturalWorkTaskGeneralCard(
                                     task = task,
-                                    farmName = "Nombre de la Finca", // Reemplaza con el nombre de la finca adecuado
-                                    plotName = "Nombre del Lote" // Reemplaza con el nombre del lote adecuado
+                                    farmName = task.farm_name,
+                                    plotName = task.plot_name
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
-                //}
+                }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun CulturalWorkTaskCard2Preview() {
-    CoffeTechTheme {
-        CulturalWorkTaskGeneralCard(
-            task =                    CulturalWorkTask(
-                cultural_work_task_id = 1,
-                cultural_works_name = "Recolección de Café",
-                collaborator_name = "naty rmu",
-                owner_name = "Natalia Rodríguez Mu",
-                status = "Por hacer",
-                task_date = "2024-10-28"),
-            farmName = "Finca 1",
-            plotName = "Lote 1"
-        )
     }
 }
 
@@ -196,42 +151,42 @@ fun CulturalWorkTaskCard2Preview() {
 @Composable
 fun CulturalWorkTaskGeneralViewPreview() {
     CoffeTechTheme {
-        // Simulación de un NavController para previsualización
         val navController = rememberNavController()
+        val viewModel: GeneralCulturalWorkTaskViewModel = viewModel()
 
-        // Lista de tareas predefinidas para la vista previa
-        val preloadedTasks = listOf(
-            CulturalWorkTask(
-                cultural_work_task_id = 1,
-                cultural_works_name = "Recolección de Café",
-                collaborator_name = "naty rmu",
-                owner_name = "Natalia Rodríguez Mu",
-                status = "Por hacer",
-                task_date = "2024-10-28"),
-            CulturalWorkTask(
-                cultural_work_task_id = 1,
-                cultural_works_name = "Recolección de Café",
-                collaborator_name = "naty rmu",
-                owner_name = "Natalia Rodríguez Mu",
-                status = "Por hacer",
-                task_date = "2024-10-28"),
-            CulturalWorkTask(
-                cultural_work_task_id = 1,
-                cultural_works_name = "Recolección de Café",
-                collaborator_name = "naty rmu",
-                owner_name = "Natalia Rodríguez Mu",
-                status = "Por hacer",
-                task_date = "2024-10-28")
-        )
+        // Simulación de tareas predefinidas para la vista previa
+        LaunchedEffect(Unit) {
+            viewModel.addTestTasks(
+                listOf(
+                    GeneralCulturalWorkTask(
+                        cultural_work_task_id = 1,
+                        cultural_works_name = "Recolección de Café",
+                        collaborator_id = 1,
+                        collaborator_name = "Daniel Pruebas",
+                        owner_name = "Natalia Rodríguez Mu",
+                        status = "Por hacer",
+                        task_date = "2024-10-29",
+                        farm_name = "Finca 1",
+                        plot_name = "Lote 1"
+                    ),
+                    GeneralCulturalWorkTask(
+                        cultural_work_task_id = 2,
+                        cultural_works_name = "Poda de Árboles",
+                        collaborator_id = 2,
+                        collaborator_name = "Otros Colaboradores",
+                        owner_name = "María García",
+                        status = "Terminado",
+                        task_date = "2024-10-27",
+                        farm_name = "Finca 2",
+                        plot_name = "Lote 2"
+                    )
+                )
+            )
+        }
 
-
-        // Llamada a la vista de previsualización con el ViewModel predefinido
         CulturalWorkTaskGeneralView(
             navController = navController,
-            farmId = 1, // Valores simulados
-            farmName = "Finca Ejemplo",
-            plotId = 1, // Valores simulados
-            plotName = "Plot A"
+            viewModel = viewModel
         )
     }
 }

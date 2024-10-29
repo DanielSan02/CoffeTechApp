@@ -84,7 +84,7 @@ fun HeaderFooterSubView(
                 onFincasClick = { headerFooterSubViewModel.onFincasClick(navController) },
                 onCentralButtonClick = { headerFooterSubViewModel.onCentralButtonClick(context) },
                 onReportsClick = { headerFooterSubViewModel.onReportsClick(navController, context) },
-                onCostsClick = { headerFooterSubViewModel.onCostsClick(navController, context) },
+                onLaborClick = { headerFooterSubViewModel.onLaborClick(navController, context) },
             )
         }
     ) { paddingValues ->

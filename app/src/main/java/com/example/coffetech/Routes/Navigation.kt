@@ -37,6 +37,7 @@ import com.example.coffetech.view.Collaborator.CollaboratorView
 import com.example.coffetech.view.Collaborator.EditCollaboratorView
 import com.example.coffetech.view.CulturalWorkTask.AddCulturalWorkView1
 import com.example.coffetech.view.CulturalWorkTask.AddCulturalWorkView2
+import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskGeneralView
 import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskInformationView
 import com.example.coffetech.view.CulturalWorkTask.ReminderCulturalWorkView
 import com.example.coffetech.view.Plot.CreateMapPlotView
@@ -699,6 +700,13 @@ fun AppNavHost(context: Context) {
                 date = date,
                 collaboratorUserId = collaboratorUserId
             )
+        }
+
+        composable(Routes.CulturalWorkTaskGeneralView) {
+            CulturalWorkTaskGeneralView(navController = navController)
+            BackHandler {
+                // Prevents back navigation gesture here
+            }
         }
 
 

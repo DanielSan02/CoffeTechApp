@@ -75,8 +75,8 @@ fun HeaderFooterView(
                 onHomeClick = { headerFooterViewModel.onHomeClick(navController) },
                 onFincasClick = { headerFooterViewModel.onFincasClick(navController) },
                 onCentralButtonClick = { headerFooterViewModel.onCentralButtonClick(context) },
+                onLaborClick = { headerFooterViewModel.onLaborClick(navController, context) },
                 onReportsClick = { headerFooterViewModel.onReportsClick(navController, context) },
-                onCostsClick = { headerFooterViewModel.onCostsClick(navController, context) }
             )
         }
     ) { paddingValues ->
@@ -319,7 +319,7 @@ fun BottomNavigationBar(
     onFincasClick: () -> Unit,
     onCentralButtonClick: () -> Unit,
     onReportsClick: () -> Unit,
-    onCostsClick: () -> Unit,
+    onLaborClick: () -> Unit,
     modifier: Modifier = Modifier
 
 ) {
@@ -388,7 +388,7 @@ fun BottomNavigationBar(
 
 
         IconButton(
-            onClick = onReportsClick,
+            onClick = onLaborClick,
             modifier = Modifier
                 .weight(1f)
                 .size(90.dp)
@@ -414,7 +414,7 @@ fun BottomNavigationBar(
         }
 
         IconButton(
-            onClick = onCostsClick,
+            onClick = onReportsClick,
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 8.dp)
@@ -479,6 +479,6 @@ fun BottomNavigationBarPreview() {
         onFincasClick = {},
         onCentralButtonClick = {},
         onReportsClick = {},
-        onCostsClick = {}
+        onLaborClick = {}
     )
 }

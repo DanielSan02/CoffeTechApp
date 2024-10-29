@@ -1,14 +1,16 @@
 package com.example.coffetech.viewmodel.CulturalWorkTask
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.coffetech.model.CreateCulturalWorkTaskRequest
 import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
 class ReminderViewModel : ViewModel() {
+
     private val _isReminderForUser = MutableStateFlow(false)
     val isReminderForUser: StateFlow<Boolean> = _isReminderForUser.asStateFlow()
 
@@ -21,9 +23,6 @@ class ReminderViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    // Token de sesión (debería obtenerse de manera segura, por ejemplo, desde un repositorio)
-    private val sessionToken = "OGBTS1Adblk5Mjc3J3qHfbcwYMdSvdRq" // Reemplazar con la obtención real
-
     fun setReminderForUser(value: Boolean) {
         _isReminderForUser.value = value
     }
@@ -32,17 +31,35 @@ class ReminderViewModel : ViewModel() {
         _isReminderForCollaborator.value = value
     }
 
+    /**
+     * Guarda los recordatorios configurados.
+     *
+     * @param plotId ID del lote.
+     * @param culturalWorkType Tipo de labor cultural.
+     * @param date Fecha de la tarea.
+     * @param collaboratorUserId ID del colaborador.
+     * @param navController Controlador de navegación para navegar entre pantallas.
+     * @param context Contexto necesario para acceder al token de sesión.
+     */
     fun saveReminders(
         plotId: Int,
         culturalWorkType: String,
         date: String,
         collaboratorUserId: Int,
-        navController: NavController
+        navController: NavController,
+        context: Context
     ) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Asumiendo que la API para guardar recordatorios es similar a la de crear tareas culturales
+                // Obtener el token de sesión dentro de la función
+                val sessionToken = SharedPreferencesHelper(context).getSessionToken() ?: ""
+                if (sessionToken.isEmpty()) {
+                    _errorMessage.value = "Token de sesión no encontrado."
+                    return@launch
+                }
+
+                // Crear la solicitud
                 val request = CreateCulturalWorkTaskRequest(
                     cultural_works_name = culturalWorkType,
                     plot_id = plotId,
@@ -52,13 +69,13 @@ class ReminderViewModel : ViewModel() {
                     task_date = date
                 )
 
+                // Realizar la solicitud a la API
                 val response = RetrofitInstance.api.createCulturalWorkTask(sessionToken, request)
                 if (response.status == "success") {
-                    // Navegar dos pantallas atrás
+                    // Navegar tres pantallas atrás
                     navController.popBackStack() // Volver una pantalla
                     navController.popBackStack() // Volver otra pantalla
-                    navController.popBackStack() // Volver una pantalla
-
+                    navController.popBackStack() // Volver otra pantalla
                 } else {
                     _errorMessage.value = response.message
                 }

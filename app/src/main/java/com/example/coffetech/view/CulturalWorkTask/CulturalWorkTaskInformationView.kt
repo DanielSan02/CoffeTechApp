@@ -82,7 +82,7 @@ fun CulturalWorkTaskInformationView(
 
     HeaderFooterSubView(
         title = "Tarea Labor Cultural",
-        currentView = "Labores",
+        currentView = "Fincas",
         navController = navController,
         onBackClick = {
             Log.d("CulturalWorkTaskInfoView", "Navegando hacia PlotInformationView")

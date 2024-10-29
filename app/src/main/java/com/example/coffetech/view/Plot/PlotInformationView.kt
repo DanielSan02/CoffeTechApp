@@ -110,7 +110,16 @@ fun PlotInformationView(
         ) {
             when {
                 isLoading -> {
-                    CircularProgressIndicator()
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                        Text(
+                            text = "Cargando Información de lote...",
+                            color = Color.Black
+                        )
+                    }
                 }
                 errorMessage.isNotEmpty() -> {
                     Text(text = errorMessage, color = Color.Red)

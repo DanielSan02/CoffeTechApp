@@ -1,149 +1,151 @@
+// GeneralCulturalWorkTaskViewModel.kt
 package com.example.coffetech.viewmodel.CulturalWorkTask
 
+import android.content.Context
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coffetech.model.CulturalWorkTask
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import com.example.coffetech.model.GeneralCulturalWorkTask
+import com.example.coffetech.model.RetrofitInstance
+import com.example.coffetech.utils.SharedPreferencesHelper
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+class GeneralCulturalWorkTaskViewModel : ViewModel() {
 
+    // Estado para la lista de tareas culturales generales
+    private val _tasks = MutableStateFlow<List<GeneralCulturalWorkTask>>(emptyList())
+    val tasks: StateFlow<List<GeneralCulturalWorkTask>> = _tasks
 
-class CulturalWorkTaskGeneralViewModel(
-initialTasks: List<CulturalWorkTask> = emptyList() // Tareas iniciales opcionales
-) : ViewModel() {
+    // Estado para manejar mensajes de error
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
 
-    // Listas de opciones para cada dropdown
-    private val _estadoOptions = MutableStateFlow<List<String>>(listOf("Por hacer", "Terminado"))
-    val estadoOptions: StateFlow<List<String>> = _estadoOptions.asStateFlow()
-
-    private val _assignedToOptions = MutableStateFlow<List<String>>(listOf("A mi", "A otros colaboradores"))
-    val assignedToOptions: StateFlow<List<String>> = _assignedToOptions.asStateFlow()
-
-    private val _dateOrderOptions = MutableStateFlow<List<String>>(listOf("Recientes primero", "Antiguos primero"))
-    val dateOrderOptions: StateFlow<List<String>> = _dateOrderOptions.asStateFlow()
-
-    private val _tasks = MutableStateFlow<List<CulturalWorkTask>>(initialTasks)
-    val tasks: StateFlow<List<CulturalWorkTask>> = _tasks.asStateFlow()
-
-    private val _stateFilter = MutableStateFlow<String?>(null)
-    val stateFilter: StateFlow<String?> = _stateFilter.asStateFlow()
-
-    private val _assignedToFilter = MutableStateFlow<String?>(null)
-    val assignedToFilter: StateFlow<String?> = _assignedToFilter.asStateFlow()
-
-    private val _dateOrder = MutableStateFlow<Boolean>(true) // true: Recientes primero, false: Antiguos primero
-    val dateOrder: StateFlow<Boolean> = _dateOrder.asStateFlow()
-
+    // Estado para manejar la carga de tareas
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _errorMessage = MutableStateFlow("")
-    val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
+    // Estados para los filtros
+    private val _selectedFarm = MutableStateFlow("Todas las fincas")
+    val selectedFarm: StateFlow<String> = _selectedFarm.asStateFlow()
 
-    // Estado de búsqueda utilizando TextFieldValue
+    private val _selectedPlot = MutableStateFlow("Todos los lotes")
+    val selectedPlot: StateFlow<String> = _selectedPlot.asStateFlow()
+
+    private val _selectedOrder = MutableStateFlow("Más reciente")
+    val selectedOrder: StateFlow<String> = _selectedOrder.asStateFlow()
+
     private val _searchQuery = MutableStateFlow(TextFieldValue(""))
     val searchQuery: StateFlow<TextFieldValue> = _searchQuery.asStateFlow()
 
-    // Función para actualizar la consulta de búsqueda
-    fun onSearchQueryChanged(query: TextFieldValue) {
-        _searchQuery.value = query
+    // Estados para los dropdowns de fincas y lotes
+    private val _farmOptions = MutableStateFlow<List<String>>(emptyList())
+    val farmOptions: StateFlow<List<String>> = _farmOptions.asStateFlow()
+
+    private val _plotOptions = MutableStateFlow<List<String>>(emptyList())
+    val plotOptions: StateFlow<List<String>> = _plotOptions.asStateFlow()
+
+    // Estado para las tareas filtradas
+    private val _filteredTasks = MutableStateFlow<List<GeneralCulturalWorkTask>>(emptyList())
+    val filteredTasks: StateFlow<List<GeneralCulturalWorkTask>> = _filteredTasks.asStateFlow()
+
+    fun addTestTasks(tasks: List<GeneralCulturalWorkTask>) {
+        _tasks.value = tasks
+        extractFilterOptions()
+        applyFiltersAndSorting()
     }
 
-    // Estados de expansión para cada dropdown
-    private val _isEstadoDropdownExpanded = MutableStateFlow(false)
-    val isEstadoDropdownExpanded: StateFlow<Boolean> = _isEstadoDropdownExpanded.asStateFlow()
-
-    fun setEstadoDropdownExpanded(isExpanded: Boolean) {
-        _isEstadoDropdownExpanded.value = isExpanded
-    }
-
-    private val _isAssignedDropdownExpanded = MutableStateFlow(false)
-    val isAssignedDropdownExpanded: StateFlow<Boolean> = _isAssignedDropdownExpanded.asStateFlow()
-
-    fun setAssignedDropdownExpanded(isExpanded: Boolean) {
-        _isAssignedDropdownExpanded.value = isExpanded
-    }
-
-    // Función para cargar tareas
-    fun loadTasks(nameFarm: String, plotName: String) {
+    /**
+     * Función para cargar tareas desde el endpoint.
+     *
+     * @param context El contexto para acceder a SharedPreferences.
+     */
+    fun loadTasks(context: Context) {
         viewModelScope.launch {
             _isLoading.value = true
+            _errorMessage.value = null
             try {
-                val loadedTasks = listOf(
-                    CulturalWorkTask(
-                        cultural_work_task_id = 1,
-                        cultural_works_name = "Recolección de Café",
-                        collaborator_name = "naty rmu",
-                        owner_name = "Natalia Rodríguez Mu",
-                        status = "Por hacer",
-                        task_date = "2024-10-28"
-                    ),
-                    CulturalWorkTask(
-                        cultural_work_task_id = 2,
-                        cultural_works_name = "Poda de Árboles",
-                        collaborator_name = "otros colaboradores",
-                        owner_name = "María García",
-                        status = "Terminado",
-                        task_date = "2024-10-27"
-                    )
-                )
-                _tasks.value = loadedTasks
+                val sessionToken = SharedPreferencesHelper(context).getSessionToken() ?: ""
+                if (sessionToken.isEmpty()) {
+                    _errorMessage.value = "Token de sesión no encontrado. Por favor, inicia sesión nuevamente."
+                    return@launch
+                }
+
+                val response = RetrofitInstance.api.getMyCulturalWorkTasks(sessionToken)
+                if (response.status == "success") {
+                    _tasks.value = response.data.tasks
+                    extractFilterOptions()
+                    applyFiltersAndSorting()
+                } else {
+                    _errorMessage.value = response.message
+                }
             } catch (e: Exception) {
-                _errorMessage.value = "Error cargando las tareas culturales."
+                _errorMessage.value = "Error cargando las tareas culturales: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
+    // Función para extraer opciones únicas de fincas y lotes
+    private fun extractFilterOptions() {
+        val farms = _tasks.value.map { it.farm_name }.distinct().sorted()
+        _farmOptions.value = listOf("Todas las fincas") + farms
 
-    val filteredTasks: StateFlow<List<CulturalWorkTask>> = combine(
-        _tasks,
-        _stateFilter,
-        _assignedToFilter,
-        _dateOrder,
-        _searchQuery // Incluye la consulta de búsqueda
-    ) { tasks, state, assignedTo, isRecentFirst, query ->
-        var filtered = tasks
+        val plots = _tasks.value.map { it.plot_name }.distinct().sorted()
+        _plotOptions.value = listOf("Todos los lotes") + plots
+    }
 
-        // Filtrar por estado
-        state?.let { stateValue ->
-            filtered = filtered.filter { task ->
-                task.status == stateValue
+    // Funciones para actualizar filtros y búsqueda
+    fun selectFarm(farm: String) {
+        _selectedFarm.value = farm
+        applyFiltersAndSorting()
+    }
+
+    fun selectPlot(plot: String) {
+        _selectedPlot.value = plot
+        applyFiltersAndSorting()
+    }
+
+    fun selectOrder(order: String) {
+        _selectedOrder.value = order
+        applyFiltersAndSorting()
+    }
+
+    fun onSearchQueryChanged(query: TextFieldValue) {
+        _searchQuery.value = query
+        applyFiltersAndSorting()
+    }
+
+    // Aplicar filtros y ordenamiento
+    private fun applyFiltersAndSorting() {
+        var filteredList = _tasks.value
+
+        // Filtrar por finca
+        if (_selectedFarm.value != "Todas las fincas") {
+            filteredList = filteredList.filter { it.farm_name == _selectedFarm.value }
+        }
+
+        // Filtrar por lote
+        if (_selectedPlot.value != "Todos los lotes") {
+            filteredList = filteredList.filter { it.plot_name == _selectedPlot.value }
+        }
+
+        // Aplicar ordenamiento
+        filteredList = when (_selectedOrder.value) {
+            "Más antiguo" -> filteredList.sortedBy { it.task_date }
+            "Más reciente" -> filteredList.sortedByDescending { it.task_date }
+            else -> filteredList
+        }
+
+        // Aplicar búsqueda
+        val query = _searchQuery.value.text
+        if (query.isNotEmpty()) {
+            filteredList = filteredList.filter {
+                it.cultural_works_name.contains(query, ignoreCase = true)
             }
         }
 
-        // Filtrar por asignación
-        assignedTo?.let { assignedValue ->
-            val assignedToNormalized = when (assignedValue) {
-                "A mi" -> "me"
-                "A otros colaboradores" -> "otros colaboradores"
-                else -> assignedValue
-            }
-            filtered = filtered.filter { task ->
-                task.collaborator_name == assignedToNormalized
-            }
-        }
-
-        // Filtrar por nombre de tarea
-        if (query.text.isNotBlank()) {
-            filtered = filtered.filter { task ->
-                task.cultural_works_name.contains(query.text, ignoreCase = true)
-            }
-        }
-
-        // Ordenar por fecha
-        if (isRecentFirst) {
-            filtered.sortedByDescending { it.task_date }
-        } else {
-            filtered.sortedBy { it.task_date }
-        }
-    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        _filteredTasks.value = filteredList
+    }
 }
-

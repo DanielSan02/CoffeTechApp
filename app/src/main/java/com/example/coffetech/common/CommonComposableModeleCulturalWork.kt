@@ -340,6 +340,7 @@ fun TypeCulturalWorkDropdown(
     cultural_work: List<String>,  // Parámetro para unidades dinámicas
     expandedArrowDropUp: Painter,
     arrowDropDown: Painter,
+    placeholder: String = "Selecciona un tipo", // Añadido
     onTypeCulturalWorkChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -375,7 +376,7 @@ fun TypeCulturalWorkDropdown(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = selectedCulturalWork,
+                        text = if (selectedCulturalWork.isEmpty()) placeholder else selectedCulturalWork, // Modificado
                         fontSize = 14.sp,
                         color = Color.Black,
                         maxLines = 1,

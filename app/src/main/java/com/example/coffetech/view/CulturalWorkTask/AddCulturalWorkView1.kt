@@ -121,6 +121,7 @@ fun AddCulturalWorkView1(
                     cultural_work = typeCulturalWorkList,
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                    placeholder = "Seleccione una labor cultural", // Añadido
                     modifier = Modifier.fillMaxWidth()
                 )
 

@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.example.coffetech.common.ReusableTittleSmall
 
 @Composable
@@ -73,8 +75,8 @@ fun HeaderFooterView(
                 onHomeClick = { headerFooterViewModel.onHomeClick(navController) },
                 onFincasClick = { headerFooterViewModel.onFincasClick(navController) },
                 onCentralButtonClick = { headerFooterViewModel.onCentralButtonClick(context) },
+                onLaborClick = { headerFooterViewModel.onLaborClick(navController, context) },
                 onReportsClick = { headerFooterViewModel.onReportsClick(navController, context) },
-                onCostsClick = { headerFooterViewModel.onCostsClick(navController, context) }
             )
         }
     ) { paddingValues ->
@@ -90,7 +92,7 @@ fun HeaderFooterView(
                     profileImage = painterResource(id = R.drawable.menu_icon),
                     profileName = userName,
                     onProfileClick = { headerFooterViewModel.onProfileClick(navController) },
-                    onNotificationsClick = headerFooterViewModel::onNotificationsClick,
+                    onNotificationsClick = { headerFooterViewModel.onNotificationsClick(navController) },
                     onHelpClick = headerFooterViewModel::onHelpClick,
                     onLogoutClick = { headerFooterViewModel.onLogoutClick(context, navController) },
                     isLoading = isLoading,
@@ -184,10 +186,13 @@ fun HamburgerMenu(
             .background(Color.White)
             .border(1.dp, Color.LightGray)
     ) {
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .verticalScroll(scrollState)
         ) {
             // Botón de cierre
             IconButton(
@@ -220,7 +225,7 @@ fun HamburgerMenu(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = profileName,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -239,11 +244,11 @@ fun HamburgerMenu(
                 text = "Notificaciones",
                 onClick = onNotificationsClick
             )
-            MenuOption(
+           /* MenuOption(
                 icon = painterResource(R.drawable.circle_question_regular),
                 text = "Ayuda",
                 onClick = onHelpClick
-            )
+            )*/
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -254,7 +259,8 @@ fun HamburgerMenu(
                     containerColor = Color(0xFFB31D34),
                     contentColor = Color.White
                 ),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+
                 enabled = !isLoading // Deshabilitar si está en estado de carga
             ) {
                 if (isLoading) {
@@ -282,7 +288,7 @@ private fun MenuOption(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
 
     ) {
         Row(
@@ -313,23 +319,23 @@ fun BottomNavigationBar(
     onFincasClick: () -> Unit,
     onCentralButtonClick: () -> Unit,
     onReportsClick: () -> Unit,
-    onCostsClick: () -> Unit,
+    onLaborClick: () -> Unit,
     modifier: Modifier = Modifier
 
 ) {
     BottomAppBar(
         modifier = modifier
             .fillMaxWidth()
-            .height(74.dp),
+            .height(100.dp),
         containerColor = Color.White,
-        contentPadding = PaddingValues(horizontal = 10.dp)
+        contentPadding = PaddingValues(horizontal = 6.dp)
     ) {
         IconButton(
             onClick = onHomeClick,
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 9.dp)
-                .size(74.dp)
+                .size(90.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -342,14 +348,13 @@ fun BottomNavigationBar(
                 Icon(
                     painter = painterResource(R.drawable.home_icon),
                     contentDescription = "Inicio",
-                    tint = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A), // Rojo si es la vista "Home"
-                    modifier = Modifier.size(24.dp)
+                    tint = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Inicio",
                     color = if (currentView == "Inicio") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -359,7 +364,7 @@ fun BottomNavigationBar(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 8.dp)
-                .size(74.dp)
+                .size(90.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -367,48 +372,53 @@ fun BottomNavigationBar(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.fincas_icon),
+                    painter = painterResource(R.drawable.central_icon),
                     contentDescription = "Fincas",
                     tint = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Fincas",
                     color = if (currentView == "Fincas") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
 
-        Spacer(modifier = Modifier.weight(0.5f))
 
-        Box(
+
+        IconButton(
+            onClick = onLaborClick,
             modifier = Modifier
-                .offset(y = -8.dp)
-                .clip(CircleShape)
-                .size(56.dp)
-                .background(Color(0xFFB31D34))
-                .clickable(onClick = onCentralButtonClick),
-            contentAlignment = Alignment.Center
+                .weight(1f)
+                .size(90.dp)
+                .padding(vertical = 8.dp)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.central_icon),
-                contentDescription = "Central Button",
-                modifier = Modifier.size(24.dp),
-                tint = Color.White
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.labor_icon),
+                    contentDescription = "Labores",
+                    tint = if (currentView == "Labores") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    modifier = Modifier.size(30.dp)
+                )
+                Text(
+                    text = "Labores",
+                    color = if (currentView == "Labores") Color(0xFFB31D34) else Color(0xFF9A9A9A),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
-
-
-        Spacer(modifier = Modifier.weight(0.5f))
 
         IconButton(
             onClick = onReportsClick,
             modifier = Modifier
                 .weight(1f)
-                .size(74.dp)
                 .padding(vertical = 8.dp)
+                .size(90.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -419,40 +429,12 @@ fun BottomNavigationBar(
                     painter = painterResource(R.drawable.reports_icon),
                     contentDescription = "Reportes",
                     tint = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(30.dp)
                 )
                 Text(
                     text = "Reportes",
                     color = if (currentView == "Reportes") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.W400
-                )
-            }
-        }
-
-        IconButton(
-            onClick = onCostsClick,
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 8.dp)
-                .size(74.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxHeight()
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.cost_icon),
-                    contentDescription = "Costos",
-                    tint = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    modifier = Modifier.size(24.dp)
-                )
-                Text(
-                    text = "Costos",
-                    color = if (currentView == "Costos") Color(0xFFB31D34) else Color(0xFF9A9A9A),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.W400
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -461,7 +443,7 @@ fun BottomNavigationBar(
 
 
 
-@Preview(showBackground = true)
+    @Preview(showBackground = true)
 @Composable
 fun TopBarWithHamburgerPreview() {
     TopBarWithHamburger(
@@ -497,6 +479,6 @@ fun BottomNavigationBarPreview() {
         onFincasClick = {},
         onCentralButtonClick = {},
         onReportsClick = {},
-        onCostsClick = {}
+        onLaborClick = {}
     )
 }

@@ -24,6 +24,12 @@ val TitleLarge = TextStyle(
     fontSize = 40.sp
 )
 
+val TitleMedium = TextStyle(
+    fontFamily = RobotoFamily,
+    fontWeight = FontWeight.Black,
+    fontSize = 34.sp
+)
+
 val TitleSmall = TextStyle(
     fontFamily = RobotoFamily,
     fontWeight = FontWeight.Medium,
@@ -39,7 +45,8 @@ val Description = TextStyle(
 // Set de Material typography para Compose
 val Typography = Typography(
     // Sobrescribir los estilos predeterminados con los personalizados
-    titleLarge = TitleLarge,  // Usa TitleLarge definido arriba
+    titleLarge = TitleLarge, // Usa TitleLarge definido arriba
+    titleMedium = TitleMedium,
     titleSmall = TitleSmall,  // Usa TitleSmall definido arriba
     bodyLarge = Description,  // Usa Description para textos grandes
     bodyMedium = TextStyle(   // Puedes usarlo para otro estilo intermedio

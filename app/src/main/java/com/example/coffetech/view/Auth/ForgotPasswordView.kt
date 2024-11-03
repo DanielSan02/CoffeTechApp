@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -48,7 +51,7 @@ fun ForgotPasswordView(
     navController: NavController,
     viewModel: ForgotPasswordViewModel = viewModel()
 ) {
-
+    val scrollState = rememberScrollState()
     val email by viewModel.email
     val isEmailValid by viewModel.isEmailValid
     val errorMessage by viewModel.errorMessage
@@ -58,13 +61,13 @@ fun ForgotPasswordView(
 
     Box(
         modifier = modifier
-            .fillMaxSize()
-            .padding(5.dp),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.padding(25.dp).verticalScroll(scrollState)
         ) {
             // Title of the screen
             ReusableTittleLarge(
@@ -83,6 +86,7 @@ fun ForgotPasswordView(
                 onValueChange = {
                     viewModel.onEmailChange(it)
                 },
+                modifier = Modifier.fillMaxWidth(),
                 placeholder = "Correo Electrónico",
                 isValid = isEmailValid,
                 errorMessage = if (isEmailValid) "" else "Correo electrónico no válido"

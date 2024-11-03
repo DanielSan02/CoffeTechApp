@@ -24,7 +24,10 @@ class SharedPreferencesHelper(context: Context) {
             val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             pInfo.versionCode
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e("SharedPreferences", "No se pudo obtener el código de versión: ${e.localizedMessage}")
+            Log.e(
+                "SharedPreferences",
+                "No se pudo obtener el código de versión: ${e.localizedMessage}"
+            )
             -1
         }
     }
@@ -166,5 +169,18 @@ class SharedPreferencesHelper(context: Context) {
 
     fun isVerified(): Boolean {
         return sharedPref.getBoolean("is_verified", false)
+    }
+    // ============================= MANEJO DE VARIEDADES DE CAFÉ ============================= //
+
+    // Función para guardar las variedades de café
+    fun saveCoffeeVarieties(varieties: List<String>) {
+        val editor = sharedPref.edit()
+        editor.putStringSet("coffee_varieties", varieties.toSet())
+        editor.apply()
+    }
+
+    // Función para obtener las variedades de café
+    fun getCoffeeVarieties(): List<String>? {
+        return sharedPref.getStringSet("coffee_varieties", null)?.toList()
     }
 }

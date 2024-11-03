@@ -17,7 +17,9 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+/**
+ * ViewModel responsible for managing the state and logic of editing an existing farm.
+ */
 class FarmEditViewModel : ViewModel() {
     // Estados para los datos de la finca
     private val _farmName = MutableStateFlow("")
@@ -48,10 +50,16 @@ class FarmEditViewModel : ViewModel() {
     private var initialFarmArea = ""
     private var initialSelectedUnit = ""
 
-    // Inicializar los valores iniciales
+    /**
+     * Initializes the ViewModel with the current farm details.
+     *
+     * @param farmName The current name of the farm.
+     * @param farmArea The current area of the farm.
+     * @param selectedUnit The current unit of measure of the farm.
+     */
     fun initializeValues(farmName: String, farmArea: String, selectedUnit: String) {
         initialFarmName = farmName
-        initialFarmArea = farmArea
+        initialFarmArea = farmArea.toDoubleOrNull()?.toInt()?.toString() ?: "0" // Convertir a entero y luego a String
         initialSelectedUnit = selectedUnit
 
         // Establecer los valores iniciales en los estados del ViewModel
@@ -60,30 +68,48 @@ class FarmEditViewModel : ViewModel() {
         _selectedUnit.value = selectedUnit
     }
 
-    // Funciones para actualizar los estados de la vista
+    /**
+     * Updates the farm name when the user modifies it.
+     *
+     * @param newName The new farm name entered by the user.
+     */
     fun onFarmNameChange(newName: String) {
         _farmName.value = newName
         checkForChanges()
     }
-
+    /**
+     * Updates the farm area when the user modifies it.
+     *
+     * @param newArea The new farm area entered by the user.
+     */
     fun onFarmAreaChange(newArea: String) {
         _farmArea.value = newArea
         checkForChanges()
     }
-
+    /**
+     * Updates the selected unit of measure when the user selects a new unit.
+     *
+     * @param newUnit The new unit of measure selected by the user.
+     */
     fun onUnitChange(newUnit: String) {
         _selectedUnit.value = newUnit
         checkForChanges()
     }
 
-    // Función para verificar si se han realizado cambios
+    /**
+     * Checks if any changes have been made to the farm details.
+     */
     private fun checkForChanges() {
         _hasChanges.value = _farmName.value != initialFarmName ||
                 _farmArea.value != initialFarmArea ||
                 _selectedUnit.value != initialSelectedUnit
     }
 
-    // Cargar unidades de medida desde SharedPreferences
+    /**
+     * Loads the available unit measures from SharedPreferences.
+     *
+     * @param context The current context, needed to access SharedPreferences.
+     */
     fun loadUnitMeasuresFromSharedPreferences(context: Context) {
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val units = sharedPreferencesHelper.getUnitMeasures()
@@ -94,7 +120,11 @@ class FarmEditViewModel : ViewModel() {
         }
     }
 
-    // Validar los datos de entrada
+    /**
+     * Validates the input fields for editing the farm.
+     *
+     * @return `true` if the inputs are valid, `false` otherwise.
+     */
     private fun validateInputs(): Boolean {
         if (_farmName.value.isBlank()) {
             errorMessage.value = "El nombre de la finca no puede estar vacío."
@@ -109,7 +139,13 @@ class FarmEditViewModel : ViewModel() {
 
         return true
     }
-
+    /**
+     * Initiates the process of updating the farm details.
+     *
+     * @param farmId The ID of the farm to be updated.
+     * @param navController The NavController for navigation.
+     * @param context The current context, needed for displaying toasts.
+     */
     fun updateFarmDetails(
         farmId: Int,
         navController: NavController,
@@ -179,8 +215,8 @@ class FarmEditViewModel : ViewModel() {
 
             override fun onFailure(call: Call<UpdateFarmResponse>, t: Throwable) {
                 isLoading.value = false
-                errorMessage.value = "Error de conexión: ${t.message}"
-                Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+                errorMessage.value = "Error de conexión"
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG).show()
             }
         })
     }

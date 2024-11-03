@@ -1,17 +1,26 @@
 package com.example.coffetech.common
 
 import Farm
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -29,19 +38,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -86,6 +104,7 @@ fun ReusableButton(
         colors = buttonColors
     ) {
         Text(text=text,
+            textAlign = TextAlign.Center, // Centra el texto horizontalmente
             style = MaterialTheme.typography.bodyLarge  // Aplicar estilo de texto para el botón
         )
     }
@@ -108,34 +127,38 @@ fun TopBarWithBackArrow(
     title: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .size(90.dp)
-            .height(90.dp)
-            .padding(16.dp)
-            .statusBarsPadding(), // Ajusta el padding para la barra de estado (notificaciones)
-
-
-        verticalAlignment = Alignment.CenterVertically
+            .height(74.dp) // Altura fija para la barra
+            .background(Color.White)
+            .padding(horizontal = 10.dp)
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                painter = painterResource(R.drawable.back_arrow),
-                contentDescription = "Back",
-                tint = Color(0xFF2B2B2B),
-                modifier = Modifier.size(56.dp)
-
-            )
-
+        // Icono alineado a la izquierda
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.align(Alignment.CenterStart)
+        ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.back_arrow),
+                    contentDescription = "Back",
+                    tint = Color(0xFF2B2B2B),
+                    modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
+                )
+            }
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
+
+        // Título centrado entre el ícono y el final de la pantalla
+        ReusableTittleSmall(
+            maxLines = 3,
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = Color(0xFF2B2B2B)
+            modifier = Modifier.align(Alignment.Center) // Céntralo en el espacio disponible
         )
-        Spacer(modifier = Modifier.weight(1f))
     }
 
 }
@@ -153,21 +176,38 @@ fun ReusableTextField(
     maxHeight: Dp = 1000.dp,
     margin: Dp = 8.dp,
     errorMessage: String = "",
-    charLimit: Int = 40, // Límite de caracteres por defecto a 100
+    charLimit: Int = 100, // Límite de caracteres por defecto a 100
+    isNumeric: Boolean = false // Nuevo parámetro para el teclado numérico
+
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+
+    // Expresión regular que detecta emojis y los filtra
+    val emojiRegex = "[\\p{So}\\p{Cn}]".toRegex() // Detecta emojis y caracteres no definidos
+    val numericRegex = "[^0-9]".toRegex()
+    val htmlRegex = "[<>\"&{}/]".toRegex() // Detecta caracteres peligrosos, incluidos {, }, y /
 
     Column {
         TextField(
             value = value.take(charLimit), // Limita la cantidad de caracteres a charLimit
             onValueChange = {
-                if (it.length <= charLimit) {
-                    onValueChange(it) // Solo permite cambios si no excede el límite
+                var filteredText = it.replace("\n", "").replace(emojiRegex, "") // Filtra los saltos de línea y emojis
+                    .replace(htmlRegex, "") // Elimina caracteres peligrosos
+
+                if (isNumeric) {
+                    filteredText = filteredText.replace(numericRegex, "") // Filtra caracteres no numéricos
+                }
+
+                if (filteredText.length <= charLimit) {
+                    onValueChange(filteredText) // Solo permite cambios si no excede el límite
                 }
             },
             placeholder = { Text(placeholder) },
             enabled = enabled,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = if (isNumeric) KeyboardType.Number else KeyboardType.Text
+            ),
             visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
@@ -231,6 +271,7 @@ fun ReusableTextField(
 
 
 
+
 @Composable
 fun ReusableTittleLarge(
     text: String,
@@ -266,7 +307,7 @@ fun ReusableTittleSmall(
 fun ReusableDescriptionText(
     text: String,
     modifier: Modifier = Modifier,
-    textAlign: TextAlign = TextAlign.Center,
+    textAlign: TextAlign = TextAlign.Start, // Alinear a la izquierda para el Row
     maxWidth: Dp = 300.dp // Ancho máximo configurable
 ) {
     Text(
@@ -274,8 +315,74 @@ fun ReusableDescriptionText(
         style = MaterialTheme.typography.bodyLarge,
         textAlign = textAlign,
         modifier = modifier
-            .fillMaxWidth() // Hace que el componente ocupe todo el ancho disponible
+            .wrapContentWidth() // En lugar de fillMaxWidth(), envuelve el contenido
             .widthIn(max = maxWidth) // Establece el ancho máximo del texto
+    )
+}
+
+@Composable
+fun ReusableDescriptionMediumText(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Start, // Alinear a la izquierda para el Row
+    maxWidth: Dp = 300.dp // Ancho máximo configurable
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        textAlign = textAlign,
+        modifier = modifier
+            .wrapContentWidth() // En lugar de fillMaxWidth(), envuelve el contenido
+            .widthIn(max = maxWidth) // Establece el ancho máximo del texto
+    )
+}
+
+
+
+@Composable
+fun TermsAndConditionsText() {
+    val context = LocalContext.current
+
+    // Accedemos a los atributos del estilo de texto que queremos usar
+    val bodyMediumStyle = MaterialTheme.typography.bodyMedium
+
+    // Construimos el texto anotado con el estilo aplicado
+    val annotatedText = buildAnnotatedString {
+        withStyle(style = SpanStyle(
+            fontSize = bodyMediumStyle.fontSize,
+            fontWeight = bodyMediumStyle.fontWeight ?: FontWeight.Normal,
+            fontFamily = bodyMediumStyle.fontFamily ?: FontFamily.Default,
+            color = Color.Gray // Color del texto regular
+        )) {
+            append("He leído y acepto los ")
+        }
+
+        // Aplicamos el estilo para la parte clickable
+        pushStringAnnotation(tag = "URL", annotation = "https://prueba-deploy--coffeetech.netlify.app/termsandconditions")
+        withStyle(style = SpanStyle(
+            fontSize = bodyMediumStyle.fontSize,
+            fontWeight = bodyMediumStyle.fontWeight ?: FontWeight.Bold,
+            fontFamily = bodyMediumStyle.fontFamily ?: FontFamily.Default,
+            color = Color.Black, // Color para el enlace
+            textDecoration = TextDecoration.Underline
+        )) {
+            append("Términos y Condiciones y Aviso de Privacidad")
+        }
+        pop()
+    }
+
+    // Texto clicable
+    ClickableText(
+        text = annotatedText,
+        onClick = { offset ->
+            annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                .firstOrNull()?.let { annotation ->
+                    // Abre la URL externa
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
+                    context.startActivity(intent)
+                }
+        },
+        modifier = Modifier.padding(start = 8.dp)
     )
 }
 
@@ -287,59 +394,84 @@ fun ReusableSearchBar(
     query: TextFieldValue,
     onQueryChanged: (TextFieldValue) -> Unit,
     text: String,
-    modifier: Modifier = Modifier, // Permitir que se pase un modificador externo
-    maxWidth: Dp = 300.dp, // Ancho máximo configurable como en ReusableTextField
-    cornerRadius: Dp = 28.dp
+    modifier: Modifier = Modifier,
+    maxWidth: Dp = 300.dp,
+    cornerRadius: Dp = 28.dp,
+    charLimit: Int = 60 // Límite de caracteres por defecto
+
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = modifier
             .border(width = 1.dp, color = Color.White, shape = RoundedCornerShape(cornerRadius))
             .background(Color.Transparent, shape = RoundedCornerShape(cornerRadius))
-            .widthIn(max = maxWidth) // Configura el ancho máximo igual que en ReusableTextField
-            .height(56.dp) // Mantiene la altura fija en 56.dp
+            .widthIn(max = maxWidth)
+            .height(56.dp)
+            .clickable {
+                focusRequester.requestFocus()
+            }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Color.White,
-                    shape = RoundedCornerShape(cornerRadius)
-                )
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChanged,
-                decorationBox = { innerTextField ->
+        BasicTextField(
+            value = query,
+            onValueChange = { newValue ->
+                // Limita el texto a 50 caracteres y evita saltos de línea
+                if (newValue.text.length <= charLimit && !newValue.text.contains("\n")) {
+                    onQueryChanged(newValue)
+                }
+            },
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+            decorationBox = { innerTextField ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Color.White,
+                            shape = RoundedCornerShape(cornerRadius)
+                        )
+                        .padding(horizontal = 16.dp)
+                        .horizontalScroll(scrollState), // Permite el desplazamiento horizontal
+
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Box(
-                        contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         if (query.text.isEmpty()) {
                             Text(
                                 text = text,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
                             )
                         }
                         innerTextField()
                     }
-                },
-                modifier = Modifier.fillMaxHeight()
-            )
-            Spacer(modifier = Modifier.width(8.dp)) // Espaciador entre el campo de texto y el ícono
 
-            Icon(
-                imageVector = Icons.Default.Search, // Puedes cambiar el ícono por el que prefieras
-                contentDescription = "Search Icon",
-                modifier = Modifier
-                    .size(24.dp) // Tamaño del ícono
-                    .align(Alignment.CenterVertically), // Alinea el ícono verticalmente en el centro
-                tint = Color.Gray
-            )
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon",
+                        tint = Color.Gray
+                    )
+                }
+            },
+            maxLines = 1, // Limita a una sola línea
+            modifier = Modifier
+                .fillMaxSize() // Hace que el BasicTextField llene todo el espacio disponible
+                .focusRequester(focusRequester)
+                .focusable()
+        )
+        // Asegura que el texto y el cursor se mantengan desplazados hacia el final
+        LaunchedEffect(query.text) {
+            scrollState.scrollTo(scrollState.maxValue)
         }
     }
 }
+
+
+
+
 
 
 @Composable
@@ -423,28 +555,30 @@ fun ReusableFieldLabel(
 @Composable
 fun ReusableTextButton(
     navController: NavController,
-    destination: String,  // Ruta a la que navegará cuando se presione cancelar
+    destination: String,  // Ruta a la que navegará cuando se presione el botón
+    onClick: (() -> Unit)? = null, // Parámetro onClick opcional
     modifier: Modifier = Modifier,
     text: String = "Cancelar",
     minWidth: Dp = 160.dp,  // Ancho mínimo predeterminado
     maxWidth: Dp = 300.dp,
 ) {
     TextButton(
-        onClick = { navController.navigate(destination) },
+        onClick = { onClick?.invoke() ?: navController.navigate(destination) },
         modifier = modifier
             .padding(bottom = 16.dp)
             .heightIn(min = 56.dp) // Altura mínima de 56dp
-            .widthIn(min = minWidth, max = maxWidth) // Ancho fijo de 300dp
-
+            .widthIn(min = minWidth, max = maxWidth) // Ancho fijo entre minWidth y maxWidth
     ) {
         Text(
             text,
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF49602D),
             textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth() // Asegura que el texto ocupe todo el ancho disponible
         )
     }
 }
+
 
 
 

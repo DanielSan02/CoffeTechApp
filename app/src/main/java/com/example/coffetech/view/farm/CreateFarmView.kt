@@ -2,7 +2,9 @@ package com.example.coffetech.view.farm
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +33,12 @@ import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.common.UnitDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.farm.CreateFarmViewModel
-
+/**
+ * Composable function that renders a view for creating a new farm.
+ *
+ * @param navController The [NavController] used for navigation between screens.
+ * @param viewModel The [CreateFarmViewModel] that manages the state and logic for creating a farm.
+ */
 @Composable
 fun CreateFarmView(
     navController: NavController,
@@ -70,6 +77,8 @@ fun CreateFarmView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp) // Añadir padding interno
+                    .verticalScroll(rememberScrollState()) // Hace que el contenido sea scrolleable
+
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -82,43 +91,83 @@ fun CreateFarmView(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Crear Finca",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                    style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
               // Sobrescribir el tamaño de la fuente
                         color = Color(0xFF49602D)      // Sobrescribir el color
                     ),
                     modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(45.dp))
+
+                Text(
+                    text = "Nombre",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Nombre de finca utilizando ReusableTextField
                 ReusableTextField(
                     value = farmName,
                     onValueChange = { viewModel.onFarmNameChange(it) },
-                    placeholder = "Nombre de la finca",
+                    placeholder = "Nombre de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmName.isNotEmpty() || !isFormSubmitted.value,
+                    charLimit = 50,
                     errorMessage = if (farmName.isEmpty() && isFormSubmitted.value) "El nombre de la finca no puede estar vacío" else ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Text(
+                    text = "Área",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
                 // Área de la finca utilizando ReusableTextField
                 ReusableTextField(
                     value = farmArea,
                     onValueChange = { viewModel.onFarmAreaChange(it) },
-                    placeholder = "Área de la finca",
+                    placeholder = "Área de finca",
                     modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
                     isValid = farmArea.isNotEmpty() || !isFormSubmitted.value,
+                    charLimit = 4,
+                    isNumeric = true,
                     errorMessage = if (farmArea.isEmpty() && isFormSubmitted.value) "El área de la finca no puede estar vacía" else ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Unidad de Medida",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
+                        // Sobrescribir el tamaño de la fuente
+                        color = Color(0xFF3F3D3D)      // Sobrescribir el color
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
 
                 // Unidad de medida
                 UnitDropdown(

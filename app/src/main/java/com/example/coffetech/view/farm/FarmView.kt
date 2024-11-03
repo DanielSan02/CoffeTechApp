@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -82,15 +83,17 @@ fun FarmView(
                 ReusableSearchBar(
                     query = query,
                     onQueryChanged = { viewModel.onSearchQueryChanged(it) },
-                    text = "Buscar finca por nombre"
+                    text = "Buscar finca por nombre",
+                    modifier = Modifier.fillMaxWidth()
+
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Dropdown menu for selecting user role
                 RoleDropdown(
-                    selectedRole = selectedRole, // Can be null
-                    onRoleChange = { viewModel.selectRole(it) }, // Role change handler
+                    selectedRole = selectedRole,
+                    onRoleChange = { viewModel.selectRole(it) },
                     roles = roles,
                     expanded = expanded,
                     onExpandedChange = { viewModel.setDropdownExpanded(it) },
@@ -127,18 +130,25 @@ fun FarmView(
                                 Spacer(modifier = Modifier.height(8.dp)) // Space between cards
                             }
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp)) // Ajusta la altura aquí según el tamaño de tu botón
+                        }
+
                     }
                 }
             }
 
-            // Floating action button for creating a new farm
-            FloatingActionButtonGroup(
-                onMainButtonClick = { navController.navigate("CreateFarmView") },
-                mainButtonIcon = painterResource(id = R.drawable.plus_icon),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd) // Align to the bottom right
-                    .padding(16.dp) // Padding for positioning
-            )
+            // Floating action button for creating a new farm, only if there's no error
+            if (errorMessage.isEmpty()) {
+                FloatingActionButtonGroup(
+                    onMainButtonClick = { navController.navigate("CreateFarmView") },
+                    mainButtonIcon = painterResource(id = R.drawable.plus_icon),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd) // Align to the bottom right
+                        .padding(16.dp) // Padding for positioning
+                )
+            }
+
         }
     }
 }

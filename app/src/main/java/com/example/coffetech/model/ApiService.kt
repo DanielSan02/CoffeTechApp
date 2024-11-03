@@ -3,6 +3,7 @@ package com.example.coffetech.model
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -43,11 +44,14 @@ data class RegisterResponse(
  *
  * @property email The user's email.
  * @property password The user's password.
+ * @property fcm_token The user's token cloud message firebase
  */
 data class LoginRequest(
     val email: String,
-    val password: String
+    val password: String,
+    val fcm_token: String? = null
 )
+
 
 /**
  * Data class representing the login response from the server.
@@ -313,6 +317,431 @@ data class UpdateFarmResponse(
     val data: FarmResponse
 )
 
+data class CreateInvitationRequest(
+    val email: String,
+    val suggested_role: String,
+    val farm_id: Int
+)
+
+data class CreateInvitationResponse(
+    val status: String,
+    val message: String
+)
+
+data class Notification(
+    val message: String,
+    val date: String,
+    val notification_type: String,
+    val farm_id: Int,
+    val reminder_time: String?,
+    val notifications_id: Int,
+    val user_id: Int,
+    val invitation_id: Int,
+    val notification_type_id: Int?,
+    val status: String
+)
+
+data class NotificationResponse(
+    val status: String,
+    val message: String,
+    val data: Any
+)
+
+/**
+ * Data class representing the list collaborators response from the server.
+ *
+ * @property status The status of the list collaborators request.
+ * @property message The message associated with the list collaborators response.
+ * @property data The list of collaborators returned by the server.
+ */
+data class ListCollaboratorResponse(
+    val status: String,
+    val message: String,
+    val data: List<CollaboratorResponse>
+)
+
+/**
+ * Data class representing an individual farm's details.
+ *
+ * @property farm_id The ID of the farm.
+ * @property name The name of the collaborator.
+ * @property email The email of the collaborator.
+ * @property role The role associated with the collaborator.
+ */
+
+data class CollaboratorResponse(
+    val user_id: Int,
+    val name: String,
+    val email: String,
+    val role: String
+)
+
+// Data class for editing collaborator request
+data class EditCollaboratorRequest(
+    val collaborator_user_id: Int,
+    val new_role: String
+)
+
+// Data class for editing collaborator response
+data class EditCollaboratorResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
+)
+
+data class CoffeeVariety(
+    val coffee_variety_id: Int,
+    val name: String
+)
+
+// Definir la estructura de Permiso
+data class Permission(
+    val permission_id: Int,
+    val name: String,
+    val description: String
+)
+
+// Actualización de Role para incluir la lista de permisos
+data class Role(
+    val role_id: Int,
+    val name: String,
+    val permissions: List<Permission> // Lista de permisos asociados al rol
+)
+
+
+data class UnitMeasure(
+    val unit_of_measure_id: Int,
+    val name: String,
+    val abbreviation: String,
+    val unit_of_measure_type: UnitMeasureType
+)
+
+data class UnitMeasureType(
+    val unit_of_measure_type_id: Int,
+    val name: String
+)
+
+data class CreatePlotRequest(
+    val name: String,
+    val coffee_variety_name: String,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String,
+    val farm_id: Int
+)
+
+
+data class Plot(
+    val plot_id: Int,
+    val name: String,
+    val coffee_variety_name: String,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String
+)
+
+data class ListPlotsResponse(
+    val status: String,
+    val message: String,
+    val data: PlotsData
+)
+
+data class PlotsData(
+    val plots: List<Plot>
+)
+
+// En com.example.coffetech.model
+
+data class GetPlotResponse(
+    val status: String,
+    val message: String,
+    val data: PlotDataWrapper
+)
+
+data class PlotDataWrapper(
+    val plot: Plot
+)
+
+
+// En com.example.coffetech.model
+
+/**
+ * Solicitud para actualizar la información general de un lote.
+ *
+ * @property plot_id El ID del lote a actualizar.
+ * @property name El nuevo nombre del lote.
+ * @property coffee_variety_name La nueva variedad de café del lote.
+ */
+data class UpdatePlotGeneralInfoRequest(
+    val plot_id: Int,
+    val name: String,
+    val coffee_variety_name: String
+)
+
+/**
+ * Respuesta de la API para la actualización de la información general de un lote.
+ *
+ * @property status El estado de la operación ("success" o "error").
+ * @property message El mensaje asociado a la respuesta.
+ * @property data Los datos actualizados del lote.
+ */
+data class UpdatePlotGeneralInfoResponse(
+    val status: String,
+    val message: String,
+    val data: Plot? = null
+)
+// UpdatePlotLocationRequest.kt
+
+data class UpdatePlotLocationRequest(
+    val plot_id: Int,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String
+)
+
+
+// UpdatePlotLocationResponse.kt
+data class UpdatePlotLocationResponse(
+    val status: String,
+    val message: String,
+    val data: PlotLocationData
+)
+
+data class PlotLocationData(
+    val plot_id: Int,
+    val latitude: String,
+    val longitude: String,
+    val altitude: String
+)
+
+//MODULE FLOWERINGS
+data class Flowering(
+    val flowering_id: Int,
+    val plot_id: Int,
+    val flowering_date: String,
+    val harvest_date: String? = null,
+    val status: String,
+    val flowering_type_name: String,
+)
+
+data class ListFloweringsResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringsData
+)
+
+data class GetFloweringHistoryResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringHistoryData
+)
+
+data class FloweringHistoryData(
+    val flowerings: List<Flowering>
+)
+
+
+data class FloweringDataWrapper(
+    val flowering: Flowering
+)
+
+
+data class GetActiveFloweringsResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringsData
+)
+
+data class FloweringsData(
+    val flowerings: List<Flowering>
+)
+
+data class CreateFloweringRequest(
+    val plot_id: Int,
+    val flowering_type_name: String,
+    val flowering_date: String, // Formato "YYYY-MM-DD"
+    val harvest_date: String? = null // Opcional
+)
+
+
+data class CreateFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringDataWrapper? = null
+)
+
+data class UpdateFloweringRequest(
+    val flowering_id: Int,
+    val harvest_date: String
+)
+
+data class DeleteFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
+)
+
+data class UpdateFloweringResponse(
+    val status: String,
+    val message: String,
+    val data: FloweringDataWrapper? = null
+)
+
+data class Task(
+    val task: String,
+    val start_date: String,
+    val end_date: String,
+    val programar: String // Agregado el campo 'programar'
+)
+
+data class RecommendationsData(
+    val recommendations: Recommendation
+)
+
+data class Recommendation(
+    val flowering_id: Int,
+    val flowering_type_name: String,
+    val flowering_date: String,
+    val current_date: String,
+    val tasks: List<Task>
+)
+
+data class GetRecommendationsResponse(
+    val status: String,
+    val message: String,
+    val data: RecommendationsData
+)
+
+//CulturalWorksTask
+
+data class CulturalWorkTask(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val owner_name: String,
+    val collaborator_user_id: Int,
+    val collaborator_name: String,
+    val status: String,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+data class CulturalWorkTasksData(
+    val tasks: List<CulturalWorkTask>
+)
+
+data class ListCulturalWorkTasksResponse(
+    val status: String,
+    val message: String,
+    val data: CulturalWorkTasksData
+)
+
+// Data class para un colaborador
+data class Collaborator(
+    val user_id: Int,
+    val name: String
+)
+
+// Data class para la respuesta de colaboradores
+data class CollaboratorsData(
+    val collaborators: List<Collaborator>
+)
+
+data class CollaboratorsResponse(
+    val status: String,
+    val message: String,
+    val data: CollaboratorsData
+)
+
+// Data class para la solicitud de creación de tarea cultural
+data class CreateCulturalWorkTaskRequest(
+    val cultural_works_name: String,
+    val plot_id: Int,
+    val reminder_owner: Boolean,
+    val reminder_collaborator: Boolean,
+    val collaborator_user_id: Int,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+// Data class para la respuesta de creación de tarea cultural
+data class CreateCulturalWorkTaskResponseData(
+    val cultural_work_tasks_id: Int,
+    val cultural_works_id: Int,
+    val plot_id: Int,
+    val status: String,
+    val reminder_owner: Boolean,
+    val reminder_collaborator: Boolean,
+    val collaborator_user_id: Int,
+    val owner_user_id: Int,
+    val created_at: String,
+    val task_date: String
+)
+
+data class CreateCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: CreateCulturalWorkTaskResponseData
+)
+
+
+data class GeneralCulturalWorkTask(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_id: Int,
+    val collaborator_name: String,
+    val owner_name: String,
+    val status: String,
+    val task_date: String, // Formato "yyyy-MM-dd"
+    val farm_name: String,
+    val plot_name: String
+)
+
+data class GeneralCulturalWorkTasksData(
+    val tasks: List<GeneralCulturalWorkTask>
+)
+
+data class GeneralListCulturalWorkTasksResponse(
+    val status: String,
+    val message: String,
+    val data: GeneralCulturalWorkTasksData
+)
+
+// Data class para la solicitud de actualización de tarea cultural
+data class UpdateCulturalWorkTaskRequest(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_user_id: Int,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+// Data class para la respuesta de actualización de tarea cultural
+data class UpdateCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: UpdateCulturalWorkTaskData
+)
+
+data class UpdateCulturalWorkTaskData(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_user_id: Int,
+    val task_date: String,
+    val status: String
+)
+
+// Data class para la solicitud de eliminación de tarea cultural
+data class DeleteCulturalWorkTaskRequest(
+    val cultural_work_task_id: Int
+)
+
+// Data class para la respuesta de eliminación de tarea cultural
+data class DeleteCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: DeleteCulturalWorkTaskData
+)
+
+data class DeleteCulturalWorkTaskData(
+    val cultural_work_task_id: Int
+)
 // API service interface for interacting with backend services
 
 /**
@@ -431,6 +860,10 @@ interface ApiService {
      * @param request The request payload containing farm details.
      * @return A [Call] object for the create farm response.
      */
+
+    @GET("/utils/list-coffee-varieties")
+    fun getCoffeeVarieties(): Call<ApiResponse<List<CoffeeVariety>>>
+
     @POST("/farm/create-farm")
     fun createFarm(
         @Query("session_token") sessionToken: String,
@@ -463,4 +896,196 @@ interface ApiService {
         @Body request: UpdateFarmRequest
     ): Call<UpdateFarmResponse>
 
+    @POST("/invitation/create-invitation")
+    fun createInvitation(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateInvitationRequest
+    ): Call<CreateInvitationResponse>
+
+    @GET("/notification/get-notification")
+    fun getNotifications(
+        @Query("session_token") sessionToken: String
+    ): Call<NotificationResponse>
+
+    @POST("/invitation/respond-invitation/{invitation_id}")
+    fun respondInvitation(
+        @Path("invitation_id") invitationId: Int,
+        @Query("action") action: String,
+        @Query("session_token") sessionToken: String
+    ): Call<ApiResponse<Any>>
+
+    /**
+     * Lists all collaborators associated with the user's account.
+     *
+     * @param sessionToken The session token of the user making the request.
+     * @return A [Call] object for the list farm response.
+     */
+    @GET("/collaborators/list-collaborators")
+    fun listCollaborators(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListCollaboratorResponse>
+
+    @POST("/collaborators/edit-collaborator-role")
+    fun editCollaboratorRole(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String,
+        @Body request: EditCollaboratorRequest
+    ): Call<EditCollaboratorResponse>
+
+    @POST("/collaborators/delete-collaborator")
+    fun deleteCollaborator(
+        @Query("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String,
+        @Body requestBody: Map<String, Int>
+    ): Call<Void>
+
+    @POST("/plots/create-plot")
+    fun createPlot(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreatePlotRequest
+    ): Call<CreateFarmResponse>
+
+    @GET("/plots/list-plots/{farm_id}")
+    fun listPlots(
+        @Path("farm_id") farmId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListPlotsResponse>
+
+
+    @GET("/plots/get-plot/{plot_id}")
+    fun getPlot(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetPlotResponse>
+
+
+    /**
+     * Actualiza la información general de un lote.
+     *
+     * @param sessionToken El token de sesión del usuario.
+     * @param request El cuerpo de la solicitud con los datos a actualizar.
+     * @return Un [Call] con la respuesta de la actualización.
+     */
+    @POST("/plots/update-plot-general-info")
+    fun updatePlotGeneralInfo(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdatePlotGeneralInfoRequest
+    ): Call<UpdatePlotGeneralInfoResponse>
+
+    @POST("/plots/update-plot-location")
+    fun updatePlotLocation(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdatePlotLocationRequest
+    ): Call<UpdatePlotLocationResponse>
+
+    @GET("/flowering/get-active-flowerings/{plot_id}")
+    fun getActiveFlowerings(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetActiveFloweringsResponse>
+
+    @GET("/flowering/get-flowering-history/{plot_id}")
+    fun getFloweringHistory(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetFloweringHistoryResponse>
+
+    /**
+     * Crea una nueva floración.
+     *
+     * @param sessionToken El token de sesión del usuario.
+     * @param request La solicitud para crear la floración.
+     * @return Un [Call] con la respuesta de la creación de la floración.
+     */
+    @POST("/flowering/create-flowering")
+    fun createFlowering(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateFloweringRequest
+    ): Call<CreateFloweringResponse>
+
+    @POST("flowering/update-flowering")
+    fun updateFlowering(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdateFloweringRequest
+    ): Call<UpdateFloweringResponse>
+
+    @POST("flowering/delete-flowering/{flowering_id}")
+    fun deleteFlowering(
+        @Path("flowering_id") floweringId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<DeleteFloweringResponse>
+
+    @GET("/flowering/get-recommendations/{flowering_id}")
+    fun getRecommendations(
+        @Path("flowering_id") floweringId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<GetRecommendationsResponse>
+
+    // CulturalWorkTask
+
+    @GET("/culturalWorkTask/list-cultural-work-tasks/{plot_id}")
+    fun listCulturalWorkTasks(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListCulturalWorkTasksResponse>
+
+    @GET("/culturalWorkTask/collaborators-with-complete-permission")
+    suspend fun getCollaboratorsWithCompletePermission(
+        @Query("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): CollaboratorsResponse
+
+    @POST("/culturalWorkTask/create-cultural-work-task")
+    suspend fun createCulturalWorkTask(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateCulturalWorkTaskRequest
+    ): CreateCulturalWorkTaskResponse
+
+
+    @GET("/culturalWorkTask/my-cultural-work-tasks")
+    suspend fun getMyCulturalWorkTasks(
+        @Query("session_token") sessionToken: String
+    ): GeneralListCulturalWorkTasksResponse // Usamos la nueva clase de respuesta
+
+    @POST("/culturalWorkTask/update-cultural-work-task")
+    suspend fun updateCulturalWorkTask(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdateCulturalWorkTaskRequest
+    ): UpdateCulturalWorkTaskResponse
+
+    @POST("/culturalWorkTask/delete-cultural-work-task")
+    suspend fun deleteCulturalWorkTask(
+        @Header("X-Session-Token") sessionToken: String,
+        @Body request: DeleteCulturalWorkTaskRequest
+    ): DeleteCulturalWorkTaskResponse
+
+
 }
+
+// OpenElevationResponse.kt
+
+data class OpenElevationResponse(
+    val results: List<ElevationResult>
+)
+
+data class ElevationResult(
+    val elevation: Double,
+    val location: Location
+)
+
+data class Location(
+    val latitude: Double,
+    val longitude: Double
+)
+
+
+// OpenElevationService.kt
+
+interface OpenElevationService {
+    @GET("/api/v1/lookup")
+    suspend fun getElevation(
+        @Query("locations") locations: String
+    ): OpenElevationResponse
+}
+

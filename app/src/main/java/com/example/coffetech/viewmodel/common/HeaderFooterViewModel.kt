@@ -31,7 +31,12 @@ class HeaderFooterViewModel : ViewModel() {
         toggleMenu() // Cierra el menú después de navegar
     }
 
-    fun onNotificationsClick() {}
+    fun onNotificationsClick(navController: NavController) {
+        navController.navigate(Routes.NotificationView)
+        toggleMenu() // Cierra el menú después de navegar
+    }
+
+
     fun onHelpClick() {}
 
     fun onLogoutClick(context: Context, navController: NavController) {
@@ -70,8 +75,8 @@ class HeaderFooterViewModel : ViewModel() {
             }
 
             override fun onFailure(call: Call<LogoutResponse>, t: Throwable) {
-                Log.e("HeaderFooterViewModel", "Fallo en la conexión: ${t.message}")
-                Toast.makeText(context, "Error de conexión al cerrar sesión", Toast.LENGTH_LONG).show()
+                Log.e("HeaderFooterViewModel", "Fallo en la conexión")
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -94,14 +99,15 @@ class HeaderFooterViewModel : ViewModel() {
 
     }
 
+
     fun onReportsClick(navController: NavController, context: Context) {
         Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
 
         //navController.navigate("reportsView") // Navegar a la vista de reportes (deberás crear esta ruta)
     }
 
-    fun onCostsClick(navController: NavController, context: Context) {
-        Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
+    fun onLaborClick(navController: NavController, context: Context) {
+        navController.navigate(Routes.CulturalWorkTaskGeneralView) // Navegar a la vista de Fincas
 
         //navController.navigate("costsView") // Navegar a la vista de costos (deberás crear esta ruta)
     }

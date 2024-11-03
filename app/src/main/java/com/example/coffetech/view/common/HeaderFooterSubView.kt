@@ -1,4 +1,4 @@
-package com.example.coffetech.view.common
+    package com.example.coffetech.view.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -53,8 +53,11 @@ fun HeaderFooterSubView(
     modifier: Modifier = Modifier,
     title: String,
     navController: NavController,
+    onBackClick: () -> Unit = {},
     currentView: String = "",
-    content: @Composable () -> Unit
+
+    content: @Composable () -> Unit,
+
 ) {
     val headerFooterSubViewModel: HeaderFooterViewModel = viewModel()
     val context = LocalContext.current
@@ -67,9 +70,9 @@ fun HeaderFooterSubView(
         topBar = {
             // Top bar with a back arrow and a title
             TopBarWithBackArrow(
-                onBackClick = { navController.navigate(Routes.FarmView) },
                 title = title,
                 backgroundColor = Color.White,
+                onBackClick = onBackClick
             )
         },
         bottomBar = {
@@ -81,7 +84,7 @@ fun HeaderFooterSubView(
                 onFincasClick = { headerFooterSubViewModel.onFincasClick(navController) },
                 onCentralButtonClick = { headerFooterSubViewModel.onCentralButtonClick(context) },
                 onReportsClick = { headerFooterSubViewModel.onReportsClick(navController, context) },
-                onCostsClick = { headerFooterSubViewModel.onCostsClick(navController, context) },
+                onLaborClick = { headerFooterSubViewModel.onLaborClick(navController, context) },
             )
         }
     ) { paddingValues ->
@@ -109,10 +112,13 @@ fun HeaderFooterViewSubPreview() {
     HeaderFooterSubView(
         title = "Nombre de finca",
         currentView = "Fincas",
-        navController = navController
+        navController = navController,
     ) {
         // Example content in the main area
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
             Text("Contenido Principal")
         }
     }
@@ -133,46 +139,42 @@ fun TopBarWithBackArrow(
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(74.dp)  // Ajustamos solo la altura
+            .height(74.dp) // Altura fija para la barra
             .background(backgroundColor)
             .padding(horizontal = 10.dp)
     ) {
-        // Back arrow button, alineado a la izquierda
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
+        // Icono alineado a la izquierda
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.align(Alignment.CenterStart)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.back_arrow),
-                contentDescription = "Back",
-                tint = Color(0xFF2B2B2B),
-                modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
-            )
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.size(56.dp) // Tamaño del área del botón de retroceso
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.back_arrow),
+                    contentDescription = "Back",
+                    tint = Color(0xFF2B2B2B),
+                    modifier = Modifier.size(30.dp) // Tamaño del ícono de la flecha
+                )
+            }
         }
 
-        // Espaciador para el lado izquierdo
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Título centrado
-        Box(
-            modifier = Modifier.weight(8f), // Ocupa más espacio central
-            contentAlignment = Alignment.Center // Asegura que el texto esté centrado
-        ) {
-            ReusableTittleSmall(
-                text = title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        // Espaciador para el lado derecho, para equilibrar el diseño
-        Spacer(modifier = Modifier.weight(1f))
+        // Título centrado entre el ícono y el final de la pantalla
+        ReusableTittleSmall(
+            maxLines = 3,
+            text = title,
+            modifier = Modifier.align(Alignment.Center) // Céntralo en el espacio disponible
+        )
     }
 }
+
+
 
 
 

@@ -1,5 +1,6 @@
 package com.example.coffetech.view.flowering
 
+import android.net.Uri
 import android.widget.Toast
 import com.example.coffetech.viewmodel.flowering.RecommendationFloweringViewModel
 import androidx.compose.foundation.background
@@ -114,8 +115,15 @@ fun RecommendationFloweringView(
                     TasksList(
                         tasks = tasks,
                         onProgramClick = { task ->
-                            Toast.makeText(context, "Programar tarea: ${task.task}", Toast.LENGTH_SHORT).show()
-                        },
+                            val tipoLabor = if (task.task == "Chequeo de Salud") "Chequeo de Salud" else "Chequeo de estado de maduración"
+                            // Asegúrate de codificar la fecha si contiene caracteres especiales
+                            val encodedDate = Uri.encode(currentDate)
+                            val encodedPlotName = Uri.encode(plotName)
+                            val encodedTipoLabor = Uri.encode(tipoLabor)
+                            navController.navigate(
+                                "${Routes.AddCulturalWorkView2}/$plotId/$encodedPlotName/$encodedTipoLabor/$encodedDate"
+                            )
+                                         },
                         modifier = Modifier.fillMaxWidth()
                     )
 

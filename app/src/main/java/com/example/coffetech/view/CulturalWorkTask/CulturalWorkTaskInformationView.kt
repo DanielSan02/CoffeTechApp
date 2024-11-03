@@ -161,8 +161,10 @@ fun CulturalWorkTaskInformationView(
                                 CulturalWorkTaskCard(task = task, onEdit = {
                                     Log.d("CulturalWorkTaskInfoView", "Editar tarea: ${task.cultural_works_name}")
                                     // Navegar a la pantalla de edición, pasando el ID de la tarea
-                                    navController.navigate("EditCulturalWorkTaskView/${task.cultural_work_task_id}")
-                                })
+                                    navController.navigate(
+                                        "${Routes.EditCulturalWorkView}/${task.cultural_work_task_id ?: 0}/${task.cultural_works_name ?: ""}/${task.collaborator_user_id ?: 0}/${task.collaborator_name ?: ""}/${task.task_date ?: ""}/$plotName/$plotId"
+                                    )
+                            })
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }

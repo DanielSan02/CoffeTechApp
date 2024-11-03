@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.coffetech.Routes.Routes
 import com.example.coffetech.Routes.Routes.AddFloweringView
+import com.example.coffetech.Routes.Routes.EditCulturalWorkView
 import com.example.coffetech.Routes.Routes.EditFloweringView
 import com.example.coffetech.Routes.Routes.FloweringInformationView
 import com.example.coffetech.utils.GlobalEventBus
@@ -39,6 +40,7 @@ import com.example.coffetech.view.CulturalWorkTask.AddCulturalWorkView1
 import com.example.coffetech.view.CulturalWorkTask.AddCulturalWorkView2
 import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskGeneralView
 import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskInformationView
+import com.example.coffetech.view.CulturalWorkTask.EditCulturalWorkView
 import com.example.coffetech.view.CulturalWorkTask.ReminderCulturalWorkView
 import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
@@ -708,6 +710,49 @@ fun AppNavHost(context: Context) {
                 // Prevents back navigation gesture here
             }
         }
+
+        composable(
+            route = "${Routes.EditCulturalWorkView}/{cultural_work_task_id}/{cultural_works_name}/{collaborator_user_id}/{collaborator_name}/{task_date}/{plotName}/{plotId}",
+            arguments = listOf(
+                navArgument("cultural_work_task_id") { type = NavType.IntType },
+                navArgument("cultural_works_name") { type = NavType.StringType },
+                navArgument("collaborator_user_id") { type = NavType.IntType },
+                navArgument("collaborator_name") { type = NavType.StringType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("plotId") { type = NavType.IntType },
+
+
+                navArgument("task_date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            // Recuperación de los datos de la entrada JSON
+            val culturalWorkTaskId = backStackEntry.arguments?.getInt("cultural_work_task_id") ?: 0
+            val culturalWorksName = backStackEntry.arguments?.getString("cultural_works_name") ?: ""
+            val collaboratorUserId = backStackEntry.arguments?.getInt("collaborator_user_id") ?: 0
+            val collaborator_name = backStackEntry.arguments?.getString("collaborator_name") ?: ""
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+
+            val taskDate = backStackEntry.arguments?.getString("task_date") ?: ""
+
+            // Desactivar el gesto de retroceso
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+
+            // Llamada al View que usará estos argumentos
+            EditCulturalWorkView(
+                navController = navController,
+                culturalWorkTaskId = culturalWorkTaskId,
+                culturalWorksName = culturalWorksName,
+                collaboratorUserId = collaboratorUserId,
+                collaborator_name = collaborator_name,
+                taskDate = taskDate,
+                plotName = plotName,
+                plotId = plotId
+                )
+        }
+
 
 
 

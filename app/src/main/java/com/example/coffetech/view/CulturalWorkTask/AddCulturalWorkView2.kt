@@ -1,5 +1,6 @@
 package com.example.coffetech.view.CulturalWorkTask
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,7 @@ import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel2
@@ -94,7 +96,12 @@ fun AddCulturalWorkView2(
                 ) {
                     BackButton(
                         navController = navController,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(32.dp),
+                        onClick = {
+                            // Retrocede dos veces en la pila de navegación
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
                     )
                 }
 
@@ -207,6 +214,22 @@ fun AddCulturalWorkView2(
                     buttonType = ButtonType.Green, // Siempre verde
                     enabled = selectedCollaboratorId != null && !isSendingRequest && collaborators.isNotEmpty()
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ReusableTextButton(
+                    navController = navController,
+                    destination = "", // Puedes pasar una cadena vacía o una ruta predeterminada
+                    text = "Volver",
+                    modifier = Modifier
+                        .size(width = 160.dp, height = 54.dp)
+                        .align(Alignment.CenterHorizontally),
+                    onClick = {
+                        // Realiza dos veces popBackStack para retroceder dos pantallas
+                        navController.popBackStack()
+                    }
+                )
+
+
             }
         }
     }

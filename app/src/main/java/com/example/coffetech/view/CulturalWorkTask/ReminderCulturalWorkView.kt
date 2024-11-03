@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ReusableButton
+import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.ReminderViewModel
 
@@ -63,7 +64,12 @@ fun ReminderCulturalWorkView(
                 ) {
                     BackButton(
                         navController = navController,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(32.dp),
+                        onClick = {
+                            navController.popBackStack()
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
                     )
                 }
 
@@ -169,6 +175,20 @@ fun ReminderCulturalWorkView(
                         .height(48.dp),
                     buttonType = ButtonType.Green,
                     enabled = !isLoading
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ReusableTextButton(
+                    navController = navController,
+                    destination = "", // Puedes pasar una cadena vacía o una ruta predeterminada
+                    text = "Volver",
+                    modifier = Modifier
+                        .size(width = 160.dp, height = 54.dp)
+                        .align(Alignment.CenterHorizontally),
+                    onClick = {
+                        // Realiza dos veces popBackStack para retroceder dos pantallas
+                        navController.popBackStack()
+                    }
                 )
             }
         }

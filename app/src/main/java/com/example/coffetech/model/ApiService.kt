@@ -3,6 +3,7 @@ package com.example.coffetech.model
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -617,6 +618,7 @@ data class CulturalWorkTask(
     val cultural_work_task_id: Int,
     val cultural_works_name: String,
     val owner_name: String,
+    val collaborator_user_id: Int,
     val collaborator_name: String,
     val status: String,
     val task_date: String // Formato "yyyy-MM-dd"
@@ -700,6 +702,45 @@ data class GeneralListCulturalWorkTasksResponse(
     val status: String,
     val message: String,
     val data: GeneralCulturalWorkTasksData
+)
+
+// Data class para la solicitud de actualización de tarea cultural
+data class UpdateCulturalWorkTaskRequest(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_user_id: Int,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+// Data class para la respuesta de actualización de tarea cultural
+data class UpdateCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: UpdateCulturalWorkTaskData
+)
+
+data class UpdateCulturalWorkTaskData(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_user_id: Int,
+    val task_date: String,
+    val status: String
+)
+
+// Data class para la solicitud de eliminación de tarea cultural
+data class DeleteCulturalWorkTaskRequest(
+    val cultural_work_task_id: Int
+)
+
+// Data class para la respuesta de eliminación de tarea cultural
+data class DeleteCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: DeleteCulturalWorkTaskData
+)
+
+data class DeleteCulturalWorkTaskData(
+    val cultural_work_task_id: Int
 )
 // API service interface for interacting with backend services
 
@@ -1007,6 +1048,17 @@ interface ApiService {
         @Query("session_token") sessionToken: String
     ): GeneralListCulturalWorkTasksResponse // Usamos la nueva clase de respuesta
 
+    @POST("/culturalWorkTask/update-cultural-work-task")
+    suspend fun updateCulturalWorkTask(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdateCulturalWorkTaskRequest
+    ): UpdateCulturalWorkTaskResponse
+
+    @POST("/culturalWorkTask/delete-cultural-work-task")
+    suspend fun deleteCulturalWorkTask(
+        @Header("X-Session-Token") sessionToken: String,
+        @Body request: DeleteCulturalWorkTaskRequest
+    ): DeleteCulturalWorkTaskResponse
 
 
 }

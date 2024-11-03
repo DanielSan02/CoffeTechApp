@@ -1,6 +1,7 @@
 package com.example.coffetech.viewmodel.CulturalWorkTask
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -130,6 +131,8 @@ class AddCulturalWorkViewModel2 : ViewModel() {
                     val response = RetrofitInstance.api.createCulturalWorkTask(sessionToken, request)
                     if (response.status == "success") {
                         // Navegar dos pantallas atrás
+                        Toast.makeText(context, "Tarea Creada correctamente", Toast.LENGTH_SHORT).show()
+
                         navController.popBackStack() // Volver una pantalla
                         navController.popBackStack() // Volver otra pantalla
                     } else {

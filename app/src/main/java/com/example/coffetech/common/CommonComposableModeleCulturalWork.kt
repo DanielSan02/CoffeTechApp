@@ -152,8 +152,8 @@ fun CulturalWorkTaskGeneralCard(
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -163,7 +163,9 @@ fun CulturalWorkTaskGeneralCard(
                 text = "Asignada por: ${task.owner_name}",
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -173,7 +175,9 @@ fun CulturalWorkTaskGeneralCard(
                 text = "Estado: ${task.status}",
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -182,7 +186,9 @@ fun CulturalWorkTaskGeneralCard(
             Text(
                 text = "Fecha: $formattedDate",
                 color = Color.Black,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -244,7 +250,7 @@ fun CulturalWorkTaskCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f) .padding(end = 40.dp)
             ) {
                 // Nombre de la tarea
                 Text(
@@ -252,8 +258,8 @@ fun CulturalWorkTaskCard(
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -263,7 +269,9 @@ fun CulturalWorkTaskCard(
                     text = "Asignado a: ${task.collaborator_name}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.height(2.dp))
 
@@ -271,7 +279,9 @@ fun CulturalWorkTaskCard(
                     text = "Asignado por: ${task.owner_name}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -281,7 +291,9 @@ fun CulturalWorkTaskCard(
                     text = "Estado: ${task.status}",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -290,7 +302,9 @@ fun CulturalWorkTaskCard(
                 Text(
                     text = "Fecha: $formattedDate",
                     color = Color.Black,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
@@ -300,7 +314,7 @@ fun CulturalWorkTaskCard(
                     onClick = { onEdit?.invoke() },
                     modifier = Modifier
                         .offset(x = -10.dp)
-                        .size(24.dp)
+                        .size(20.dp)
                         .background(Color(0xFFB31D34), shape = CircleShape)
                 ) {
                     Icon(
@@ -314,6 +328,7 @@ fun CulturalWorkTaskCard(
         }
     }
 }
+
 
 
 
@@ -845,6 +860,96 @@ fun OrderFilterDropdown(
                         onSelectedOrderChange(option)
                         expanded = false
                     }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CollaboratorDropdownWithId(
+    selectedCollaboratorId: Int?,
+    collaborators: List<Collaborator>,
+    expandedArrowDropUp: Painter,
+    arrowDropDown: Painter,
+    onCollaboratorChange: (Collaborator) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val selectedCollaborator = collaborators.find { it.user_id == selectedCollaboratorId }
+    val selectedCollaboratorName = selectedCollaborator?.name ?: "Seleccione un colaborador"
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(bottom = 5.dp)
+                .padding(horizontal = 8.dp)
+                .background(Color.White, shape = RoundedCornerShape(20.dp))
+                .size(width = 300.dp, height = 56.dp)
+        ) {
+            OutlinedButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF49602D)
+                ),
+                contentPadding = PaddingValues(start = 10.dp, end = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(3.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedCollaboratorName,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        painter = if (expanded) expandedArrowDropUp else arrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(0xFF5D8032)
+                    )
+                }
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .widthIn(max = 200.dp)
+        ) {
+            collaborators.forEach { collaborator ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = collaborator.name.trim(),
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                        )
+                    },
+                    onClick = {
+                        onCollaboratorChange(collaborator)
+                        expanded = false
+                    },
+                    modifier = Modifier.padding(vertical = 0.dp),
+                    contentPadding = PaddingValues(vertical = 0.dp, horizontal = 5.dp)
                 )
             }
         }

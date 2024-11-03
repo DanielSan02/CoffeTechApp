@@ -1,6 +1,7 @@
 package com.example.coffetech.viewmodel.CulturalWorkTask
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -72,6 +73,8 @@ class ReminderViewModel : ViewModel() {
                 // Realizar la solicitud a la API
                 val response = RetrofitInstance.api.createCulturalWorkTask(sessionToken, request)
                 if (response.status == "success") {
+                    Toast.makeText(context, "Tarea Creada correctamente", Toast.LENGTH_SHORT).show()
+
                     // Navegar tres pantallas atrás
                     navController.popBackStack() // Volver una pantalla
                     navController.popBackStack() // Volver otra pantalla

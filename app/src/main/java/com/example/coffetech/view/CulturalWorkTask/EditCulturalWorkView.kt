@@ -32,36 +32,59 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel1
 import com.example.coffetech.viewmodel.CulturalWorkTask.EditCulturalWorkViewModel
 
-
 @Composable
 fun EditCulturalWorkView(
     navController: NavController,
-    farmId: Int,
-    plotName: String = "",
-    selectedVariety: String = "",
+    culturalWorkTaskId: Int,
+    culturalWorksName: String,
+    collaboratorUserId: Int,
+    collaborator_name: String,
+    taskDate: String,
+    plotName: String,
+    plotId: Int, // Añade plotId como parámetro
     viewModel: EditCulturalWorkViewModel = viewModel()
 ) {
-    val flowering_date by viewModel.flowering_date.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val typeCulturalWork by viewModel.typeCulturalWork.collectAsState()
-    val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
-    val showDeleteConfirmation = remember { mutableStateOf(false) }
-
-    // Variable para indicar si el formulario fue enviado
-
-    // Cargar las variedades de café
     val context = LocalContext.current
-    LaunchedEffect(Unit) {}
 
-    /*// Inicializar el ViewModel con los valores pasados si están presentes
-    LaunchedEffect(plotName, selectedVariety) {
-        if (plotName.isNotEmpty()) {
-            viewModel.onPlotNameChange(plotName)
+    // Obtener los estados del ViewModel
+    val collaborators by viewModel.collaborators.collectAsState()
+    val selectedCollaboratorId by viewModel.selectedCollaboratorId.collectAsState()
+    val isFetchingCollaborators by viewModel.isFetchingCollaborators.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isSaveEnabled by viewModel.isSaveEnabled.collectAsState()
+    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
+    val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
+
+    // Obtener otros estados necesarios
+    val selectedCulturalWork by viewModel.selectedCulturalWork.collectAsState()
+    val selectedDate by viewModel.taskDate.collectAsState()
+
+    // Inicializa los datos en el ViewModel
+    LaunchedEffect(Unit) {
+        viewModel.initialize(
+            culturalWorkTaskId,
+            culturalWorksName,
+            collaboratorUserId,
+            collaborator_name,
+            taskDate,
+            plotId,
+            context
+        )
+    }
+
+
+    // Mostrar mensajes de error si los hay
+    if (errorMessage != null) {
+        LaunchedEffect(errorMessage) {
+            // Aquí podrías mostrar un Snackbar o cualquier otro mecanismo para notificar el error
         }
-        if (selectedVariety.isNotEmpty()) {
-            viewModel.onVarietyChange(selectedVariety)
-        }
-    }*/
+        Text(
+            text = errorMessage ?: "",
+            color = Color.Red,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -80,9 +103,7 @@ fun EditCulturalWorkView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-
                 horizontalAlignment = Alignment.CenterHorizontally
-
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -91,7 +112,6 @@ fun EditCulturalWorkView(
                 ) {
                     BackButton(
                         navController = navController,
-                        onClick = { navController.navigate("FarmInformationView/${farmId}") },
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -113,8 +133,8 @@ fun EditCulturalWorkView(
                     text = "Lote: $plotName",
                     style = MaterialTheme.typography.titleSmall.copy(
                         color = Color(0xFF94A84B)
-                    ),
-                    color = Color(0xFF94A84B))
+                    )
+                )
 
                 Spacer(modifier = Modifier.height(22.dp))
 
@@ -130,9 +150,11 @@ fun EditCulturalWorkView(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 TypeCulturalWorkDropdown(
-                    selectedCulturalWork = "",
-                    onTypeCulturalWorkChange = { },
-                    cultural_work = typeCulturalWork,  // Lista de roles obtenida del ViewModel
+                    selectedCulturalWork = selectedCulturalWork,
+                    onTypeCulturalWorkChange = { selected ->
+                        viewModel.onTypeCulturalWorkChange(selected)
+                    },
+                    cultural_work = listOf("Chequeo de Salud", "Chequeo de estado de maduración"),
                     expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
                     arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
                     modifier = Modifier.fillMaxWidth()
@@ -152,11 +174,12 @@ fun EditCulturalWorkView(
 
                 DatePickerComposable(
                     label = "Fecha completación",
-                    selectedDate = "",
-                    onDateSelected = { },
-                    errorMessage = if (isFormSubmitted && flowering_date.isBlank()) "La fecha de floración no puede estar vacía." else null
+                    selectedDate = selectedDate,
+                    onDateSelected = { date ->
+                        viewModel.onTaskDateChange(date)
+                    },
+                    errorMessage = if (isFormSubmitted && selectedDate.isBlank()) "La fecha de floración no puede estar vacía." else null
                 )
-
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -169,37 +192,67 @@ fun EditCulturalWorkView(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                ReusableTextField(
-                    value = "",
-                    onValueChange = { },
-                    placeholder = "Nombre de Colaborador",
-                    modifier = Modifier.fillMaxWidth(), // Asegurar que ocupe todo el ancho disponible
-                    isValid = true,
-                    charLimit = 50,
-                    errorMessage = "" //if (collaboratorEmail.isEmpty() && isFormSubmitted.value) "El nombre del colaborador no puede estar vacío" else ""
-                )
+                // Dropdown de colaboradores o mensaje si no hay
+                when {
+                    isFetchingCollaborators -> {
+                        // Mostrar un círculo cargando
+                        CircularProgressIndicator(
+                            color = Color(0xFF5D8032),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    collaborators.isEmpty() -> {
+                        // Mostrar mensaje si no hay colaboradores
+                        Text(
+                            text = "Usted no tiene colaboradores operadores de campo en su finca, agréguelos para continuar.",
+                            color = Color.Red,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
+
+                    else -> {
+                        CollaboratorDropdownWithId(
+                            selectedCollaboratorId = selectedCollaboratorId,
+                            collaborators = collaborators,
+                            expandedArrowDropUp = painterResource(id = R.drawable.arrowdropup_icon),
+                            arrowDropDown = painterResource(id = R.drawable.arrowdropdown_icon),
+                            onCollaboratorChange = { collaborator ->
+                                viewModel.setSelectedCollaboratorId(collaborator.user_id, collaborator.name)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
 
                 // Botón para guardar cambios
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
-                    onClick = {},
+                    onClick = {
+                        viewModel.saveChanges(context, navController)
+                    },
                     modifier = Modifier
-                        .size(width = 160.dp, height = 48.dp) // Ajuste de tamaño del botón
+                        .size(width = 160.dp, height = 48.dp)
                         .align(Alignment.CenterHorizontally),
                     buttonType = ButtonType.Green,
-                    enabled = true//hasChanges && !isLoading && errorMessage.isEmpty()
+                    enabled = isSaveEnabled && !isLoading && selectedCollaboratorId != null
                 )
 
-                // Botón para eliminar el colaborador
-                Spacer(modifier = Modifier.height(16.dp)) // Espaciado entre botones
+                Spacer(modifier = Modifier.height(16.dp))
 
+                // Botón para eliminar la tarea
                 ReusableButton(
                     text = if (isLoading) "Cargando..." else "Eliminar",
-                    onClick = {},
+                    onClick = {
+                        viewModel.showDeleteConfirmation.value = true
+                    },
                     enabled = !isLoading,
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -208,27 +261,28 @@ fun EditCulturalWorkView(
                 )
 
                 val image = painterResource(id = R.drawable.delete_confirmation_icon)
-                //Confirmación para eliminar colaborador
-                if (showDeleteConfirmation.value) {
+                // Confirmación para eliminar tarea
+                if (showDeleteConfirmation) {
                     ReusableAlertDialog(
                         title = "¡ESTA ACCIÓN\nES IRREVERSIBLE!",
-                        description = "Todos tus datos relacionados a esta labor cutural se perderán. ¿Deseas continuar?",
+                        description = "Todos tus datos relacionados a esta labor cultural se perderán. ¿Deseas continuar?",
                         confirmButtonText = "Eliminar labor",
                         cancelButtonText = "Cancelar",
                         isLoading = isLoading,
-                        onConfirmClick = {},
-                        onCancelClick = { },
-                        onDismissRequest = {},
+                        onConfirmClick = {
+                            viewModel.deleteTask(context, navController)
+                            viewModel.showDeleteConfirmation.value = false
+                        },
+                        onCancelClick = { viewModel.showDeleteConfirmation.value = false },
+                        onDismissRequest = { viewModel.showDeleteConfirmation.value = false },
                         image = image
                     )
                 }
-
 
             }
         }
     }
 }
-
 
 
 
@@ -242,7 +296,14 @@ fun EditCulturalWorkViewPreview() {
     CoffeTechTheme {
         EditCulturalWorkView(
             navController = navController,
-            farmId= 1
+            culturalWorkTaskId = 1 ,
+            culturalWorksName = "Chequeo ",
+            collaboratorUserId = 1,
+            collaborator_name= "Jose",
+            taskDate= "",
+            plotName = " lote 1",
+            plotId = 1
+
         )
     }
 }

@@ -78,13 +78,14 @@ fun CreatePlotInformationView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010))
-            .padding(10.dp),
+            .windowInsetsPadding(WindowInsets.systemBars)
+            .background(Color(0xFF101010)) // Fondo oscuro
+            .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.85f)
+                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
@@ -92,7 +93,6 @@ fun CreatePlotInformationView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()), // Hace que el contenido sea scrolleable
-
                         horizontalAlignment = Alignment.CenterHorizontally
 
             ) {

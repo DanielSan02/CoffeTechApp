@@ -59,21 +59,21 @@ fun AddCulturalWorkView1(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010))
-            .padding(10.dp),
+            .windowInsetsPadding(WindowInsets.systemBars)
+            .background(Color(0xFF101010)) // Fondo oscuro
+            .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.85f)
+                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .verticalScroll(rememberScrollState())
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -98,8 +98,11 @@ fun AddCulturalWorkView1(
 
                 Text(
                     text = "Lote: $plotName",
+                    textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF94A84B)),
-                    color = Color(0xFF94A84B)
+                    color = Color(0xFF94A84B),
+                            modifier = Modifier.fillMaxWidth()
+
                 )
 
                 Spacer(modifier = Modifier.height(22.dp))

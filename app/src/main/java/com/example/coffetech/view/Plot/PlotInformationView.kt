@@ -198,6 +198,17 @@ fun PlotInformationView(
 
                                     .padding(start = 2.5.dp)
                             )
+                            ActionCard(
+                                buttonText = "Costos",
+                                onClick = {
+                                    Log.d("EditFloweringView", "Enviando datos : /$plotId/$plotName/$farmName/$farmId")
+
+                                    navController.navigate("${Routes.TransactionInformationView}/$plotId/$plotName/$farmName/$farmId")
+                                },
+                                modifier = Modifier
+
+                                    .padding(start = 2.5.dp)
+                            )
                             Spacer(modifier = Modifier.height(50.dp))
 
                     Text(

@@ -51,4 +51,9 @@ object Routes {
     const val  ReminderCulturalWorkView = "reminderCulturalWorkView"
     const val  CulturalWorkTaskGeneralView = "culturalWorkTaskGeneralView"
     const val  EditCulturalWorkView = "editCulturalWorkView"
+
+    //Transaction
+    const val TransactionInformationView = "transactionInformationView"
+    const val AddTransactionView = "AddTransactionView"
+    const val EditTransactionView = "EditTransactionView"
 }

@@ -46,6 +46,9 @@ import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
 import com.example.coffetech.view.Plot.EditMapPlotView
 import com.example.coffetech.view.Plot.EditPlotInformationView
+import com.example.coffetech.view.Transaction.AddTransactionView
+import com.example.coffetech.view.Transaction.EditTransactionView
+import com.example.coffetech.view.Transaction.TransactionInformationView
 import com.example.coffetech.view.farm.CreateFarmView
 import com.example.coffetech.view.farm.FarmEditView
 import com.example.coffetech.view.farm.FarmInformationView
@@ -57,6 +60,7 @@ import com.example.coffetech.view.flowering.RecommendationFloweringView
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
 
 
 /**
@@ -754,9 +758,87 @@ fun AppNavHost(context: Context) {
         }
 
 
+        ///TRANSACTIONS
+        composable(
+            route = "${Routes.TransactionInformationView}/{plotId}/{plotName}/{farmName}/{farmId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmId") { type = NavType.IntType },
 
 
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
 
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            TransactionInformationView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                farmId = farmId,
+                farmName = farmName
+            )
+        }
+
+        composable(
+            route = "${Routes.AddTransactionView}/{plotId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+
+
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            AddTransactionView(
+                navController = navController,
+                plotId = plotId,
+            )
+        }
+
+        composable(
+            route = "${Routes.EditTransactionView}/{transaction_id}/{transaction_type_name}/{transaction_category_name}/{description}/{value}/{transaction_date}",
+            arguments = listOf(
+                navArgument("transaction_id") { type = NavType.IntType },
+                navArgument("transaction_type_name") { type = NavType.StringType },
+                navArgument("transaction_category_name") { type = NavType.StringType },
+                navArgument("description") { type = NavType.StringType },
+                navArgument("value") { type = NavType.IntType },
+                navArgument("transaction_date") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val transactionId = backStackEntry.arguments?.getInt("transaction_id") ?: 0
+            val transactionTypeName = backStackEntry.arguments?.getString("transaction_type_name")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
+            val transactionCategoryName = backStackEntry.arguments?.getString("transaction_category_name")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
+            val description = backStackEntry.arguments?.getString("description")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
+            val value = backStackEntry.arguments?.getInt("value") ?: 0
+            val transactionDate = backStackEntry.arguments?.getString("transaction_date")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
+
+            // Reemplazar el placeholder con una cadena vacía
+            val finalDescription = if (description == "NoDescription") "" else description
+
+            // Pasa los parámetros a EditTransactionView
+            EditTransactionView(
+                navController = navController,
+                transactionId = transactionId,
+                transactionTypeName = transactionTypeName,
+                transactionCategoryName = transactionCategoryName,
+                description = finalDescription, // Usar finalDescription
+                value = value,
+                transactionDate = transactionDate
+            )
+        }
 
 
 

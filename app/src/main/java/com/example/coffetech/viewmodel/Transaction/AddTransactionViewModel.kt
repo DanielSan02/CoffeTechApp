@@ -242,7 +242,7 @@ class AddTransactionViewModel : ViewModel() {
                         transaction_type_name = _selectedTransactionType.value,
                         transaction_category_name = _selectedTransactionCategory.value, // Incluir la categoría
                         description = _descripcion.value,
-                        value = _valor.value.toInt(),
+                        value = _valor.value.toLong(),
                         transaction_date = _fecha.value
                     )
 

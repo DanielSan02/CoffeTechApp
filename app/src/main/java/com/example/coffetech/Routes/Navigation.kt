@@ -814,7 +814,7 @@ fun AppNavHost(context: Context) {
                 navArgument("transaction_type_name") { type = NavType.StringType },
                 navArgument("transaction_category_name") { type = NavType.StringType },
                 navArgument("description") { type = NavType.StringType },
-                navArgument("value") { type = NavType.IntType },
+                navArgument("value") { type = NavType.LongType },
                 navArgument("transaction_date") { type = NavType.StringType }
             )
         ) { backStackEntry ->
@@ -822,7 +822,7 @@ fun AppNavHost(context: Context) {
             val transactionTypeName = backStackEntry.arguments?.getString("transaction_type_name")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
             val transactionCategoryName = backStackEntry.arguments?.getString("transaction_category_name")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
             val description = backStackEntry.arguments?.getString("description")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
-            val value = backStackEntry.arguments?.getInt("value") ?: 0
+            val value = backStackEntry.arguments?.getLong("value") ?: 0
             val transactionDate = backStackEntry.arguments?.getString("transaction_date")?.let { URLDecoder.decode(it, "UTF-8") } ?: ""
 
             // Reemplazar el placeholder con una cadena vacía

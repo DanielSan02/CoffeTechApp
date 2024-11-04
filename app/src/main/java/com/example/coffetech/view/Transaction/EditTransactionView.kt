@@ -32,7 +32,7 @@ fun EditTransactionView(
     transactionTypeName: String,
     transactionCategoryName: String,
     description: String,
-    value: Int,
+    value: Long,
     transactionDate: String,
     viewModel: EditTransactionViewModel = viewModel()
 ) {

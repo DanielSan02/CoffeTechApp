@@ -412,7 +412,7 @@ fun BottomNavigationBar(
                 )
             }
         }
-
+        /*
         IconButton(
             onClick = onReportsClick,
             modifier = Modifier
@@ -437,7 +437,7 @@ fun BottomNavigationBar(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-        }
+        }*/
     }
 }
 

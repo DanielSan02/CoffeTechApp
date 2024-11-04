@@ -751,7 +751,7 @@ data class Transaction(
     val transaction_type_name: String, // "Ingreso" o "Gasto"
     val transaction_category_name: String, // Nuevo campo
     val description: String?,
-    val value: Int,
+    val value: Long,
     val transaction_date: String, // Formato "yyyy-MM-dd"
     val status: String
 )
@@ -771,7 +771,7 @@ data class CreateTransactionRequest(
     val transaction_type_name: String, // "Ingreso" o "Gasto"
     val transaction_category_name: String, // Nuevo campo
     val description: String,
-    val value: Int,
+    val value: Long,
     val transaction_date: String // Formato "yyyy-MM-dd"
 )
 
@@ -787,7 +787,7 @@ data class EditTransactionRequest(
     val transaction_type_name: String, // "Ingreso" o "Gasto"
     val transaction_category_name: String, // Nuevo campo
     val description: String,
-    val value: Int,
+    val value: Long,
     val transaction_date: String // Formato "yyyy-MM-dd"
 )
 

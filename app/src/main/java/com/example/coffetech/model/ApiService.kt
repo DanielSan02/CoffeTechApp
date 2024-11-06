@@ -806,8 +806,48 @@ data class TransactionDeleteResponse(
     val data: TransactionData?
 )
 
+//Reports
+data class FinancialReportResponse(
+    val status: String,
+    val message: String,
+    val data: FinancialReportData
+)
 
+data class FinancialReportData(
+    val finca_nombre: String,
+    val lotes_incluidos: List<String>,
+    val periodo: String,
+    val plot_financials: List<PlotFinancial>,
+    val farm_summary: FarmSummary
+)
 
+data class PlotFinancial(
+    val plot_id: Int,
+    val plot_name: String,
+    val ingresos: Long,
+    val gastos: Long,
+    val balance: Long,
+    val ingresos_por_categoria: List<CategoryAmount>,
+    val gastos_por_categoria: List<CategoryAmount>
+)
+
+data class FarmSummary(
+    val total_ingresos: Long,
+    val total_gastos: Long,
+    val balance_financiero: Long,
+    val ingresos_por_categoria: List<CategoryAmount>,
+    val gastos_por_categoria: List<CategoryAmount>
+)
+
+data class CategoryAmount(
+    val category_name: String,
+    val monto: Long
+)
+data class FinancialReportRequest(
+    val plot_ids: List<Int>,
+    val fechaInicio: String, // Formato "yyyy-MM-dd"
+    val fechaFin: String     // Formato "yyyy-MM-dd"
+)
 // API service interface for interacting with backend services
 
 /**
@@ -1150,6 +1190,13 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: TransactionDeleteRequest
     ): Call<TransactionDeleteResponse>
+
+    //Reports
+    @POST("/reports/financial-report")
+    fun getFinancialReport(
+        @Query("session_token") sessionToken: String,
+        @Body request: FinancialReportRequest
+    ): Call<FinancialReportResponse>
 
 
 }

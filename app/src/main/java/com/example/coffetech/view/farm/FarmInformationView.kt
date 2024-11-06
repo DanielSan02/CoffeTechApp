@@ -166,7 +166,7 @@ fun FarmInformationView(
                             ActionCard(
                                 buttonText = "Reportes", // Texto para el segundo botón
                                 onClick = {
-                                    Toast.makeText(context, "Función disponible proximamente", Toast.LENGTH_SHORT).show()
+                                    navController.navigate("${Routes.ReportsSelectionView}/$farmId/$farmName")
                                 }
 
                             )

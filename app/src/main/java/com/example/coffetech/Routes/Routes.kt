@@ -56,4 +56,9 @@ object Routes {
     const val TransactionInformationView = "transactionInformationView"
     const val AddTransactionView = "AddTransactionView"
     const val EditTransactionView = "EditTransactionView"
+
+    //Reports
+    const val ReportsSelectionView = "ReportsSelectionView"
+    const val FormFinanceReportView ="FormFinanceReportView"
+
 }

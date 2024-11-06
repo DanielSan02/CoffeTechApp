@@ -104,7 +104,7 @@ fun FloweringInformationView(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState()) // Hacer la columna scrolleable verticalmente
             ) {
-                if (isLoading) {
+                /* (isLoading) {
                     // Mostrar un indicador de carga
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -118,7 +118,7 @@ fun FloweringInformationView(
                 } else if (errorMessage.isNotEmpty()) {
                     // Mostrar el error si ocurrió algún problema
                     Text(text = errorMessage, color = Color.Red)
-                } else {
+                } else {*/
 
                     // Mostrar el nombre del lote
                     Text(text = "Lote: ${plotName.ifEmpty { "Sin Nombre de lote" }}", color = Color.Black)
@@ -171,7 +171,7 @@ fun FloweringInformationView(
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
-                }
+                //}
             }
             // Botón flotante alineado al fondo derecho
             CustomFloatingActionButton(

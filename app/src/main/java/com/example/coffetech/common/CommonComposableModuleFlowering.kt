@@ -568,7 +568,7 @@ fun ReusableAlertDialog(
                         onClick = onConfirmClick,
                         modifier = Modifier
                             .padding(8.dp)
-                            .fillMaxWidth(0.7f), // Ajusta el ancho del botón
+                            .fillMaxWidth(0.9f), // Ajusta el ancho del botón
                         buttonType = ButtonType.Red
                     )
                     Spacer(modifier = Modifier.height(8.dp)) // Espaciado entre botones

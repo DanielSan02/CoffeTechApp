@@ -319,7 +319,6 @@ fun EditCollaboratorView(
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun EditCollaboratorViewPreview() {

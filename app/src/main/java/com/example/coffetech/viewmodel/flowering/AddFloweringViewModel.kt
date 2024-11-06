@@ -18,7 +18,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 class AddFloweringViewModel: ViewModel() {
     // Estados para los datos
@@ -128,29 +130,41 @@ class AddFloweringViewModel: ViewModel() {
                 return false
             }
 
-            if (_harvest_date.value.isNotBlank()) {
-                try {
-                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val floweringDate = dateFormat.parse(_flowering_date.value)
+            try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                dateFormat.timeZone = TimeZone.getTimeZone("America/Bogota")
+
+                val floweringDate = dateFormat.parse(_flowering_date.value)
+                val currentDate = Calendar.getInstance(TimeZone.getTimeZone("America/Bogota")).time
+
+                if (floweringDate.after(currentDate)) {
+                    errorMessage.value = "La fecha de floración no puede ser posterior a la fecha actual."
+                    return false
+                }
+
+                if (_harvest_date.value.isNotBlank()) {
                     val harvestDate = dateFormat.parse(_harvest_date.value)
 
                     if (harvestDate.before(floweringDate)) {
-                        errorMessage.value =
-                            "La fecha de cosecha no puede ser antes de la fecha de floración."
+                        errorMessage.value = "La fecha de cosecha no puede ser antes de la fecha de floración."
+                        return false
+                    }
+
+                    if (harvestDate.after(currentDate)) {
+                        errorMessage.value = "La fecha de cosecha no puede ser posterior a la fecha actual."
                         return false
                     }
 
                     val diffInMillis = harvestDate.time - floweringDate.time
                     val diffInWeeks = diffInMillis / (7 * 24 * 60 * 60 * 1000)
                     if (diffInWeeks < 24) {
-                        errorMessage.value =
-                            "La fecha de cosecha debe ser al menos 24 semanas después de la fecha de floración."
+                        errorMessage.value = "La fecha de cosecha debe ser al menos 24 semanas después de la fecha de floración."
                         return false
                     }
-                } catch (e: Exception) {
-                    errorMessage.value = "Formato de fecha inválido."
-                    return false
                 }
+            } catch (e: Exception) {
+                errorMessage.value = "Formato de fecha inválido."
+                return false
             }
 
             errorMessage.value = "" // Limpiar el mensaje de error si no hay problemas

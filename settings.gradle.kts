@@ -16,8 +16,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven(url = uri("https://jitpack.io")) // Uso correcto de comillas dobles y función uri()
     }
 }
+
 
 rootProject.name = "CoffeTech"
 include(":app")

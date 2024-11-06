@@ -135,20 +135,20 @@ fun EditMapPlotView(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFF101010))
-                            .padding(10.dp),
+                            .windowInsetsPadding(WindowInsets.systemBars)
+                            .background(Color(0xFF101010)) // Fondo oscuro
+                            .padding(2.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.95f)
+                                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                                 .background(Color.White, RoundedCornerShape(16.dp))
-                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                                .padding(horizontal = 20.dp, vertical = 30.dp)
                         ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp)
                                     .verticalScroll(rememberScrollState()) // Hace que el contenido sea scrolleable
 
                             ) {

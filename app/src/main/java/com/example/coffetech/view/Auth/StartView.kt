@@ -173,24 +173,9 @@ fun InfoItemCard(title: String, description: String, backgroundColor: Color) {
             .background(backgroundColor, RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Row que solo ocupa el espacio del icono
-
-                Icon(
-                    painter = painterResource(id = R.drawable.logored),
-                    contentDescription = "Icono de acción",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .padding(end = 5.dp),
-                    tint = Color.Unspecified // Evita la aplicación de tinte al icono
-                )
 
             // Column que ocupa el resto del ancho disponible
             Column(
-                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = title,
@@ -205,7 +190,7 @@ fun InfoItemCard(title: String, description: String, backgroundColor: Color) {
                     color = Color.Black
                 )
             }
-        }
+
     }
 }
 

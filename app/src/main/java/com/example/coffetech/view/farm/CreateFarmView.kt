@@ -63,20 +63,20 @@ fun CreateFarmView(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars)
             .background(Color(0xFF101010)) // Fondo oscuro
-            .padding(16.dp),
+            .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp) // Añadir padding interno
                     .verticalScroll(rememberScrollState()) // Hace que el contenido sea scrolleable
 
             ) {

@@ -44,4 +44,21 @@ object Routes {
     const val EditFloweringView= "editFloweringView"
     const val RecommendationFloweringViewPreview = "recommendationFloweringViewPreview"
 
+    //CulturalWorkTask
+    const val CulturalWorkTaskInformationView = "culturalWorkTaskInformationView"
+    const val AddCulturalWorkView1 = "addCulturalWorkView1"
+    const val  AddCulturalWorkView2 = "addCulturalWorkView2"
+    const val  ReminderCulturalWorkView = "reminderCulturalWorkView"
+    const val  CulturalWorkTaskGeneralView = "culturalWorkTaskGeneralView"
+    const val  EditCulturalWorkView = "editCulturalWorkView"
+
+    //Transaction
+    const val TransactionInformationView = "transactionInformationView"
+    const val AddTransactionView = "AddTransactionView"
+    const val EditTransactionView = "EditTransactionView"
+
+    //Reports
+    const val ReportsSelectionView = "ReportsSelectionView"
+    const val FormFinanceReportView ="FormFinanceReportView"
+
 }

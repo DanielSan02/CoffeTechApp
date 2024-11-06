@@ -3,6 +3,7 @@ package com.example.coffetech.model
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -611,8 +612,242 @@ data class GetRecommendationsResponse(
     val data: RecommendationsData
 )
 
+//CulturalWorksTask
+
+data class CulturalWorkTask(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val owner_name: String,
+    val collaborator_user_id: Int,
+    val collaborator_name: String,
+    val status: String,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+data class CulturalWorkTasksData(
+    val tasks: List<CulturalWorkTask>
+)
+
+data class ListCulturalWorkTasksResponse(
+    val status: String,
+    val message: String,
+    val data: CulturalWorkTasksData
+)
+
+// Data class para un colaborador
+data class Collaborator(
+    val user_id: Int,
+    val name: String
+)
+
+// Data class para la respuesta de colaboradores
+data class CollaboratorsData(
+    val collaborators: List<Collaborator>
+)
+
+data class CollaboratorsResponse(
+    val status: String,
+    val message: String,
+    val data: CollaboratorsData
+)
+
+// Data class para la solicitud de creación de tarea cultural
+data class CreateCulturalWorkTaskRequest(
+    val cultural_works_name: String,
+    val plot_id: Int,
+    val reminder_owner: Boolean,
+    val reminder_collaborator: Boolean,
+    val collaborator_user_id: Int,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+// Data class para la respuesta de creación de tarea cultural
+data class CreateCulturalWorkTaskResponseData(
+    val cultural_work_tasks_id: Int,
+    val cultural_works_id: Int,
+    val plot_id: Int,
+    val status: String,
+    val reminder_owner: Boolean,
+    val reminder_collaborator: Boolean,
+    val collaborator_user_id: Int,
+    val owner_user_id: Int,
+    val created_at: String,
+    val task_date: String
+)
+
+data class CreateCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: CreateCulturalWorkTaskResponseData
+)
 
 
+data class GeneralCulturalWorkTask(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_id: Int,
+    val collaborator_name: String,
+    val owner_name: String,
+    val status: String,
+    val task_date: String, // Formato "yyyy-MM-dd"
+    val farm_name: String,
+    val plot_name: String
+)
+
+data class GeneralCulturalWorkTasksData(
+    val tasks: List<GeneralCulturalWorkTask>
+)
+
+data class GeneralListCulturalWorkTasksResponse(
+    val status: String,
+    val message: String,
+    val data: GeneralCulturalWorkTasksData
+)
+
+// Data class para la solicitud de actualización de tarea cultural
+data class UpdateCulturalWorkTaskRequest(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_user_id: Int,
+    val task_date: String // Formato "yyyy-MM-dd"
+)
+
+// Data class para la respuesta de actualización de tarea cultural
+data class UpdateCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: UpdateCulturalWorkTaskData
+)
+
+data class UpdateCulturalWorkTaskData(
+    val cultural_work_task_id: Int,
+    val cultural_works_name: String,
+    val collaborator_user_id: Int,
+    val task_date: String,
+    val status: String
+)
+
+// Data class para la solicitud de eliminación de tarea cultural
+data class DeleteCulturalWorkTaskRequest(
+    val cultural_work_task_id: Int
+)
+
+// Data class para la respuesta de eliminación de tarea cultural
+data class DeleteCulturalWorkTaskResponse(
+    val status: String,
+    val message: String,
+    val data: DeleteCulturalWorkTaskData
+)
+
+data class DeleteCulturalWorkTaskData(
+    val cultural_work_task_id: Int
+)
+
+//Transaction
+
+data class Transaction(
+    val transaction_id: Int,
+    val plot_id: Int,
+    val transaction_type_name: String, // "Ingreso" o "Gasto"
+    val transaction_category_name: String, // Nuevo campo
+    val description: String?,
+    val value: Long,
+    val transaction_date: String, // Formato "yyyy-MM-dd"
+    val status: String
+)
+
+data class TransactionData(
+    val transactions: List<Transaction>
+)
+
+data class ListTransactionsResponse(
+    val status: String,
+    val message: String,
+    val data: TransactionData
+)
+
+data class CreateTransactionRequest(
+    val plot_id: Int,
+    val transaction_type_name: String, // "Ingreso" o "Gasto"
+    val transaction_category_name: String, // Nuevo campo
+    val description: String,
+    val value: Long,
+    val transaction_date: String // Formato "yyyy-MM-dd"
+)
+
+
+data class CreateTransactionResponse(
+    val status: String,
+    val message: String,
+    val data: Transaction // Cambiado de TransactionData a Transaction
+)
+
+data class EditTransactionRequest(
+    val transaction_id: Int,
+    val transaction_type_name: String, // "Ingreso" o "Gasto"
+    val transaction_category_name: String, // Nuevo campo
+    val description: String,
+    val value: Long,
+    val transaction_date: String // Formato "yyyy-MM-dd"
+)
+
+data class EditTransactionResponse(
+    val status: String,
+    val message: String,
+    val data: Transaction // Similar a CreateTransactionResponse
+)
+
+data class TransactionDeleteRequest(
+    val transaction_id: Int
+)
+data class TransactionDeleteResponse(
+    val status: String,
+    val message: String,
+    val data: TransactionData?
+)
+
+//Reports
+data class FinancialReportResponse(
+    val status: String,
+    val message: String,
+    val data: FinancialReportData
+)
+
+data class FinancialReportData(
+    val finca_nombre: String,
+    val lotes_incluidos: List<String>,
+    val periodo: String,
+    val plot_financials: List<PlotFinancial>,
+    val farm_summary: FarmSummary
+)
+
+data class PlotFinancial(
+    val plot_id: Int,
+    val plot_name: String,
+    val ingresos: Long,
+    val gastos: Long,
+    val balance: Long,
+    val ingresos_por_categoria: List<CategoryAmount>,
+    val gastos_por_categoria: List<CategoryAmount>
+)
+
+data class FarmSummary(
+    val total_ingresos: Long,
+    val total_gastos: Long,
+    val balance_financiero: Long,
+    val ingresos_por_categoria: List<CategoryAmount>,
+    val gastos_por_categoria: List<CategoryAmount>
+)
+
+data class CategoryAmount(
+    val category_name: String,
+    val monto: Long
+)
+data class FinancialReportRequest(
+    val plot_ids: List<Int>,
+    val fechaInicio: String, // Formato "yyyy-MM-dd"
+    val fechaFin: String     // Formato "yyyy-MM-dd"
+)
 // API service interface for interacting with backend services
 
 /**
@@ -892,6 +1127,76 @@ interface ApiService {
         @Path("flowering_id") floweringId: Int,
         @Query("session_token") sessionToken: String
     ): Call<GetRecommendationsResponse>
+
+    // CulturalWorkTask
+
+    @GET("/culturalWorkTask/list-cultural-work-tasks/{plot_id}")
+    fun listCulturalWorkTasks(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListCulturalWorkTasksResponse>
+
+    @GET("/culturalWorkTask/collaborators-with-complete-permission")
+    suspend fun getCollaboratorsWithCompletePermission(
+        @Query("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): CollaboratorsResponse
+
+    @POST("/culturalWorkTask/create-cultural-work-task")
+    suspend fun createCulturalWorkTask(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateCulturalWorkTaskRequest
+    ): CreateCulturalWorkTaskResponse
+
+
+    @GET("/culturalWorkTask/my-cultural-work-tasks")
+    suspend fun getMyCulturalWorkTasks(
+        @Query("session_token") sessionToken: String
+    ): GeneralListCulturalWorkTasksResponse // Usamos la nueva clase de respuesta
+
+    @POST("/culturalWorkTask/update-cultural-work-task")
+    suspend fun updateCulturalWorkTask(
+        @Query("session_token") sessionToken: String,
+        @Body request: UpdateCulturalWorkTaskRequest
+    ): UpdateCulturalWorkTaskResponse
+
+    @POST("/culturalWorkTask/delete-cultural-work-task")
+    suspend fun deleteCulturalWorkTask(
+        @Header("X-Session-Token") sessionToken: String,
+        @Body request: DeleteCulturalWorkTaskRequest
+    ): DeleteCulturalWorkTaskResponse
+
+    //Transaction
+    @GET("/transaction/list-transactions/{plot_id}")
+    fun listTransactions(
+        @Path("plot_id") plotId: Int,
+        @Query("session_token") sessionToken: String
+    ): Call<ListTransactionsResponse>
+
+    @POST("/transaction/create-transaction")
+    fun createTransaction(
+        @Query("session_token") sessionToken: String,
+        @Body request: CreateTransactionRequest
+    ): Call<CreateTransactionResponse>
+
+    @POST("/transaction/edit-transaction")
+    fun editTransaction(
+        @Query("session_token") sessionToken: String,
+        @Body request: EditTransactionRequest
+    ): Call<EditTransactionResponse>
+
+    @POST("/transaction/delete-transaction")
+    fun deleteTransaction(
+        @Query("session_token") sessionToken: String,
+        @Body request: TransactionDeleteRequest
+    ): Call<TransactionDeleteResponse>
+
+    //Reports
+    @POST("/reports/financial-report")
+    fun getFinancialReport(
+        @Query("session_token") sessionToken: String,
+        @Body request: FinancialReportRequest
+    ): Call<FinancialReportResponse>
 
 
 }

@@ -174,7 +174,7 @@ fun ActionCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(159.dp)
+            .height(90.dp)
             .padding(8.dp)
             .background(Color(0xFFE52542), shape = RoundedCornerShape(16.dp))
             .clickable(onClick = onClick) // Hacer el botón clickable
@@ -482,16 +482,21 @@ fun RoleDropdown(
         }
     }
 }
-
 @Composable
 fun BackButton(
     navController: NavController,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null // Parámetro onClick opcional
 ) {
+    // Estado para manejar si el botón ya fue presionado
+    var isClicked by remember { mutableStateOf(false) }
+
     IconButton(
         onClick = {
-            onClick?.invoke() ?: navController.popBackStack() // Ejecuta onClick si está definido, sino usa popBackStack
+            if (!isClicked) {
+                isClicked = true
+                onClick?.invoke() ?: navController.popBackStack() // Ejecuta onClick si está definido, sino usa popBackStack
+            }
         },
         modifier = modifier.padding(1.dp)
     ) {
@@ -502,6 +507,7 @@ fun BackButton(
         )
     }
 }
+
 
 
 @Composable

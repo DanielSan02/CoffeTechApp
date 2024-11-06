@@ -17,7 +17,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 
 class EditFloweringViewModel: ViewModel() {
@@ -106,8 +108,16 @@ class EditFloweringViewModel: ViewModel() {
                 val floweringDate = dateFormat.parse(_flowering_date.value)
                 val harvestDate = dateFormat.parse(_harvest_date.value)
 
+                dateFormat.timeZone = TimeZone.getTimeZone("America/Bogota")
+                val currentDate = Calendar.getInstance(TimeZone.getTimeZone("America/Bogota")).time
+
+
                 if (harvestDate.before(floweringDate)) {
                     errorMessage.value = "La fecha de cosecha no puede ser antes de la fecha de floración."
+                    return false
+                }
+                if (harvestDate.after(currentDate)) {
+                    errorMessage.value = "La fecha de cosecha no puede ser posterior a la fecha actual."
                     return false
                 }
 

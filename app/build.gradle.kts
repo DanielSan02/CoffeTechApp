@@ -91,6 +91,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 
+    implementation("com.github.tehras:charts:0.2.2-alpha")
+
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Verifica la última versión
+
 
 
 

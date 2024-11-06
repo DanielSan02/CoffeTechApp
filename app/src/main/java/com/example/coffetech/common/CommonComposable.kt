@@ -104,6 +104,7 @@ fun ReusableButton(
         colors = buttonColors
     ) {
         Text(text=text,
+            textAlign = TextAlign.Center, // Centra el texto horizontalmente
             style = MaterialTheme.typography.bodyLarge  // Aplicar estilo de texto para el botón
         )
     }
@@ -554,28 +555,30 @@ fun ReusableFieldLabel(
 @Composable
 fun ReusableTextButton(
     navController: NavController,
-    destination: String,  // Ruta a la que navegará cuando se presione cancelar
+    destination: String,  // Ruta a la que navegará cuando se presione el botón
+    onClick: (() -> Unit)? = null, // Parámetro onClick opcional
     modifier: Modifier = Modifier,
     text: String = "Cancelar",
     minWidth: Dp = 160.dp,  // Ancho mínimo predeterminado
     maxWidth: Dp = 300.dp,
 ) {
     TextButton(
-        onClick = { navController.navigate(destination) },
+        onClick = { onClick?.invoke() ?: navController.navigate(destination) },
         modifier = modifier
             .padding(bottom = 16.dp)
             .heightIn(min = 56.dp) // Altura mínima de 56dp
-            .widthIn(min = minWidth, max = maxWidth) // Ancho fijo de 300dp
-
+            .widthIn(min = minWidth, max = maxWidth) // Ancho fijo entre minWidth y maxWidth
     ) {
         Text(
             text,
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF49602D),
             textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth() // Asegura que el texto ocupe todo el ancho disponible
         )
     }
 }
+
 
 
 

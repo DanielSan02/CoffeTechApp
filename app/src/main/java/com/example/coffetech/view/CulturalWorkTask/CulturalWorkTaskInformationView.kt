@@ -1,4 +1,4 @@
-// CulturalWorkTaskInformationView.kt
+
 package com.example.coffetech.view.CulturalWorkTask
 
 import android.util.Log
@@ -34,8 +34,19 @@ import com.example.coffetech.view.common.HeaderFooterSubView
 import com.example.coffetech.viewmodel.cultural.CulturalWorkTaskViewModel
 import kotlinx.coroutines.launch
 
-// CulturalWorkTaskInformationView.kt
+
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Vista que muestra la información detallada de las tareas de labor cultural asignadas a un lote específico.
+ * Permite filtrar, buscar, ordenar y navegar para editar o agregar nuevas tareas de labor cultural.
+ *
+ * @param navController Controlador de navegación para gestionar las rutas de navegación.
+ * @param plotId ID del lote asociado a las tareas.
+ * @param plotName Nombre del lote.
+ * @param farmId ID de la finca.
+ * @param farmName Nombre de la finca.
+ * @param viewModel ViewModel que maneja el estado y la lógica de esta vista.
+ */
 @Composable
 fun CulturalWorkTaskInformationView(
     navController: NavController,
@@ -70,7 +81,7 @@ fun CulturalWorkTaskInformationView(
         }
     }
 
-    // Estados del ViewModel
+    // Obtener estados del ViewModel
     val tasks by viewModel.filteredTasks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -100,7 +111,7 @@ fun CulturalWorkTaskInformationView(
                     .padding(16.dp)
             ) {
                 if (isLoading) {
-                    // Indicador de carga
+                    // Indicador de carga mientras se obtienen los datos
                     Log.d("CulturalWorkTaskInfoView", "Mostrando indicador de carga")
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -114,7 +125,7 @@ fun CulturalWorkTaskInformationView(
                         )
                     }
                 } else if (errorMessage.isNotEmpty()) {
-                    // Mostrar mensaje de error
+                    // Mostrar mensaje de error si ocurre algún problema
                     Log.e("CulturalWorkTaskInfoView", "Mostrando mensaje de error: $errorMessage")
                     Text(text = errorMessage, color = Color.Red)
                 } else {
@@ -126,6 +137,7 @@ fun CulturalWorkTaskInformationView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    //Barra de búsqueda
                     ReusableSearchBar(
                         query = searchQuery,
                         onQueryChanged = { viewModel.onSearchQueryChanged(it) },
@@ -135,7 +147,7 @@ fun CulturalWorkTaskInformationView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Dropdowns para filtrar y ordenar
+                    // Dropdowns para filtrar y ordenar tareas
                     CulturalTaskFilterDropdowns(
                         selectedStatusFilter = statusFilter,
                         onStatusFilterChange = { selectedStatus ->
@@ -190,6 +202,10 @@ fun CulturalWorkTaskInformationView(
     }
 }
 
+/**
+ * Vista previa de la función CulturalWorkTaskInformationView en Android Studio.
+ * Utiliza un ViewModel simulado para mostrar cómo se verá la interfaz.
+ */
 
 @Preview(showBackground = true)
 @Composable

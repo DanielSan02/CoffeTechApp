@@ -22,6 +22,18 @@ import com.example.coffetech.common.ReusableTextButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.ReminderViewModel
 
+/**
+ * Vista para configurar recordatorios de labores culturales. Permite al usuario establecer
+ * recordatorios para sí mismo y/o para el colaborador asignado a la tarea.
+ *
+ * @param navController Controlador de navegación para manejar la navegación entre vistas.
+ * @param viewModel ViewModel que gestiona el estado y lógica de la vista de recordatorios.
+ * @param plotId ID del lote asociado a la tarea de labor cultural.
+ * @param plotName Nombre del lote asociado a la tarea de labor cultural.
+ * @param culturalWorkType Tipo de labor cultural para la cual se establece el recordatorio.
+ * @param date Fecha de la tarea de labor cultural.
+ * @param collaboratorUserId ID del colaborador asignado a la tarea.
+ */
 @Composable
 fun ReminderCulturalWorkView(
     navController: NavController,
@@ -32,6 +44,8 @@ fun ReminderCulturalWorkView(
     date: String,
     collaboratorUserId: Int,
 ) {
+
+    // Obtener estados desde el ViewModel
     val isReminderForUser by viewModel.isReminderForUser.collectAsState()
     val isReminderForCollaborator by viewModel.isReminderForCollaborator.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -39,6 +53,7 @@ fun ReminderCulturalWorkView(
 
     val context = LocalContext.current
 
+    // Caja principal que contiene el diseño de la pantalla
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -46,6 +61,7 @@ fun ReminderCulturalWorkView(
             .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Caja blanca con esquinas redondeadas para el formulario de configuración de recordatorio
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
@@ -75,6 +91,7 @@ fun ReminderCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Título de la vista
                 Text(
                     text = "Recordatorios",
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -86,6 +103,7 @@ fun ReminderCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Descripción de la funcionalidad de recordatorios
                 Text(
                     text = "Seleccione los recordatorios que desea establecer y haga clic en guardar",
                     style = MaterialTheme.typography.bodyLarge.copy(
@@ -97,7 +115,7 @@ fun ReminderCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                // Checkbox para enviar recordatorio al usuario
+                // Checkbox para establecer recordatorio al usuario
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -121,7 +139,7 @@ fun ReminderCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Checkbox para enviar recordatorio al colaborador
+                // Checkbox para enviar recordatorio al colaborador asignado
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -157,7 +175,7 @@ fun ReminderCulturalWorkView(
                     )
                 }
 
-                // Botón de guardar
+                // Botón de guardar para confirmar los recordatorios seleccionados
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
@@ -178,6 +196,7 @@ fun ReminderCulturalWorkView(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Botón de texto para volver
                 ReusableTextButton(
                     navController = navController,
                     destination = "", // Puedes pasar una cadena vacía o una ruta predeterminada
@@ -195,6 +214,9 @@ fun ReminderCulturalWorkView(
     }
 }
 
+/**
+ * Vista previa de ReminderCulturalWorkView en Android Studio.
+ */
 @Preview(showBackground = true)
 @Composable
 fun ReminderCulturalWorkViewPreview() {

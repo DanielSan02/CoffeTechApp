@@ -38,6 +38,19 @@ import com.example.coffetech.viewmodel.farm.FarmInformationViewModel
 import com.example.coffetech.viewmodel.flowering.FloweringInformationViewModel
 import kotlinx.coroutines.flow.map
 
+
+/**
+ * Función composable que muestra la vista de información de floraciones,
+ * permitiendo al usuario ver floraciones activas e historial de floraciones de un lote específico.
+ *
+ * @param navController Controlador de navegación para manejar acciones de navegación.
+ * @param plotId ID del lote asociado a las floraciones.
+ * @param plotName Nombre del lote.
+ * @param farmName Nombre de la finca.
+ * @param farmId ID de la finca.
+ * @param viewModel ViewModel que gestiona el estado y lógica para mostrar la información de floraciones.
+ */
+
 @Composable
 fun FloweringInformationView(
     navController: NavController,
@@ -47,6 +60,7 @@ fun FloweringInformationView(
     farmId: Int,
     viewModel: FloweringInformationViewModel = viewModel() // Inyecta el ViewModel aquí
 ) {
+
     // Obtener el contexto para acceder a SharedPreferences o cualquier otra fuente del sessionToken
     val context = LocalContext.current
     val sessionToken = remember { SharedPreferencesHelper(context).getSessionToken() }
@@ -85,7 +99,7 @@ fun FloweringInformationView(
         navController.navigate("${Routes.RecommendationFloweringViewPreview}/$plotId/$plotName/$farmName/$farmId/${flowering.flowering_id}")
     }
 
-    // Vista principal
+    // Vista principal que muestra información general de las floraciones activas e historial
     HeaderFooterSubView(
         title = "Floraciones",
         currentView = "Fincas",
@@ -123,7 +137,7 @@ fun FloweringInformationView(
                     // Mostrar el nombre del lote
                     Text(text = "Lote: ${plotName.ifEmpty { "Sin Nombre de lote" }}", color = Color.Black)
                     Spacer(modifier = Modifier.height(16.dp))
-                    val activeFlowerings = flowerings.take(2) // Obtener las primeras dos floraciones
+                    val activeFlowerings = flowerings.take(2) // Obtener las primeras dos floraciones activas
 
                     activeFlowerings.forEach { flowering ->
                         FloweringGeneralInfoCard(
@@ -147,6 +161,7 @@ fun FloweringInformationView(
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
+                    // Filtros para el historial de floraciones
                     HistoryFilterDropdowns(
                         selectedTypeFilter = selectedTypeFilter,
                         onTypeFilterChange = { selectedType ->
@@ -187,6 +202,10 @@ fun FloweringInformationView(
     }
 }
 
+
+/**
+ * Función de vista previa para mostrar la vista de información de floraciones en el modo de previsualización de Android Studio.
+ */
 @Preview(showBackground = true)
 @Composable
 fun FloweringInformationViewPreview() {

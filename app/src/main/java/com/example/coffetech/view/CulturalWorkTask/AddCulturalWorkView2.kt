@@ -1,14 +1,33 @@
 package com.example.coffetech.view.CulturalWorkTask
 
-import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,11 +44,22 @@ import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.common.ReusableTextButton
-import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel2
 
 @OptIn(ExperimentalMaterial3Api::class)
+
+/**
+ * Vista para añadir detalles adicionales a una tarea de labor cultural, como seleccionar un colaborador.
+ *
+ * @param navController Controlador de navegación para manejar la navegación entre vistas.
+ * @param plotId ID del lote en el que se realiza la labor cultural.
+ * @param plotName Nombre del lote donde se ejecuta la labor.
+ * @param culturalWorkType Tipo de labor cultural seleccionada (e.g., "Chequeo de Salud").
+ * @param date Fecha seleccionada para la labor cultural.
+ * @param viewModel ViewModel que gestiona el estado y lógica de la vista.
+ */
+
 @Composable
 fun AddCulturalWorkView2(
     navController: NavController,
@@ -49,10 +79,10 @@ fun AddCulturalWorkView2(
     val isFetchingCollaborators by viewModel.isFetchingCollaborators.collectAsState()
     val isSendingRequest by viewModel.isSendingRequest.collectAsState()
 
-    // Variables para el dropdown
+    // Estado de nombre del colaborador seleccionado en el dropdown
     var selectedCollaboratorName by remember { mutableStateOf("Seleccione un colaborador") }
 
-    // Efecto para cargar colaboradores y determinar el texto del botón
+    // Efecto lanzado para cargar colaboradores y determinar el texto del botón basado en la fecha
     LaunchedEffect(Unit) {
         viewModel.fetchCollaborators(plotId, context)
         viewModel.determineButtonText(date)
@@ -70,6 +100,7 @@ fun AddCulturalWorkView2(
         )
     }
 
+    // Caja contenedora principal con fondo oscuro
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -78,6 +109,7 @@ fun AddCulturalWorkView2(
             .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Contenedor blanco donde se encuentra el formulario de la tarea
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
@@ -108,6 +140,7 @@ fun AddCulturalWorkView2(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Título de la vista
                 Text(
                     text = "Añadir Labor",
                     textAlign = TextAlign.Center,
@@ -119,6 +152,7 @@ fun AddCulturalWorkView2(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Información del lote, tipo de labor cultural y fecha
                 Text(
                     text = "Lote: $plotName",
                     style = MaterialTheme.typography.titleSmall.copy(
@@ -155,6 +189,7 @@ fun AddCulturalWorkView2(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Etiqueta para seleccionar colaborador
                 Text(
                     text = "Colaborador",
                     textAlign = TextAlign.Center,
@@ -166,10 +201,10 @@ fun AddCulturalWorkView2(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Dropdown de colaboradores o mensaje si no hay
+                // Dropdown de colaboradores o mensaje si no hay colaboradores
                 when {
                     isFetchingCollaborators -> {
-                        // Mostrar un círculo cargando
+                        // Indicador de carga mientras se obtienen los colaboradores
                         CircularProgressIndicator(
                             color = Color(0xFF5D8032),
                             modifier = Modifier.size(24.dp)
@@ -189,6 +224,7 @@ fun AddCulturalWorkView2(
                     }
 
                     else -> {
+                        // Dropdown para seleccionar colaborador
                         CollaboratorDropdown(
                             selectedCollaboratorName = selectedCollaboratorName,
                             collaborators = collaborators,
@@ -205,7 +241,7 @@ fun AddCulturalWorkView2(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Botón dinámico
+                // Botón dinámico para guardar la tarea de labor cultural
                 ReusableButton(
                     text = if (isSendingRequest) "Guardando" else buttonText,
                     onClick = {
@@ -227,6 +263,7 @@ fun AddCulturalWorkView2(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Botón de texto para volver
                 ReusableTextButton(
                     navController = navController,
                     destination = "", // Puedes pasar una cadena vacía o una ruta predeterminada
@@ -245,19 +282,23 @@ fun AddCulturalWorkView2(
         }
     }
 }
-    // Preview de la vista
-    @Preview(showBackground = true)
-    @Composable
-    fun AddCulturalWorkView2Preview() {
-        val navController = rememberNavController() // Usar rememberNavController para la vista previa
 
-        CoffeTechTheme {
-            AddCulturalWorkView2(
-                navController = navController,
-                plotId = 1,
-                plotName = "Lote 1",
-                culturalWorkType = "Chequeo de Salud",
-                date = "2024-10-22" // Ajusta la fecha para probar
+/**
+ * Vista previa de la función AddCulturalWorkView2 para ver cómo se muestra en Android Studio.
+ */
+
+@Preview(showBackground = true)
+@Composable
+fun AddCulturalWorkView2Preview() {
+    val navController = rememberNavController() // Usar rememberNavController para la vista previa
+
+    CoffeTechTheme {
+        AddCulturalWorkView2(
+            navController = navController,
+            plotId = 1,
+            plotName = "Lote 1",
+            culturalWorkType = "Chequeo de Salud",
+            date = "2024-10-22" // Ajusta la fecha para probar
             )
         }
     }

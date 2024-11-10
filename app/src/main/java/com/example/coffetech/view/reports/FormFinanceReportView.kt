@@ -53,20 +53,23 @@ fun FormFinanceReportView(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars)
             .background(Color(0xFF101010))
-            .padding(16.dp),
+            .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(20.dp)
+                .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+
             ) {
                 // Botón de retroceso
                 Row(
@@ -78,137 +81,137 @@ fun FormFinanceReportView(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Título
-                Text(
-                    text = "Reporte de Costos",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF49602D)),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Nombre de la finca
-                Text(
-                    text = "Finca: $farmName",
-                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF94A84B)),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(22.dp))
-
-                // Dropdown de lotes
-                Text(
-                    text = "Lotes",
-                    textAlign = TextAlign.Center,
-
-                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                PlotsList(
-                    plots = allPlots,
-                    selectedPlotIds = selectedPlotIds,
-                    onPlotToggle = { plotId ->
-                        viewModel.togglePlotSelection(plotId)
-                    },
-                    onSelectAllToggle = {
-                        if (allSelected) {
-                            viewModel.deselectAllPlots()
-                        } else {
-                            viewModel.selectAllPlots()
-                        }
-                    },
-                    allSelected = allSelected
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Fecha de inicio
-                Text(
-                    text = "Fecha de Inicio",
-                    textAlign = TextAlign.Center,
-
-                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                DatePickerComposable(
-                    label = "Fecha de inicio",
-                    selectedDate = startDate ?: "",
-                    onDateSelected = { date ->
-                        viewModel.updateStartDate(date)
-                    },
-                    errorMessage = if (!isFormValid && startDate.isNullOrBlank()) "La fecha de inicio es requerida." else null
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Fecha de fin
-                Text(
-                    text = "Fecha de Fin",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                DatePickerComposable(
-                    label = "Fecha de fin",
-                    selectedDate = endDate ?: "",
-                    onDateSelected = { date ->
-                        viewModel.updateEndDate(date)
-                    },
-                    errorMessage = if (!isFormValid && endDate.isNullOrBlank()) "La fecha de fin es requerida." else null
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Botón de generación de reporte
-                ReusableButton(
-                    text = "Generar Reporte",
-                    onClick = {
-                        viewModel.onSubmit(navController)
-                        // Implementa la lógica para generar el reporte
-                        // Por ejemplo, navegar a otra pantalla o mostrar un diálogo de éxito
-                    },
-                    enabled = isFormValid,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    buttonType = com.example.coffetech.common.ButtonType.Green
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Mostrar mensaje de error si existe
-                if (errorMessage != null) {
-                    Text(
-                        text = errorMessage ?: "",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                // Mostrar indicador de carga
                 if (isLoading) {
                     Spacer(modifier = Modifier.height(16.dp))
                     CircularProgressIndicator(
                         color = Color(0xFF5D8032),
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
+                }else {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Título
+                    Text(
+                        text = "Reporte de Costos",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF49602D)),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Nombre de la finca
+                    Text(
+                        text = "Finca: $farmName",
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF94A84B)),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(22.dp))
+
+                    // Dropdown de lotes
+                    Text(
+                        text = "Lotes",
+                        textAlign = TextAlign.Center,
+
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    PlotsList(
+                        plots = allPlots,
+                        selectedPlotIds = selectedPlotIds,
+                        onPlotToggle = { plotId ->
+                            viewModel.togglePlotSelection(plotId)
+                        },
+                        onSelectAllToggle = {
+                            if (allSelected) {
+                                viewModel.deselectAllPlots()
+                            } else {
+                                viewModel.selectAllPlots()
+                            }
+                        },
+                        allSelected = allSelected
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Fecha de inicio
+                    Text(
+                        text = "Fecha de Inicio",
+                        textAlign = TextAlign.Center,
+
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    DatePickerComposable(
+                        label = "Fecha de inicio",
+                        selectedDate = startDate ?: "",
+                        onDateSelected = { date ->
+                            viewModel.updateStartDate(date)
+                        },
+                        errorMessage = if (!isFormValid && startDate.isNullOrBlank()) "La fecha de inicio es requerida." else null
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Fecha de fin
+                    Text(
+                        text = "Fecha de Fin",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleSmall.copy(color = Color(0xFF3F3D3D)),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    DatePickerComposable(
+                        label = "Fecha de fin",
+                        selectedDate = endDate ?: "",
+                        onDateSelected = { date ->
+                            viewModel.updateEndDate(date)
+                        },
+                        errorMessage = if (!isFormValid && endDate.isNullOrBlank()) "La fecha de fin es requerida." else null
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Mostrar mensaje de error si existe
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage ?: "",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Botón de generación de reporte
+                    ReusableButton(
+                        text = "Generar Reporte",
+                        onClick = {
+                            viewModel.onSubmit(navController)
+                            // Implementa la lógica para generar el reporte
+                            // Por ejemplo, navegar a otra pantalla o mostrar un diálogo de éxito
+                        },
+                        enabled = isFormValid,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        buttonType = com.example.coffetech.common.ButtonType.Green
+                    )
                 }
+
+
+                // Mostrar indicador de carga
+
             }
         }
     }

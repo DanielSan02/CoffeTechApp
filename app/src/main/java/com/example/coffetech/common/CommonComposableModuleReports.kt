@@ -1,6 +1,7 @@
 // MultiSelectDropdown.kt
 package com.example.coffetech.view.components
 
+import android.content.ContentValues
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,9 +39,14 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.example.coffetech.model.FinancialReportData
@@ -139,8 +145,16 @@ fun PdfFloatingActionButton(
     }
 }
 
+
+// MPBarChartComparison.kt
 @Composable
-fun MPBarChartComparison(plotFinancials: List<PlotFinancial>, modifier: Modifier = Modifier) {
+fun MPBarChartComparison(
+    plotFinancials: List<PlotFinancial>,
+    modifier: Modifier = Modifier,
+    onBitmapReady: (Bitmap) -> Unit // Callback para recibir el Bitmap
+) {
+    var chartBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
     AndroidView(
         modifier = modifier,
         factory = { context ->
@@ -186,10 +200,15 @@ fun MPBarChartComparison(plotFinancials: List<PlotFinancial>, modifier: Modifier
             xAxis.valueFormatter = IndexAxisValueFormatter(labels)
 
             barChart.invalidate() // Refresh
+
+            // Capturar el Bitmap después de que la gráfica se haya renderizado
+            barChart.post {
+                chartBitmap = barChart.chartBitmap
+                chartBitmap?.let { onBitmapReady(it) }
+            }
         }
     )
 }
-
 
 class IndexAxisValueFormatter(private val labels: List<String>) : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
@@ -203,9 +222,16 @@ class IndexAxisValueFormatter(private val labels: List<String>) : ValueFormatter
 }
 
 
-
+// MPPieChart.kt
 @Composable
-fun MPPieChart(title: String, categories: List<CategoryAmount>, modifier: Modifier = Modifier) {
+fun MPPieChart(
+    title: String,
+    categories: List<CategoryAmount>,
+    modifier: Modifier = Modifier,
+    onBitmapReady: (Bitmap) -> Unit // Callback para recibir el Bitmap
+) {
+    var chartBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = title,
@@ -247,230 +273,394 @@ fun MPPieChart(title: String, categories: List<CategoryAmount>, modifier: Modifi
 
                 pieChart.data = data
                 pieChart.invalidate()
+
+                // Capturar el Bitmap después de que la gráfica se haya renderizado
+                pieChart.post {
+                    chartBitmap = pieChart.chartBitmap
+                    chartBitmap?.let { onBitmapReady(it) }
+                }
             }
         )
     }
 }
 
+
 fun generatePdf(
     context: Context,
     reportData: FinancialReportData,
-    recomendaciones: List<LoteRecommendation>
+    recomendaciones: List<LoteRecommendation>,
+    chartBitmaps: List<Pair<String, Bitmap>> // Recibir las gráficas con su sección
 ) {
     val document = PdfDocument()
 
-    // Crear una página A4
-    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // Tamaño A4 en puntos
-    val page = document.startPage(pageInfo)
+    // Definir las dimensiones de una página A4 en puntos (595 x 842)
+    val pageWidth = 595
+    val pageHeight = 842
 
-    val canvas = page.canvas
-    val paint = android.graphics.Paint()
+    var y = 25f // Posición Y inicial
+    val lineHeight = 20f // Altura de línea ajustada para más líneas por página
+    val margin = 25f // Margen lateral
 
-    var y = 25f // Debe ser 'var' para permitir modificaciones
-    val lineHeight = 25f
+    var pageNumber = 1
+    var currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+    var page: PdfDocument.Page = document.startPage(currentPageInfo)
+    var canvas: Canvas = page.canvas
+    val paint = Paint().apply {
+        textSize = 12f
+        color = android.graphics.Color.BLACK
+        isAntiAlias = true
+    }
 
-    // Título del reporte
+    // Función auxiliar para dibujar texto y manejar saltos de página
+    fun drawText(text: String, x: Float, isCentered: Boolean = false) {
+        val textWidth = paint.measureText(text)
+        val adjustedX = if (isCentered) (pageWidth - textWidth) / 2 else x
+
+        if (y + paint.textSize > pageHeight - margin) {
+            // Finalizar la página actual
+            document.finishPage(page)
+            // Crear una nueva página
+            pageNumber += 1
+            currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            page = document.startPage(currentPageInfo)
+            canvas = page.canvas
+            y = margin
+        }
+        canvas.drawText(text, adjustedX, y, paint)
+        y += lineHeight
+    }
+
+    // Función auxiliar para dibujar texto multilínea
+    fun drawMultilineText(text: String, x: Float, maxWidth: Float) {
+        val words = text.split(" ")
+        var currentLine = ""
+
+        for (word in words) {
+            val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            val textWidth = paint.measureText(testLine)
+            if (textWidth > maxWidth) {
+                if (currentLine.isNotEmpty()) {
+                    drawText(currentLine, x)
+                }
+                currentLine = word
+            } else {
+                currentLine = testLine
+            }
+        }
+
+        // Dibujar la última línea
+        if (currentLine.isNotEmpty()) {
+            drawText(currentLine, x)
+        }
+    }
+
+    // Inicio de la escritura del contenido
+
+    // 1. Título del reporte
     paint.textSize = 16f
-    paint.color = android.graphics.Color.BLACK
-    paint.textAlign = android.graphics.Paint.Align.CENTER
-    canvas.drawText("Reporte Financiero de la Finca: ${reportData.finca_nombre}", 297.5f, y, paint)
-    y += lineHeight * 2
+    paint.isFakeBoldText = true
+    drawText("Reporte Financiero de la Finca: ${reportData.finca_nombre}", pageWidth / 2f, isCentered = true)
+    y += lineHeight / 2 // Ajuste para separación
+    paint.isFakeBoldText = false
 
-    // Periodo
-    paint.textAlign = android.graphics.Paint.Align.LEFT
+    // 2. Periodo y lotes incluidos
     paint.textSize = 12f
-    canvas.drawText("Periodo: ${reportData.periodo}", 25f, y, paint)
+    drawText("Periodo: ${reportData.periodo}", margin)
+    drawText("Lotes Incluidos: ${reportData.lotes_incluidos.joinToString(", ")}", margin)
     y += lineHeight
 
-    // Lotes incluidos
-    canvas.drawText("Lotes Incluidos: ${reportData.lotes_incluidos.joinToString(", ")}", 25f, y, paint)
-    y += lineHeight * 2
-
-    // Introducción
+    // 3. Introducción
     paint.textSize = 14f
-    canvas.drawText("Introducción:", 25f, y, paint)
-    y += lineHeight
+    drawText("Introducción:", margin)
     paint.textSize = 12f
-    val intro = "Este es el reporte financiero de la finca: ${reportData.finca_nombre} que incluye los lotes: ${reportData.lotes_incluidos.joinToString(", ")}, en el periodo ${reportData.periodo}. A continuación, se presenta un análisis de los ingresos y gastos por lote y para la finca en su conjunto."
-    y = drawMultilineText(canvas, intro, 25f, y, paint, 545f)
+    drawMultilineText(
+        "Este es el reporte financiero de la finca: ${reportData.finca_nombre} que incluye los lotes: ${reportData.lotes_incluidos.joinToString(", ")}, en el periodo ${reportData.periodo}. A continuación, se presenta un análisis de los ingresos y gastos por lote y para la finca en su conjunto.",
+        margin,
+        pageWidth - 2 * margin
+    )
     y += lineHeight
 
-    // Comparación de Ingresos y Gastos por Lote
+    // 4. Comparación de Ingresos y Gastos por Lote
     paint.textSize = 14f
-    canvas.drawText("1. Comparación de Ingresos y Gastos por Lote", 25f, y, paint)
-    y += lineHeight
-    // Aquí podrías añadir tablas o gráficos, lo cual es más complejo. Para simplificar, omitiremos los gráficos.
-
-    y += lineHeight
-
-    // Distribución de Categorías de Ingresos y Gastos por Lote
-    paint.textSize = 14f
-    canvas.drawText("2. Distribución de Categorías de Ingresos y Gastos por Lote", 25f, y, paint)
-    y += lineHeight
-
+    drawText("1. Comparación de Ingresos y Gastos por Lote", margin)
+    paint.textSize = 12f
     reportData.plot_financials.forEach { plot ->
-        paint.textSize = 12f
-        canvas.drawText("Lote: ${plot.plot_name}", 25f, y, paint)
+        drawText("Lote: ${plot.plot_name}", margin + 10f)
+        drawText("Ingresos: \$${plot.ingresos}", margin + 20f)
+        drawText("Gastos: \$${plot.gastos}", margin + 20f)
         y += lineHeight
+    }
+    y += lineHeight
 
-        // Ingresos por Categoría
-        canvas.drawText("Ingresos por Categoría:", 35f, y, paint)
-        y += lineHeight
+    // Insertar la gráfica de Barras para "Comparación de Ingresos y Gastos por Lote"
+    val comparacionBitmap = chartBitmaps.find { it.first == "Comparación de Ingresos y Gastos por Lote" }?.second
+    comparacionBitmap?.let { bitmap ->
+        // Escalar la gráfica
+        val maxWidth = pageWidth - 2 * margin
+        val scale = maxWidth / bitmap.width.toFloat()
+        val scaledWidth = bitmap.width * scale
+        val scaledHeight = bitmap.height * scale
+
+        // Verificar si cabe en la página, sino crear una nueva página
+        if (y + scaledHeight > pageHeight - margin) {
+            // Finalizar la página actual
+            document.finishPage(page)
+            // Crear una nueva página
+            pageNumber += 1
+            currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            page = document.startPage(currentPageInfo)
+            canvas = page.canvas
+            y = margin
+        }
+
+        // Dibujar el Bitmap escalado centrado
+        val left = (pageWidth - scaledWidth) / 2
+        canvas.drawBitmap(bitmap, null, android.graphics.RectF(left, y, left + scaledWidth, y + scaledHeight), paint)
+        y += scaledHeight + lineHeight
+    }
+
+    // 5. Distribución de Categorías de Ingresos y Gastos por Lote
+    paint.textSize = 14f
+    drawText("2. Distribución de Categorías de Ingresos y Gastos por Lote", margin)
+    paint.textSize = 12f
+    reportData.plot_financials.forEach { plot ->
+        drawText("Lote: ${plot.plot_name}", margin + 10f)
+        drawText("Ingresos por Categoría:", margin + 10f)
         plot.ingresos_por_categoria.forEach { categoria ->
-            canvas.drawText("- ${categoria.category_name}: \$${categoria.monto}", 45f, y, paint)
-            y += lineHeight
+            drawText("- ${categoria.category_name}: \$${categoria.monto}", margin + 20f)
         }
-
-        // Gastos por Categoría
-        canvas.drawText("Gastos por Categoría:", 35f, y, paint)
-        y += lineHeight
+        drawText("Gastos por Categoría:", margin + 10f)
         plot.gastos_por_categoria.forEach { categoria ->
-            canvas.drawText("- ${categoria.category_name}: \$${categoria.monto}", 45f, y, paint)
-            y += lineHeight
+            drawText("- ${categoria.category_name}: \$${categoria.monto}", margin + 20f)
+        }
+        y += lineHeight
+
+        // Insertar las gráficas de Ingresos y Gastos por Categoría para cada lote
+        val ingresosBitmap = chartBitmaps.find { it.first == "Ingresos por Categoría - ${plot.plot_name}" }?.second
+        ingresosBitmap?.let { bitmap ->
+            val maxWidth = pageWidth - 2 * margin
+            val scale = maxWidth / bitmap.width.toFloat()
+            val scaledWidth = bitmap.width * scale
+            val scaledHeight = bitmap.height * scale
+
+            if (y + scaledHeight > pageHeight - margin) {
+                document.finishPage(page)
+                pageNumber += 1
+                currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                page = document.startPage(currentPageInfo)
+                canvas = page.canvas
+                y = margin
+            }
+
+            val left = (pageWidth - scaledWidth) / 2
+            canvas.drawBitmap(bitmap, null, android.graphics.RectF(left, y, left + scaledWidth, y + scaledHeight), paint)
+            y += scaledHeight + lineHeight
         }
 
-        y += lineHeight
+        val gastosBitmap = chartBitmaps.find { it.first == "Gastos por Categoría - ${plot.plot_name}" }?.second
+        gastosBitmap?.let { bitmap ->
+            val maxWidth = pageWidth - 2 * margin
+            val scale = maxWidth / bitmap.width.toFloat()
+            val scaledWidth = bitmap.width * scale
+            val scaledHeight = bitmap.height * scale
+
+            if (y + scaledHeight > pageHeight - margin) {
+                document.finishPage(page)
+                pageNumber += 1
+                currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                page = document.startPage(currentPageInfo)
+                canvas = page.canvas
+                y = margin
+            }
+
+            val left = (pageWidth - scaledWidth) / 2
+            canvas.drawBitmap(bitmap, null, android.graphics.RectF(left, y, left + scaledWidth, y + scaledHeight), paint)
+            y += scaledHeight + lineHeight
+        }
+
     }
+    y += lineHeight
 
-    // Resumen Financiero
+    // 6. Resumen Financiero de la Finca
     paint.textSize = 14f
-    canvas.drawText("3. Resumen Financiero de la Finca: ${reportData.finca_nombre}", 25f, y, paint)
-    y += lineHeight
-
+    drawText("3. Resumen Financiero de la Finca: ${reportData.finca_nombre}", margin)
     paint.textSize = 12f
-    canvas.drawText("Total Ingresos: \$${reportData.farm_summary.total_ingresos}", 25f, y, paint)
+    drawText("Total Ingresos: \$${reportData.farm_summary.total_ingresos}", margin + 10f)
+    drawText("Total Gastos: \$${reportData.farm_summary.total_gastos}", margin + 10f)
+    drawText("Balance Financiero: \$${reportData.farm_summary.balance_financiero}", margin + 10f)
     y += lineHeight
-    canvas.drawText("Total Gastos: \$${reportData.farm_summary.total_gastos}", 25f, y, paint)
-    y += lineHeight
-    canvas.drawText("Balance Financiero: \$${reportData.farm_summary.balance_financiero}", 25f, y, paint)
-    y += lineHeight * 2
 
-    // Distribución de Ingresos y Gastos de la Finca
+    // 7. Distribución de Ingresos y Gastos de la Finca
     paint.textSize = 14f
-    canvas.drawText("Distribución de Ingresos y Gastos de la Finca", 25f, y, paint)
-    y += lineHeight
-
+    drawText("Distribución de Ingresos y Gastos de la Finca", margin)
     paint.textSize = 12f
-    canvas.drawText("Distribución de Ingresos de la Finca:", 35f, y, paint)
-    y += lineHeight
+    drawText("Distribución de Ingresos de la Finca:", margin + 10f)
     reportData.farm_summary.ingresos_por_categoria.forEach { categoria ->
-        canvas.drawText("- ${categoria.category_name}: \$${categoria.monto}", 45f, y, paint)
-        y += lineHeight
+        drawText("- ${categoria.category_name}: \$${categoria.monto}", margin + 20f)
     }
-
-    canvas.drawText("Distribución de Gastos de la Finca:", 35f, y, paint)
-    y += lineHeight
+    drawText("Distribución de Gastos de la Finca:", margin + 10f)
     reportData.farm_summary.gastos_por_categoria.forEach { categoria ->
-        canvas.drawText("- ${categoria.category_name}: \$${categoria.monto}", 45f, y, paint)
-        y += lineHeight
+        drawText("- ${categoria.category_name}: \$${categoria.monto}", margin + 20f)
+    }
+    y += lineHeight
+
+    // Insertar las gráficas de Distribución de Ingresos y Gastos de la Finca
+    val distribucionIngresosBitmap = chartBitmaps.find { it.first == "Distribución de Ingresos de la Finca" }?.second
+    distribucionIngresosBitmap?.let { bitmap ->
+        val maxWidth = pageWidth - 2 * margin
+        val scale = maxWidth / bitmap.width.toFloat()
+        val scaledWidth = bitmap.width * scale
+        val scaledHeight = bitmap.height * scale
+
+        if (y + scaledHeight > pageHeight - margin) {
+            document.finishPage(page)
+            pageNumber += 1
+            currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            page = document.startPage(currentPageInfo)
+            canvas = page.canvas
+            y = margin
+        }
+
+        val left = (pageWidth - scaledWidth) / 2
+        canvas.drawBitmap(bitmap, null, android.graphics.RectF(left, y, left + scaledWidth, y + scaledHeight), paint)
+        y += scaledHeight + lineHeight
     }
 
-    y += lineHeight
+    val distribucionGastosBitmap = chartBitmaps.find { it.first == "Distribución de Gastos de la Finca" }?.second
+    distribucionGastosBitmap?.let { bitmap ->
+        val maxWidth = pageWidth - 2 * margin
+        val scale = maxWidth / bitmap.width.toFloat()
+        val scaledWidth = bitmap.width * scale
+        val scaledHeight = bitmap.height * scale
 
-    // Análisis y Recomendaciones
+        if (y + scaledHeight > pageHeight - margin) {
+            document.finishPage(page)
+            pageNumber += 1
+            currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            page = document.startPage(currentPageInfo)
+            canvas = page.canvas
+            y = margin
+        }
+
+        val left = (pageWidth - scaledWidth) / 2
+        canvas.drawBitmap(bitmap, null, android.graphics.RectF(left, y, left + scaledWidth, y + scaledHeight), paint)
+        y += scaledHeight + lineHeight
+    }
+
+    // 8. Análisis y Recomendaciones
     paint.textSize = 14f
-    canvas.drawText("4. Análisis y Recomendaciones", 25f, y, paint)
-    y += lineHeight
-
+    drawText("4. Análisis y Recomendaciones", margin)
     paint.textSize = 12f
     recomendaciones.forEach { recomendacion ->
-        canvas.drawText("Lote: ${recomendacion.loteNombre} - ${recomendacion.rendimiento}", 35f, y, paint)
-        y += lineHeight
+        drawText("Lote: ${recomendacion.loteNombre} - ${recomendacion.rendimiento}", margin + 10f)
         recomendacion.recomendaciones.forEach { texto ->
-            canvas.drawText("- $texto", 45f, y, paint)
-            y += lineHeight
+            drawText("- $texto", margin + 20f)
         }
         y += lineHeight
     }
+    y += lineHeight
 
-    // Conclusiones
+    // 9. Conclusiones
     paint.textSize = 14f
-    canvas.drawText("5. Conclusiones", 25f, y, paint)
-    y += lineHeight
-
+    drawText("5. Conclusiones", margin)
     paint.textSize = 12f
-    val conclusion = "Este reporte financiero proporciona una visión de la situación económica de la finca ${reportData.finca_nombre} y sus lotes seleccionados en el periodo ${reportData.periodo}. Con base en los análisis realizados, se recomienda seguir las acciones propuestas para mejorar el rendimiento financiero y asegurar la sostenibilidad y crecimiento de la finca."
-    y = drawMultilineText(canvas, conclusion, 25f, y, paint, 545f)
+    drawMultilineText(
+        "Este reporte financiero proporciona una visión de la situación económica de la finca ${reportData.finca_nombre} y sus lotes seleccionados en el periodo ${reportData.periodo}. Con base en los análisis realizados, se recomienda seguir las acciones propuestas para mejorar el rendimiento financiero y asegurar la sostenibilidad y crecimiento de la finca.",
+        margin,
+        pageWidth - 2 * margin
+    )
     y += lineHeight
 
-    // Finalizar la página
+    // Finalizar la última página
     document.finishPage(page)
 
-    // Crear el archivo PDF en el directorio de documentos de la aplicación
-    val pdfFile = File(
-        context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-        "Reporte_Financiero_${reportData.finca_nombre}_${reportData.periodo}.pdf"
-    )
-    try {
-        document.writeTo(FileOutputStream(pdfFile))
-        Toast.makeText(context, "PDF generado: ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
-
-        // Abrir el PDF generado
-        abrirPdf(context, pdfFile)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Toast.makeText(context, "Error al generar el PDF: ${e.message}", Toast.LENGTH_LONG).show()
-    }
+    // Guardar el PDF en la carpeta de Descargas utilizando MediaStore
+    val pdfUri: Uri? = savePdfToDownloads(context, document, "Reporte_Financiero_${reportData.finca_nombre}_${reportData.periodo}.pdf")
 
     // Cerrar el documento
     document.close()
+
+    if (pdfUri != null) {
+        Toast.makeText(context, "PDF generado correctamente.", Toast.LENGTH_LONG).show()
+        abrirPdf(context, pdfUri)
+    } else {
+        Toast.makeText(context, "Error al guardar el PDF.", Toast.LENGTH_LONG).show()
+    }
 }
 
-// Función auxiliar para dibujar texto multilineal
-fun drawMultilineText(
-    canvas: android.graphics.Canvas,
-    text: String,
-    x: Float,
-    y: Float,
-    paint: android.graphics.Paint,
-    maxWidth: Float
-): Float {
-    val words = text.split(" ")
-    val lines = mutableListOf<String>()
-    var currentLine = ""
 
-    words.forEach { word ->
-        val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-        val textWidth = paint.measureText(testLine)
-        if (textWidth > maxWidth) {
-            lines.add(currentLine)
-            currentLine = word
-        } else {
-            currentLine = testLine
+fun savePdfToDownloads(context: Context, document: PdfDocument, fileName: String): Uri? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Para Android 10 y superiores, usar MediaStore
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+
+        val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        uri?.let {
+            context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                document.writeTo(outputStream)
+            }
+            it
+        }
+    } else {
+        // Para versiones anteriores de Android
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (!downloadsDir.exists()) {
+            downloadsDir.mkdirs()
+        }
+        val pdfFile = File(downloadsDir, fileName)
+        try {
+            document.writeTo(FileOutputStream(pdfFile))
+            Uri.fromFile(pdfFile)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
-    if (currentLine.isNotEmpty()) {
-        lines.add(currentLine)
-    }
-
-    var currentY = y // Crear una variable mutable para y
-
-    lines.forEach { line ->
-        canvas.drawText(line, x, currentY, paint)
-        currentY += paint.textSize + 5 // Usar currentY en lugar de y
-    }
-
-    return currentY
 }
 
 // Función para abrir el PDF generado
-fun abrirPdf(context: Context, pdfFile: File) {
-    val uri: Uri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        pdfFile
-    )
-
+fun abrirPdf(context: Context, pdfUri: Uri) {
     val intent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(uri, "application/pdf")
-        flags = Intent.FLAG_ACTIVITY_NO_HISTORY or
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
+        setDataAndType(pdfUri, "application/pdf")
+        flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_GRANT_READ_URI_PERMISSION
     }
 
-    // Verificar si hay una aplicación que pueda manejar este Intent
+    // Crear un chooser para que el usuario seleccione la aplicación
+    val chooser = Intent.createChooser(intent, "Abrir PDF con")
+
+    // Verificar si hay alguna aplicación que pueda manejar este intent
     if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
+        context.startActivity(chooser)
     } else {
-        Toast.makeText(context, "No hay una aplicación para abrir el PDF", Toast.LENGTH_SHORT).show()
+        // No hay aplicaciones disponibles para abrir PDFs
+        Toast.makeText(context, "No hay una aplicación para abrir el PDF.", Toast.LENGTH_LONG).show()
+
+        // Opcional: Abrir la ubicación del archivo en el explorador de archivos
+        abrirCarpetaDescargas(context)
     }
 }
+
+fun abrirCarpetaDescargas(context: Context) {
+    val downloadIntent = Intent(Intent.ACTION_VIEW).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            setDataAndType(MediaStore.Downloads.EXTERNAL_CONTENT_URI, "resource/folder")
+        } else {
+            val downloadsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+            val uri = Uri.parse(downloadsPath)
+            setDataAndType(uri, "resource/folder")
+        }
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
+
+    if (downloadIntent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(downloadIntent)
+    } else {
+        // Si no se puede abrir la carpeta, notificar al usuario
+        Toast.makeText(context, "Guardado en Downloads o Descargas.", Toast.LENGTH_LONG).show()
+    }
+}
+

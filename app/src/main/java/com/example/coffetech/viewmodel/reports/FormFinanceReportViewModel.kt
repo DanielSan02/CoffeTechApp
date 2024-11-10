@@ -15,11 +15,20 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
-import retrofit2.HttpException
 import retrofit2.Response
-import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 class FormFinanceReportViewModel : ViewModel() {
+
+    // Definir la zona horaria y formato de fecha
+    private val colombiaTimeZone = TimeZone.getTimeZone("America/Bogota")
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+        timeZone = colombiaTimeZone
+    }
+    private val currentDate: Calendar = Calendar.getInstance(colombiaTimeZone)
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -44,7 +53,11 @@ class FormFinanceReportViewModel : ViewModel() {
         _startDate,
         _endDate
     ) { plots, start, end ->
-        plots.isNotEmpty() && !start.isNullOrBlank() && !end.isNullOrBlank()
+        plots.isNotEmpty() &&
+                !start.isNullOrBlank() &&
+                !end.isNullOrBlank() &&
+                isDateNotInFuture(start) &&
+                isDateNotInFuture(end)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun loadPlots(farmId: Int, context: Context) {
@@ -125,15 +138,41 @@ class FormFinanceReportViewModel : ViewModel() {
     }
 
     fun updateStartDate(date: String) {
-        _startDate.value = date
+        if (isDateNotInFuture(date)) {
+            _startDate.value = date
+            _errorMessage.value = null
+        } else {
+            _errorMessage.value = "La fecha de inicio no puede ser en el futuro."
+        }
     }
 
     fun updateEndDate(date: String) {
-        _endDate.value = date
+        if (isDateNotInFuture(date)) {
+            _endDate.value = date
+            _errorMessage.value = null
+        } else {
+            _errorMessage.value = "La fecha de fin no puede ser en el futuro."
+        }
     }
 
-    // Método para manejar el envío del formulario
+    private fun isDateNotInFuture(date: String): Boolean {
+        return try {
+            val selectedDate = dateFormat.parse(date) ?: return false
+            selectedDate <= currentDate.time
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Método para manejar el envío del formulario
+     */
     fun onSubmit(navController: NavController) {
+        if (!isFormValid.value) {
+            _errorMessage.value = "Por favor, completa todos los campos correctamente."
+            return
+        }
+
         val plotIds = _selectedPlotIds.value
         val startDate = _startDate.value
         val endDate = _endDate.value
@@ -148,4 +187,3 @@ class FormFinanceReportViewModel : ViewModel() {
         }
     }
 }
-

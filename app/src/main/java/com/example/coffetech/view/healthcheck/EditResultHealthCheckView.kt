@@ -98,7 +98,7 @@ fun EditResultHealthCheckView(
                 )
 
                 Spacer(modifier = Modifier.height(45.dp))
-
+/*
                 DetectionResultInfoCard(
                     detectionId = checkingId,
                     nameFarm = farmName,
@@ -108,7 +108,7 @@ fun EditResultHealthCheckView(
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 8.dp)
                 )
-
+*/
 
                 Spacer(modifier = Modifier.height(2.dp))
 

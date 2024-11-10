@@ -20,6 +20,7 @@ import com.example.coffetech.Routes.Routes.AddFloweringView
 import com.example.coffetech.Routes.Routes.EditCulturalWorkView
 import com.example.coffetech.Routes.Routes.EditFloweringView
 import com.example.coffetech.Routes.Routes.FloweringInformationView
+import com.example.coffetech.Routes.Routes.ResultHealthCheckView
 import com.example.coffetech.utils.GlobalEventBus
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.Auth.LoginView
@@ -48,6 +49,7 @@ import com.example.coffetech.view.Plot.CreateMapPlotView
 import com.example.coffetech.view.Plot.CreatePlotInformationView
 import com.example.coffetech.view.Plot.EditMapPlotView
 import com.example.coffetech.view.Plot.EditPlotInformationView
+import com.example.coffetech.view.SendDectectionView
 import com.example.coffetech.view.Transaction.AddTransactionView
 import com.example.coffetech.view.Transaction.EditTransactionView
 import com.example.coffetech.view.Transaction.TransactionInformationView
@@ -59,8 +61,10 @@ import com.example.coffetech.view.flowering.AddFloweringView
 import com.example.coffetech.view.flowering.EditFloweringView
 import com.example.coffetech.view.flowering.FloweringInformationView
 import com.example.coffetech.view.flowering.RecommendationFloweringView
+import com.example.coffetech.view.healthcheck.ResultHealthCheckView
 import com.example.coffetech.view.reports.ReportsSelectionView
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
+import com.example.coffetech.viewmodel.SharedViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -82,6 +86,8 @@ fun AppNavHost(context: Context) {
 
     // Check if the user is logged in based on saved session data
     val isLoggedIn = sharedPreferencesHelper.isLoggedIn()
+
+    val sharedViewModel: SharedViewModel = viewModel()
 
     // BackHandler to disable the default back navigation behavior
     BackHandler {
@@ -906,6 +912,39 @@ fun AppNavHost(context: Context) {
                 endDate = endDate
             )
         }
+
+        //HealthCheck
+        composable(
+            route = "${Routes.SendDectectionView}/{culturalWorkTaskId}/{culturalWorksName}",
+            arguments = listOf(
+                navArgument("culturalWorkTaskId") { type = NavType.IntType },
+                navArgument("culturalWorksName") { type = NavType.StringType },
+            )
+        ) { backStackEntry ->
+            val culturalWorkTaskId = backStackEntry.arguments?.getInt("culturalWorkTaskId") ?: 0
+            val culturalWorksName = backStackEntry.arguments?.getString("culturalWorksName") ?: ""
+
+            // Establecer los valores en el SharedViewModel
+            sharedViewModel.setCulturalWorkTaskId(culturalWorkTaskId)
+            sharedViewModel.setCulturalWorksName(culturalWorksName)
+
+            SendDectectionView(
+                navController = navController,
+                culturalWorkTaskId = culturalWorkTaskId,
+                culturalWorksName = culturalWorksName,
+                sharedViewModel = sharedViewModel
+            )
+        }
+
+        composable(Routes.ResultHealthCheckView) {
+            ResultHealthCheckView(
+                navController = navController,
+                sharedViewModel = sharedViewModel
+            )
+        }
+
+
+
 
 
 

@@ -13,7 +13,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 3 // Este es el código de versión
-        versionName = "3.1.2"  // Este es el nombre de la versión
+        versionName = "3.2.2"  // Este es el nombre de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -95,6 +95,9 @@ dependencies {
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Verifica la última versión
 
+    implementation("androidx.room:room-ktx:2.5.2")
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
 
 

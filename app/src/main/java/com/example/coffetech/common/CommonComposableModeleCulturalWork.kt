@@ -1,11 +1,15 @@
 // GenericDropdown.kt
 package com.example.coffetech.view.CulturalWorkTask
 
+import android.net.Uri
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.coffetech.R
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
@@ -123,7 +129,7 @@ fun CulturalWorkTaskGeneralCard(
     task: GeneralCulturalWorkTask,
     farmName: String,
     plotName: String,
-
+    onClick: () -> Unit // Agregamos el parámetro onClick
 ) {
     val context = LocalContext.current
 
@@ -202,12 +208,10 @@ fun CulturalWorkTaskGeneralCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón Comenzar, debajo de Lote
+            // Botón Comenzar, usando el onClick recibido
             ReusableButton(
                 text = "Comenzar",
-                onClick = {
-                    Toast.makeText(context, "Función disponible próximamente", Toast.LENGTH_SHORT).show()
-                },
+                onClick = onClick, // Usamos el onClick pasado como parámetro
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -216,7 +220,6 @@ fun CulturalWorkTaskGeneralCard(
         }
     }
 }
-
 
 
 @Composable

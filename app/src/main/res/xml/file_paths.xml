@@ -3,4 +3,7 @@
     <external-files-path
         name="documents"
         path="Documents/" />
+    <!-- Permitir el acceso a todo el directorio de caché -->
+    <cache-path name="cache" path="." />
+    <external-cache-path name="external_images" path="images/" />
 </paths>

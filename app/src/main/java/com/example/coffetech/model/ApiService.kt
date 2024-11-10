@@ -848,6 +848,64 @@ data class FinancialReportRequest(
     val fechaInicio: String, // Formato "yyyy-MM-dd"
     val fechaFin: String     // Formato "yyyy-MM-dd"
 )
+
+// Solicitud para detección
+data class DetectionRequest(
+    val cultural_work_tasks_id: Int,
+    val images: List<DetectionImage>
+)
+
+data class DetectionImage(
+    val image_base64: String
+)
+
+// Respuesta para detección de enfermedades y deficiencias
+data class DiseaseDeficiencyResponse(
+    val status: String,
+    val message: String,
+    val data: List<DiseaseDeficiencyDetection>
+)
+
+data class DiseaseDeficiencyDetection(
+    val prediction_id: Int,
+    val imagen_numero: Int,
+    val prediccion: String,
+    val recomendacion: String,
+    val modelo_utilizado: String,
+    val confianza: Double
+)
+
+// Respuesta para detección de madurez
+data class MaturityResponse(
+    val status: String,
+    val message: String,
+    val data: MaturityData
+)
+
+data class MaturityData(
+    val detalles_por_imagen: List<MaturityDetection>
+)
+
+data class MaturityDetection(
+    val prediction_id: Int,
+    val imagen_numero: Int,
+    val prediccion: String,
+    val recomendacion: String
+)
+
+// Models.kt
+
+data class PredictionIdsRequest(
+    val prediction_ids: List<Int>
+)
+
+data class GenericResponse(
+    val status: String,
+    val message: String,
+    val data: Any? = null
+)
+
+
 // API service interface for interacting with backend services
 
 /**
@@ -1197,6 +1255,31 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: FinancialReportRequest
     ): Call<FinancialReportResponse>
+
+    @POST("/detection/detection-disease-deficiency")
+    fun detectDiseaseDeficiency(
+        @Query("session_token") sessionToken: String,
+        @Body request: DetectionRequest
+    ): Call<DiseaseDeficiencyResponse>
+
+    // Endpoint para detección de madurez
+    @POST("/detection/detection-maturity")
+    fun detectMaturity(
+        @Query("session_token") sessionToken: String,
+        @Body request: DetectionRequest
+    ): Call<MaturityResponse>
+
+    @POST("/detection/accept-detection")
+    fun acceptDetection(
+        @Query("session_token") sessionToken: String,
+        @Body requestBody: PredictionIdsRequest
+    ): Call<GenericResponse>
+
+    @POST("/detection/discard-detection")
+    fun discardDetection(
+        @Query("session_token") sessionToken: String,
+        @Body requestBody: PredictionIdsRequest
+    ): Call<GenericResponse>
 
 
 }

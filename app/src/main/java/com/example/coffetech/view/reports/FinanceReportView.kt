@@ -26,6 +26,17 @@ import com.example.coffetech.view.components.PdfFloatingActionButton
 import com.example.coffetech.view.components.generatePdf
 import com.example.coffetech.viewmodel.reports.FinanceReportViewModel
 import com.example.coffetech.viewmodel.reports.LoteRecommendation
+import android.content.Intent
+import android.provider.Settings
+import android.net.Uri
+import android.Manifest
+import android.graphics.Bitmap
+import android.os.Build
+import android.os.Environment
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 
 @Composable
 fun FinanceReportView(
@@ -36,15 +47,73 @@ fun FinanceReportView(
     endDate: String,
     viewModel: FinanceReportViewModel = viewModel()
 ) {
-    val context = LocalContext.current
 
+
+
+    val context = LocalContext.current
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val reportData by viewModel.reportData.collectAsState()
 
+    var chartBitmaps by remember { mutableStateOf<List<Pair<String, Bitmap>>>(emptyList()) }
+
+    fun handleChartsCaptured(bitmaps: List<Pair<String, Bitmap>>) {
+        chartBitmaps = bitmaps
+    }
+
+
     // Generar las recomendaciones después de cargar los datos
     val recomendaciones = remember(reportData) {
         reportData?.let { viewModel.generarRecomendaciones() } ?: emptyList()
+    }
+
+    // State para manejar permiso
+    var showPermissionRationale by remember { mutableStateOf(false) }
+
+    // Launcher para solicitar permiso
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permiso concedido, generar el PDF
+            if (reportData != null && recomendaciones.isNotEmpty()) {
+                generatePdf(context, reportData!!, recomendaciones, chartBitmaps)
+            } else {
+                Toast.makeText(context, "No hay datos para generar el PDF", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Permiso denegado
+            showPermissionRationale = true
+        }
+    }
+
+    // Función para iniciar la generación del PDF
+    fun initiatePdfGeneration() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // Verificar si el permiso ya está concedido
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+            if (hasPermission) {
+                if (reportData != null && recomendaciones.isNotEmpty()) {
+                    generatePdf(context, reportData!!, recomendaciones, chartBitmaps)
+                } else {
+                    Toast.makeText(context, "No hay datos para generar el PDF", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // Solicitar el permiso
+                permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        } else {
+            // Para Android 10 y superiores, no se necesita permiso para usar MediaStore
+            if (reportData != null && recomendaciones.isNotEmpty()) {
+                generatePdf(context, reportData!!, recomendaciones, chartBitmaps)
+            } else {
+                Toast.makeText(context, "No hay datos para generar el PDF", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -63,7 +132,8 @@ fun FinanceReportView(
             .navigationBarsPadding()
     ) {
         TopBarWithBackArrow(
-            onBackClick = { navController.popBackStack() },
+            onBackClick = { navController.popBackStack()
+                navController.popBackStack()},
             title = "Reporte financiero"
         )
 
@@ -72,46 +142,94 @@ fun FinanceReportView(
                 .fillMaxSize()
                 .background(Color(0xFFEFEFEF))
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (errorMessage != null) {
-                Text(
-                    text = errorMessage ?: "",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.align(Alignment.Center),
-                    textAlign = TextAlign.Center
-                )
-            } else if (reportData != null) {
-                // Pasar las recomendaciones a ReportContent
-                ReportContent(reportData = reportData!!, recomendaciones = recomendaciones)
-            } else {
-                Text(
-                    text = "No se pudo generar el reporte.",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.align(Alignment.Center),
-                    textAlign = TextAlign.Center
-                )
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                errorMessage != null -> {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.align(Alignment.Center),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                reportData != null -> {
+                    ReportContent(reportData = reportData!!,
+                        recomendaciones = recomendaciones,
+                        onChartsCaptured = { bitmaps ->
+                            handleChartsCaptured(bitmaps)
+                        })
+                }
+                else -> {
+                    Text(
+                        text = "No se pudo generar el reporte.",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.align(Alignment.Center),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
             PdfFloatingActionButton(
                 onButtonClick = {
-                    if (reportData != null && recomendaciones.isNotEmpty()) {
-                        generatePdf(context, reportData!!, recomendaciones)
-                    } else {
-                        Toast.makeText(context, "No hay datos para generar el PDF", Toast.LENGTH_SHORT).show()
-                    }
+                    initiatePdfGeneration()
                 }
             )
         }
+    }
+
+    // Mostrar diálogo de razón para el permiso de escritura
+    if (showPermissionRationale) {
+        AlertDialog(
+            onDismissRequest = { showPermissionRationale = false },
+            title = { Text(text = "Permiso de almacenamiento") },
+            text = { Text("Esta aplicación necesita acceso al almacenamiento para guardar el PDF del reporte.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPermissionRationale = false
+                    // Abrir la configuración de la aplicación para que el usuario pueda habilitar el permiso manualmente
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("Abrir Configuración")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPermissionRationale = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
 
 @Composable
-fun ReportContent(reportData: FinancialReportData, recomendaciones: List<LoteRecommendation>) {
+fun ReportContent(reportData: FinancialReportData,
+                  recomendaciones: List<LoteRecommendation>,
+                  onChartsCaptured: (List<Pair<String, Bitmap>>) -> Unit // Callback para recibir las gráficas con su sección
+
+) {
+    // Lista para almacenar pares de sección y bitmap
+    val chartBitmaps = remember { mutableStateListOf<Pair<String, Bitmap>>() }
+
+    // Función para agregar un par sección-bitmap
+    fun addBitmap(section: String, bitmap: Bitmap) {
+        chartBitmaps.add(Pair(section, bitmap))
+        // Verificar si todas las gráficas han sido capturadas antes de llamar al callback
+        // Esto depende de cuántas gráficas esperas
+        val expectedChartCount = 1 + (reportData.plot_financials.size * 2) + 2 // Ejemplo basado en tu ReportContent
+        if (chartBitmaps.size == expectedChartCount) {
+            onChartsCaptured(chartBitmaps.toList())
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -184,7 +302,10 @@ fun ReportContent(reportData: FinancialReportData, recomendaciones: List<LoteRec
             plotFinancials = reportData.plot_financials,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(300.dp),
+            onBitmapReady = { bitmap ->
+                addBitmap("Comparación de Ingresos y Gastos por Lote", bitmap)
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -211,7 +332,10 @@ fun ReportContent(reportData: FinancialReportData, recomendaciones: List<LoteRec
             MPPieChart(
                 title = "Ingresos por Categoría",
                 categories = plotFinancial.ingresos_por_categoria,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onBitmapReady = { bitmap ->
+                    addBitmap("Ingresos por Categoría - ${plotFinancial.plot_name}", bitmap)
+                }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -220,7 +344,10 @@ fun ReportContent(reportData: FinancialReportData, recomendaciones: List<LoteRec
             MPPieChart(
                 title = "Gastos por Categoría",
                 categories = plotFinancial.gastos_por_categoria,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onBitmapReady = { bitmap ->
+                    addBitmap("Gastos por Categoría - ${plotFinancial.plot_name}", bitmap)
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -269,7 +396,10 @@ fun ReportContent(reportData: FinancialReportData, recomendaciones: List<LoteRec
         MPPieChart(
             title = "Distribución de Ingresos de la Finca",
             categories = reportData.farm_summary.ingresos_por_categoria,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onBitmapReady = { bitmap ->
+                addBitmap("Distribución de Ingresos de la Finca", bitmap)
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -278,7 +408,10 @@ fun ReportContent(reportData: FinancialReportData, recomendaciones: List<LoteRec
         MPPieChart(
             title = "Distribución de Gastos de la Finca",
             categories = reportData.farm_summary.gastos_por_categoria,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onBitmapReady = { bitmap ->
+                addBitmap("Distribución de Gastos de la Finca", bitmap)
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

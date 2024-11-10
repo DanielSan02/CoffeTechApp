@@ -187,13 +187,11 @@ fun CheckingInfoCard(
         }
     }
 }
-
 @Composable
 fun DetectionResultInfoCard(
-    detectionId: Int,
-    nameFarm: String,
-    namePlot: String,
-    description: String,
+    imagen_numero: Int,
+    prediction: String,
+    recommendation: String,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -211,7 +209,7 @@ fun DetectionResultInfoCard(
                 modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
             ) {
                 Text(
-                    text = "Numero de la imagen: $detectionId",
+                    text = "Numero de la imagen: $imagen_numero",
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -220,19 +218,17 @@ fun DetectionResultInfoCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = nameFarm,
+                    text = "Predicción: $prediction",
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = namePlot,
+                    text = "Recomendación: $recommendation",
                     color = Color.Black,
                     textAlign = TextAlign.Center,
                     fontSize = 18.sp
@@ -240,29 +236,14 @@ fun DetectionResultInfoCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Divider(
-                    color = Color.Black,
-                    thickness = 1.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
 
-                Spacer(modifier = Modifier.height(9.dp))
 
-                Text(
-                    text = description,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                    fontSize = 22.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp) // Espaciado interno del texto
-                )
+
             }
         }
     }
 }
+
 
 
 
@@ -283,18 +264,12 @@ fun CheckingInfoCardPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun DetectionResultInfoCardPreview() {
-    CoffeTechTheme {
-        DetectionResultInfoCard(
-            detectionId = 4,
-            nameFarm = "Finca 1",
-            namePlot= "Lote 1",
-            description = "Lorem ipsum dolor sit amet consectetur." +
-                    "Fames molestie magna massa turpis. Eros feugiat nullam elit semper. " +
-                    "Sollicitudin urna sapien risus dignissim velit condimentum fringilla vitae sit." +
-                    " In metus felis magna nullam viverra tincidunt at a accumsan. Scelerisque tempus vulputate" +
-                    "fermentum vulputate. Nibh morbi purus eget luctus.",
-        )
-    }
+fun PreviewDetectionResultInfoCard() {
+    DetectionResultInfoCard(
+        imagen_numero = 1,
+        prediction = "Predicción de ejemplo",
+        recommendation = "Recomendación de ejemplo",
+    )
 }
+
 

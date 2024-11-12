@@ -28,6 +28,20 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.common.HeaderFooterSubView
 
+
+/**
+ * Vista para mostrar recomendaciones específicas para la floración de un lote.
+ * Obtiene las recomendaciones del ViewModel y las presenta en una lista.
+ *
+ * @param navController Controlador de navegación para manejar las rutas de la aplicación.
+ * @param plotId ID del lote asociado a las recomendaciones de floración.
+ * @param plotName Nombre del lote.
+ * @param farmName Nombre de la finca.
+ * @param farmId ID de la finca.
+ * @param floweringId ID de la floración específica.
+ * @param viewModel ViewModel que gestiona la lógica de negocio y el estado de la vista.
+ */
+
 @Composable
 fun RecommendationFloweringView(
     navController: NavController,
@@ -43,7 +57,7 @@ fun RecommendationFloweringView(
     val sessionToken = remember { SharedPreferencesHelper(context).getSessionToken() }
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    // Llamar a fetchRecommendations cuando la vista se cargue
+    // Llamada a fetchRecommendations cuando se carga la vista para obtener las recomendaciones
     LaunchedEffect(key1 = floweringId) {
         sessionToken?.let {
             viewModel.fetchRecommendations(floweringId, it, context)
@@ -60,13 +74,14 @@ fun RecommendationFloweringView(
     val floweringDate by viewModel.flowering_date.collectAsState()
     val currentDate by viewModel.current_date.collectAsState()
 
+    // Limitar el nombre del lote a un máximo de 21 caracteres, agregando "..." si es más largo
     val displayedPlotName = if (plotName.length > 21) {
         plotName.take(17) + "..." // Si tiene más de 21 caracteres, corta y añade "..."
     } else {
         plotName // Si es menor o igual a 21 caracteres, lo dejamos como está
     }
 
-    // Vista principal
+    // Vista principal que envuelve la cabecera, el contenido y el pie de página
     HeaderFooterSubView(
         title = "Recomendaciones\nFloración Principal",
         currentView = "Fincas",
@@ -80,7 +95,7 @@ fun RecommendationFloweringView(
                 .fillMaxSize()
                 .background(Color(0xFFEFEFEF))
         ) {
-            // Contenido desplazable
+            // Contenedor vertical con scroll para las recomendaciones y tareas
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -88,7 +103,7 @@ fun RecommendationFloweringView(
                     .verticalScroll(rememberScrollState()) // Hacer la columna scrolleable verticalmente
             ) {
                 if (isLoading) {
-                    // Mostrar un indicador de carga
+                    // Muestra un indicador de carga mientras se obtienen los datos
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -102,7 +117,7 @@ fun RecommendationFloweringView(
                     // Mostrar el error si ocurrió algún problema
                     Text(text = errorMessage, color = Color.Red)
                 } else {
-                    // Mostrar el nombre del lote
+                    // Muestra información del lote y la fecha actual
                     Text(text = "Lote: ${displayedPlotName.ifEmpty { "Sin Nombre de lote" }}", color = Color.Black)
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -111,12 +126,12 @@ fun RecommendationFloweringView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Lista de labores
+                    // Lista de tareas recomendadas para el lote, obtenida del ViewModel
                     TasksList(
                         tasks = tasks,
                         onProgramClick = { task ->
+                            // Definir el tipo de labor y codificar parámetros antes de navegar a la vista de detalles de la labor
                             val tipoLabor = if (task.task == "Chequeo de Salud") "Chequeo de Salud" else "Chequeo de estado de maduración"
-                            // Asegúrate de codificar la fecha si contiene caracteres especiales
                             val encodedDate = Uri.encode(currentDate)
                             val encodedPlotName = Uri.encode(plotName)
                             val encodedTipoLabor = Uri.encode(tipoLabor)
@@ -133,6 +148,10 @@ fun RecommendationFloweringView(
         }
     }
 }
+
+/**
+ * Vista de previsualización para ver cómo se muestra RecommendationFloweringView en Android Studio.
+ */
 
 @Preview(showBackground = true)
 @Composable

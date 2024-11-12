@@ -894,26 +894,31 @@ fun AppNavHost(context: Context) {
         }
      //Reports
         composable(
-            route = "financeReport/{plotIds}/{startDate}/{endDate}",
+            route = "financeReport/{plotIds}/{startDate}/{endDate}/{historyParam}",
             arguments = listOf(
                 navArgument("plotIds") { type = NavType.StringType },
                 navArgument("startDate") { type = NavType.StringType },
-                navArgument("endDate") { type = NavType.StringType }
+                navArgument("endDate") { type = NavType.StringType },
+                navArgument("historyParam") { type = NavType.StringType } // Nuevo argumento
             )
         ) { backStackEntry ->
             val plotIdsParam = backStackEntry.arguments?.getString("plotIds") ?: ""
             val startDate = backStackEntry.arguments?.getString("startDate") ?: ""
             val endDate = backStackEntry.arguments?.getString("endDate") ?: ""
+            val historyParam = backStackEntry.arguments?.getString("historyParam") ?: "0" // Valor por defecto
 
             val plotIds = plotIdsParam.split(",").mapNotNull { it.toIntOrNull() }
+            val includeTransactionHistory = historyParam == "1" // Interpretación del parámetro
 
             FinanceReportView(
                 navController = navController,
                 plotIds = plotIds,
                 startDate = startDate,
-                endDate = endDate
+                endDate = endDate,
+                includeTransactionHistory = includeTransactionHistory // Pasar el valor booleano
             )
         }
+
 
         //HealthCheck
         composable(

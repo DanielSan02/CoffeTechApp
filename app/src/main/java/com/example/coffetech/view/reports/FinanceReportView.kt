@@ -1,4 +1,3 @@
-// FinanceReportView.kt
 package com.example.coffetech.view
 
 import android.widget.Toast
@@ -35,8 +34,15 @@ import android.os.Build
 import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.example.coffetech.model.FarmSummary
+import com.example.coffetech.model.TransactionHistory
+import android.util.Log // Importación añadida para Logcat
+import com.example.coffetech.view.components.CsvFloatingActionButton
+import com.example.coffetech.view.components.generateCsv
 
 @Composable
 fun FinanceReportView(
@@ -45,10 +51,12 @@ fun FinanceReportView(
     plotIds: List<Int>,
     startDate: String,
     endDate: String,
+    includeTransactionHistory: Boolean,
     viewModel: FinanceReportViewModel = viewModel()
 ) {
+    val TAG = "FinanceReportView"
 
-
+    Log.d(TAG, "FinanceReportView Composable iniciado con includeTransactionHistory=$includeTransactionHistory")
 
     val context = LocalContext.current
     val isLoading by viewModel.isLoading.collectAsState()
@@ -58,43 +66,64 @@ fun FinanceReportView(
     var chartBitmaps by remember { mutableStateOf<List<Pair<String, Bitmap>>>(emptyList()) }
 
     fun handleChartsCaptured(bitmaps: List<Pair<String, Bitmap>>) {
+        Log.d(TAG, "Capturando gráficas: ${bitmaps.size} imágenes")
         chartBitmaps = bitmaps
     }
 
-
     // Generar las recomendaciones después de cargar los datos
     val recomendaciones = remember(reportData) {
+        Log.d(TAG, "Generando recomendaciones")
         reportData?.let { viewModel.generarRecomendaciones() } ?: emptyList()
     }
 
-    // State para manejar permiso
-    var showPermissionRationale by remember { mutableStateOf(false) }
+    // Estados para manejar permisos
+    var showPdfPermissionRationale by remember { mutableStateOf(false) }
+    var showCsvPermissionRationale by remember { mutableStateOf(false) }
 
-    // Launcher para solicitar permiso
-    val permissionLauncher = rememberLauncherForActivityResult(
+    // Launchers para solicitar permisos
+    val pdfPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permiso concedido, generar el PDF
+            Log.d(TAG, "Permiso de almacenamiento concedido para PDF")
             if (reportData != null && recomendaciones.isNotEmpty()) {
                 generatePdf(context, reportData!!, recomendaciones, chartBitmaps)
             } else {
                 Toast.makeText(context, "No hay datos para generar el PDF", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Permiso denegado
-            showPermissionRationale = true
+            Log.e(TAG, "Permiso de almacenamiento denegado para PDF")
+            showPdfPermissionRationale = true
+        }
+    }
+
+    val csvPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.d(TAG, "Permiso de almacenamiento concedido para CSV")
+            if (reportData != null) {
+                generateCsv(context, reportData!!)
+            } else {
+                Toast.makeText(context, "No hay datos para generar el CSV", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Log.e(TAG, "Permiso de almacenamiento denegado para CSV")
+            showCsvPermissionRationale = true
         }
     }
 
     // Función para iniciar la generación del PDF
     fun initiatePdfGeneration() {
+        Log.d(TAG, "Iniciando generación de PDF")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             // Verificar si el permiso ya está concedido
             val hasPermission = ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+            Log.d(TAG, "Permiso WRITE_EXTERNAL_STORAGE concedido: $hasPermission")
 
             if (hasPermission) {
                 if (reportData != null && recomendaciones.isNotEmpty()) {
@@ -104,10 +133,12 @@ fun FinanceReportView(
                 }
             } else {
                 // Solicitar el permiso
-                permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                Log.d(TAG, "Solicitando permiso WRITE_EXTERNAL_STORAGE para PDF")
+                pdfPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         } else {
             // Para Android 10 y superiores, no se necesita permiso para usar MediaStore
+            Log.d(TAG, "Android versión >= Q, no se requiere permiso WRITE_EXTERNAL_STORAGE para PDF")
             if (reportData != null && recomendaciones.isNotEmpty()) {
                 generatePdf(context, reportData!!, recomendaciones, chartBitmaps)
             } else {
@@ -116,12 +147,48 @@ fun FinanceReportView(
         }
     }
 
+    // Función para iniciar la generación del CSV
+    fun initiateCsvGeneration() {
+        Log.d(TAG, "Iniciando generación de CSV")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // Verificar si el permiso ya está concedido
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+            Log.d(TAG, "Permiso WRITE_EXTERNAL_STORAGE concedido: $hasPermission")
+
+            if (hasPermission) {
+                if (reportData != null) {
+                    generateCsv(context, reportData!!)
+                } else {
+                    Toast.makeText(context, "No hay datos para generar el CSV", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // Solicitar el permiso
+                Log.d(TAG, "Solicitando permiso WRITE_EXTERNAL_STORAGE para CSV")
+                csvPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        } else {
+            // Para Android 10 y superiores, no se necesita permiso para usar MediaStore
+            Log.d(TAG, "Android versión >= Q, no se requiere permiso WRITE_EXTERNAL_STORAGE para CSV")
+            if (reportData != null) {
+                generateCsv(context, reportData!!)
+            } else {
+                Toast.makeText(context, "No hay datos para generar el CSV", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
+        Log.d(TAG, "Llamando a getFinancialReport")
         viewModel.getFinancialReport(
             context = context,
             plotIds = plotIds,
             fechaInicio = startDate,
-            fechaFin = endDate
+            fechaFin = endDate,
+            includeTransactionHistory = includeTransactionHistory // Pasar el parámetro a la llamada de carga
         )
     }
 
@@ -132,8 +199,11 @@ fun FinanceReportView(
             .navigationBarsPadding()
     ) {
         TopBarWithBackArrow(
-            onBackClick = { navController.popBackStack()
-                navController.popBackStack()},
+            onBackClick = {
+                Log.d(TAG, "Botón de retroceso clickeado")
+                navController.popBackStack()
+                navController.popBackStack()
+            },
             title = "Reporte financiero"
         )
 
@@ -144,11 +214,13 @@ fun FinanceReportView(
         ) {
             when {
                 isLoading -> {
+                    Log.d(TAG, "Mostrando CircularProgressIndicator")
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 errorMessage != null -> {
+                    Log.e(TAG, "Mostrando mensaje de error: $errorMessage")
                     Text(
                         text = errorMessage ?: "",
                         color = Color.Red,
@@ -158,13 +230,17 @@ fun FinanceReportView(
                     )
                 }
                 reportData != null -> {
-                    ReportContent(reportData = reportData!!,
+                    Log.d(TAG, "Mostrando ReportContent")
+                    ReportContent(
+                        reportData = reportData!!,
                         recomendaciones = recomendaciones,
                         onChartsCaptured = { bitmaps ->
                             handleChartsCaptured(bitmaps)
-                        })
+                        }
+                    )
                 }
                 else -> {
+                    Log.e(TAG, "No se pudo generar el reporte.")
                     Text(
                         text = "No se pudo generar el reporte.",
                         color = Color.Gray,
@@ -174,23 +250,44 @@ fun FinanceReportView(
                     )
                 }
             }
-            PdfFloatingActionButton(
-                onButtonClick = {
-                    initiatePdfGeneration()
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(40.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                if (includeTransactionHistory) {
+                    CsvFloatingActionButton(
+                        onButtonClick = {
+                            initiateCsvGeneration()
+                        }
+                    )
                 }
-            )
+
+                PdfFloatingActionButton(
+                    onButtonClick = {
+                        initiatePdfGeneration()
+                    }
+                )
+            }
+
+
         }
     }
 
-    // Mostrar diálogo de razón para el permiso de escritura
-    if (showPermissionRationale) {
+    // Mostrar diálogos de razón para los permisos
+    if (showPdfPermissionRationale) {
+        Log.d(TAG, "Mostrando diálogo de razón para permiso de almacenamiento para PDF")
         AlertDialog(
-            onDismissRequest = { showPermissionRationale = false },
+            onDismissRequest = { showPdfPermissionRationale = false },
             title = { Text(text = "Permiso de almacenamiento") },
             text = { Text("Esta aplicación necesita acceso al almacenamiento para guardar el PDF del reporte.") },
             confirmButton = {
                 TextButton(onClick = {
-                    showPermissionRationale = false
+                    Log.d(TAG, "Usuario decidió abrir configuración para habilitar permisos para PDF")
+                    showPdfPermissionRationale = false
                     // Abrir la configuración de la aplicación para que el usuario pueda habilitar el permiso manualmente
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = Uri.fromParts("package", context.packageName, null)
@@ -201,7 +298,40 @@ fun FinanceReportView(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showPermissionRationale = false }) {
+                TextButton(onClick = {
+                    Log.d(TAG, "Usuario canceló el diálogo de permiso para PDF")
+                    showPdfPermissionRationale = false
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (showCsvPermissionRationale) {
+        Log.d(TAG, "Mostrando diálogo de razón para permiso de almacenamiento para CSV")
+        AlertDialog(
+            onDismissRequest = { showCsvPermissionRationale = false },
+            title = { Text(text = "Permiso de almacenamiento") },
+            text = { Text("Esta aplicación necesita acceso al almacenamiento para guardar el CSV del reporte.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    Log.d(TAG, "Usuario decidió abrir configuración para habilitar permisos para CSV")
+                    showCsvPermissionRationale = false
+                    // Abrir la configuración de la aplicación para que el usuario pueda habilitar el permiso manualmente
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("Abrir Configuración")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    Log.d(TAG, "Usuario canceló el diálogo de permiso para CSV")
+                    showCsvPermissionRationale = false
+                }) {
                     Text("Cancelar")
                 }
             }
@@ -210,22 +340,29 @@ fun FinanceReportView(
 }
 
 
-@Composable
-fun ReportContent(reportData: FinancialReportData,
-                  recomendaciones: List<LoteRecommendation>,
-                  onChartsCaptured: (List<Pair<String, Bitmap>>) -> Unit // Callback para recibir las gráficas con su sección
 
+@Composable
+fun ReportContent(
+    reportData: FinancialReportData,
+    recomendaciones: List<LoteRecommendation>,
+    onChartsCaptured: (List<Pair<String, Bitmap>>) -> Unit // Callback para recibir las gráficas con su sección
 ) {
+    val TAG = "ReportContent"
+    Log.d(TAG, "Renderizando ReportContent")
+
     // Lista para almacenar pares de sección y bitmap
     val chartBitmaps = remember { mutableStateListOf<Pair<String, Bitmap>>() }
 
     // Función para agregar un par sección-bitmap
     fun addBitmap(section: String, bitmap: Bitmap) {
+        Log.d(TAG, "Agregando bitmap para sección: $section")
         chartBitmaps.add(Pair(section, bitmap))
         // Verificar si todas las gráficas han sido capturadas antes de llamar al callback
         // Esto depende de cuántas gráficas esperas
         val expectedChartCount = 1 + (reportData.plot_financials.size * 2) + 2 // Ejemplo basado en tu ReportContent
+        Log.d(TAG, "Bitmap agregado. Total actual: ${chartBitmaps.size}, Esperado: $expectedChartCount")
         if (chartBitmaps.size == expectedChartCount) {
+            Log.d(TAG, "Se han capturado todas las gráficas. Llamando a onChartsCaptured")
             onChartsCaptured(chartBitmaps.toList())
         }
     }
@@ -280,7 +417,7 @@ fun ReportContent(reportData: FinancialReportData,
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Este es el reporte financiero de la finca: ${reportData.finca_nombre} que incluye los lotes: ${reportData.lotes_incluidos.joinToString(", ")}, en el periodo ${reportData.periodo}. A continuación, se presenta un análisis Fde los ingresos y gastos por lote y para la finca en su conjunto.",
+            text = "Este es el reporte financiero de la finca: ${reportData.finca_nombre} que incluye los lotes: ${reportData.lotes_incluidos.joinToString(", ")}, en el periodo ${reportData.periodo}. A continuación, se presenta un análisis de los ingresos y gastos por lote y para la finca en su conjunto.",
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF3F3D3D)
         )
@@ -463,6 +600,75 @@ fun ReportContent(reportData: FinancialReportData,
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF3F3D3D)
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val transactionHistory = reportData.transaction_history ?: emptyList()
+
+        // 6. Historial de Transacciones
+        if (transactionHistory.isNotEmpty()) {
+            Text(
+                text = "6. Historial de Transacciones",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF49602D),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                transactionHistory.forEach { transaction ->
+                    TransactionItem(transaction = transaction)
+                    Divider(color = Color.LightGray, thickness = 1.dp)
+                }
+            }
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+        } else {
+            Log.d(TAG, "No hay historial de transacciones para mostrar.")
+        }
+        Spacer(modifier = Modifier.height(50.dp))
+
+
+    }
+
+}
+@Composable
+fun TransactionItem(transaction: TransactionHistory) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text(
+            text = "Fecha: ${transaction.date}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D)
+        )
+        Text(
+            text = "Lote: ${transaction.plot_name}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D)
+        )
+        Text(
+            text = "Tipo: ${transaction.transaction_type}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D)
+        )
+        Text(
+            text = "Categoría: ${transaction.transaction_category}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D)
+        )
+        Text(
+            text = "Creador: ${transaction.creator_name}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D)
+        )
+        Text(
+            text = "Valor: \$${transaction.value}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D)
+        )
     }
 }
 
@@ -470,13 +676,57 @@ fun ReportContent(reportData: FinancialReportData,
 @Preview(showBackground = true)
 @Composable
 fun FinanceReportPreview() {
+    val TAG = "FinanceReportPreview"
+    Log.d(TAG, "Mostrando Preview de FinanceReport")
     val navController = NavController(LocalContext.current)
+    val sampleData = FinancialReportData(
+        finca_nombre = "Finca Modelo",
+        lotes_incluidos = listOf("Lote 1", "Lote 2"),
+        periodo = "2024-01-01 al 2024-03-31",
+        plot_financials = listOf(
+            // Agrega datos de plot_financials de ejemplo aquí
+        ),
+        farm_summary = FarmSummary(
+            total_ingresos = 100000,
+            total_gastos = 50000,
+            balance_financiero = 50000,
+            ingresos_por_categoria = listOf(
+                // Agrega categorías de ingresos de ejemplo aquí
+            ),
+            gastos_por_categoria = listOf(
+                // Agrega categorías de gastos de ejemplo aquí
+            )
+        ),
+        transaction_history = listOf(
+            TransactionHistory(
+                date = "2024-01-15",
+                plot_name = "Lote 1",
+                farm_name = "Finca Modelo",
+                transaction_type = "Ingreso",
+                transaction_category = "Venta de Café",
+                creator_name = "Juan Pérez",
+                value = 20000
+            ),
+            TransactionHistory(
+                date = "2024-02-10",
+                plot_name = "Lote 2",
+                farm_name = "Finca Modelo",
+                transaction_type = "Gasto",
+                transaction_category = "Fertilizantes",
+                creator_name = "Ana Gómez",
+                value = 5000
+            )
+            // Agrega más transacciones de ejemplo según sea necesario
+        )
+    )
+
     CoffeTechTheme {
-        FinanceReportView(
-            navController = navController,
-            plotIds = listOf(1, 2, 3),
-            startDate = "2024-01-01",
-            endDate = "2024-03-31"
+        ReportContent(
+            reportData = sampleData,
+            recomendaciones = listOf(
+                // Agrega recomendaciones de ejemplo aquí
+            ),
+            onChartsCaptured = {}
         )
     }
 }

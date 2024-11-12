@@ -1,19 +1,28 @@
 package com.example.coffetech.view.flowering
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,13 +40,17 @@ import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.DatePickerComposable
 import com.example.coffetech.common.FloweringNameDropdown
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.ReusableTextField
-import com.example.coffetech.common.RoleAddDropdown
-import com.example.coffetech.common.VarietyCoffeeDropdown
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.viewmodel.flowering.AddFloweringViewModel
 
+
+/**
+ * Función composable que muestra la vista de agregar floración, permitiendo a los usuarios añadir información de floración.
+ *
+ * @param navController El controlador de navegación para manejar acciones de navegación.
+ * @param plotId El ID de la parcela donde se está añadiendo la floración.
+ * @param viewModel El ViewModel que gestiona el estado y lógica para agregar datos de floración.
+ */
 
 @Composable
 fun AddFloweringView(
@@ -45,6 +58,8 @@ fun AddFloweringView(
     plotId: Int,
     viewModel: AddFloweringViewModel = viewModel()
 ) {
+
+    // Variables para obtener el contexto y observar los valores de estado del ViewModel
     val context = LocalContext.current
     val selectedFloweringName by viewModel.selectedFloweringName.collectAsState()
     val floweringName by viewModel.floweringName.collectAsState()
@@ -54,11 +69,12 @@ fun AddFloweringView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
 
-    // Variable para indicar si el formulario fue enviado
+    // Cargar los tipos de floración en el primer lanzamiento
     LaunchedEffect(Unit) {
         viewModel.loadFloweringTypes()
     }
 
+    // Contenedor principal para el diseño del formulario de Agregar Floración
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -92,6 +108,8 @@ fun AddFloweringView(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Título del formulario
+
                 Text(
                     text = "Agregar Floración",
                     textAlign = TextAlign.Center,
@@ -112,6 +130,8 @@ fun AddFloweringView(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
 
+
+                // Desplegable para seleccionar el nombre de la floración
                 FloweringNameDropdown(
                     selectedFloweringName = selectedFloweringName,
                     onFloweringNameChange = { viewModel.onFloweringNameChange(it) },
@@ -122,7 +142,7 @@ fun AddFloweringView(
                 )
 
 
-
+                // Etiqueta para la fecha de floración
                 Text(
                     text = "Fecha de Floración",
                     textAlign = TextAlign.Center,
@@ -134,7 +154,7 @@ fun AddFloweringView(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                // Campo de texto para el nombre del lote
+                // Selector de fecha para la fecha de floración
                 DatePickerComposable(
                     label = "Fecha de floración",
                     selectedDate = flowering_date,
@@ -144,6 +164,8 @@ fun AddFloweringView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+
+                // Selector de fecha para la fecha de floración
                 Text(
                     text = "Fecha de Cosecha (Opcional)",
                     textAlign = TextAlign.Center,
@@ -155,6 +177,7 @@ fun AddFloweringView(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
+                // Selector de fecha para la fecha de cosecha, con opción de limpiar la fecha
                 DatePickerComposable(
                     label = "Fecha de cosecha",
                     selectedDate = harvest_date,
@@ -169,6 +192,7 @@ fun AddFloweringView(
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(bottom = 16.dp))
                 }
 
+                // Botón para enviar el formulario, desactivado si está cargando o hay un error
                 ReusableButton(
                     text = if (isLoading) "Creando..." else "Crear",
                     onClick = {
@@ -183,6 +207,10 @@ fun AddFloweringView(
     }
 }
 
+
+/**
+ * Función de vista previa para mostrar la vista de Agregar Floración en el modo de vista previa de Android Studio.
+ */
 
 @Preview(showBackground = true)
 @Composable

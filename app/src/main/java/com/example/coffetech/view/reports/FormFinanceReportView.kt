@@ -45,6 +45,7 @@ fun FormFinanceReportView(
     val allSelected = allPlots.isNotEmpty() && selectedPlotIds.size == allPlots.size
 
     val context = LocalContext.current
+    var includeTransactionHistory by remember { mutableStateOf(false) } // Nuevo estado para el checkbox
 
     LaunchedEffect(Unit) {
         viewModel.loadPlots(farmId, context)
@@ -179,6 +180,27 @@ fun FormFinanceReportView(
                         },
                         errorMessage = if (!isFormValid && endDate.isNullOrBlank()) "La fecha de fin es requerida." else null
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Checkbox para historial de transacciones
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = includeTransactionHistory,
+                            onCheckedChange = { includeTransactionHistory = it },
+                            colors = CheckboxDefaults.colors(Color(0xFF5D8032))
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Desea el historial de las transacciones para poderlo descargar en .csv y en el pdf?",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF3F3D3D)),
+                            modifier = Modifier.fillMaxWidth(0.8f)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Mostrar mensaje de error si existe
@@ -197,7 +219,7 @@ fun FormFinanceReportView(
                     ReusableButton(
                         text = "Generar Reporte",
                         onClick = {
-                            viewModel.onSubmit(navController)
+                            viewModel.onSubmit(navController, includeTransactionHistory) // Paso el estado del checkbox
                             // Implementa la lógica para generar el reporte
                             // Por ejemplo, navegar a otra pantalla o mostrar un diálogo de éxito
                         },

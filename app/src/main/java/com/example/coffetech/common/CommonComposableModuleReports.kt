@@ -47,7 +47,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.shape.CircleShape
 import androidx.core.content.FileProvider
 import com.example.coffetech.model.FinancialReportData
 import com.example.coffetech.viewmodel.reports.LoteRecommendation
@@ -120,28 +122,21 @@ fun PdfFloatingActionButton(
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.BottomEnd
+    FloatingActionButton(
+        onClick = onButtonClick,
+        modifier = modifier,
+        containerColor = Color(0xFFB31D34),
+        shape = CircleShape,
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 8.dp
+        )
     ) {
-        // Botón principal
-        FloatingActionButton(
-            onClick = onButtonClick,
-            containerColor = Color(0xFFB31D34), // Ajusta el color si es necesario
-            shape = androidx.compose.foundation.shape.CircleShape,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 8.dp
-            )
-        ) {
-            Text(
-                text = "PDF",
-                color = Color.White,
-                modifier = Modifier.padding(4.dp), // Ajusta el padding si es necesario
-            )
-        }
+        Text(
+            text = "PDF",
+            color = Color.White,
+            modifier = Modifier.padding(4.dp)
+        )
     }
 }
 
@@ -661,6 +656,155 @@ fun abrirCarpetaDescargas(context: Context) {
     } else {
         // Si no se puede abrir la carpeta, notificar al usuario
         Toast.makeText(context, "Guardado en Downloads o Descargas.", Toast.LENGTH_LONG).show()
+    }
+}
+
+@Composable
+fun CsvFloatingActionButton(
+    onButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FloatingActionButton(
+        onClick = onButtonClick,
+        modifier = modifier,
+        containerColor = Color(0xFF4CAF50),
+        shape = CircleShape,
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 8.dp
+        )
+    ) {
+        Text(
+            text = ".CSV",
+            color = Color.White,
+            modifier = Modifier.padding(4.dp),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+fun generateCsv(
+    context: Context,
+    reportData: FinancialReportData
+) {
+    try {
+        // Crear el contenido del CSV
+        val csvBuilder = StringBuilder()
+
+        // Encabezados
+        csvBuilder.append("Finca,Periodo,Total Ingresos,Total Gastos,Balance Financiero\n")
+        csvBuilder.append("${reportData.finca_nombre},${reportData.periodo},${reportData.farm_summary.total_ingresos},${reportData.farm_summary.total_gastos},${reportData.farm_summary.balance_financiero}\n\n")
+
+        // Ingresos por Categoría
+        csvBuilder.append("Ingresos por Categoría\n")
+        csvBuilder.append("Categoría,Monto\n")
+        reportData.farm_summary.ingresos_por_categoria.forEach { categoria ->
+            csvBuilder.append("${categoria.category_name},${categoria.monto}\n")
+        }
+        csvBuilder.append("\n")
+
+        // Gastos por Categoría
+        csvBuilder.append("Gastos por Categoría\n")
+        csvBuilder.append("Categoría,Monto\n")
+        reportData.farm_summary.gastos_por_categoria.forEach { categoria ->
+            csvBuilder.append("${categoria.category_name},${categoria.monto}\n")
+        }
+        csvBuilder.append("\n")
+
+        // Detalles por Lote
+        csvBuilder.append("Detalles por Lote\n")
+        csvBuilder.append("Lote,Ingresos,Gastos,Balance\n")
+        reportData.plot_financials.forEach { plot ->
+            csvBuilder.append("${plot.plot_name},${plot.ingresos},${plot.gastos},${plot.balance}\n")
+        }
+        csvBuilder.append("\n")
+
+        // Historial de Transacciones (si está incluido)
+        reportData.transaction_history?.let { transactions ->
+            if (transactions.isNotEmpty()) {
+                csvBuilder.append("Historial de Transacciones\n")
+                csvBuilder.append("Fecha,Lote,Tipo,Categoría,Creador,Valor\n")
+                transactions.forEach { transaction ->
+                    csvBuilder.append("${transaction.date},${transaction.plot_name},${transaction.transaction_type},${transaction.transaction_category},${transaction.creator_name},${transaction.value}\n")
+                }
+                csvBuilder.append("\n")
+            }
+        }
+
+        // Convertir el contenido a bytes
+        val csvBytes = csvBuilder.toString().toByteArray()
+
+        // Nombre del archivo
+        val fileName = "Reporte_Financiero_${reportData.finca_nombre}_${reportData.periodo}.csv"
+
+        // Guardar el CSV en la carpeta de Descargas utilizando MediaStore
+        val csvUri: Uri? = saveCsvToDownloads(context, csvBytes, fileName)
+
+        if (csvUri != null) {
+            Toast.makeText(context, "CSV generado correctamente.", Toast.LENGTH_LONG).show()
+            abrirCsv(context, csvUri)
+        } else {
+            Toast.makeText(context, "Error al guardar el CSV.", Toast.LENGTH_LONG).show()
+        }
+    } catch (e: Exception) {
+        Log.e("generateCsv", "Error al generar el CSV: ${e.message}")
+        Toast.makeText(context, "Error al generar el CSV.", Toast.LENGTH_LONG).show()
+    }
+}
+
+fun saveCsvToDownloads(context: Context, csvBytes: ByteArray, fileName: String): Uri? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Para Android 10 y superiores, usar MediaStore
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+
+        val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        uri?.let {
+            context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                outputStream.write(csvBytes)
+            }
+            it
+        }
+    } else {
+        // Para versiones anteriores de Android
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (!downloadsDir.exists()) {
+            downloadsDir.mkdirs()
+        }
+        val csvFile = File(downloadsDir, fileName)
+        try {
+            FileOutputStream(csvFile).use { outputStream ->
+                outputStream.write(csvBytes)
+            }
+            Uri.fromFile(csvFile)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
+
+fun abrirCsv(context: Context, csvUri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(csvUri, "text/csv")
+        flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_GRANT_READ_URI_PERMISSION
+    }
+
+    // Crear un chooser para que el usuario seleccione la aplicación
+    val chooser = Intent.createChooser(intent, "Abrir CSV con")
+
+    // Verificar si hay alguna aplicación que pueda manejar este intent
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(chooser)
+    } else {
+        // No hay aplicaciones disponibles para abrir CSVs
+        Toast.makeText(context, "No hay una aplicación para abrir el CSV.", Toast.LENGTH_LONG).show()
+
+        // Opcional: Abrir la ubicación del archivo en el explorador de archivos
+        abrirCarpetaDescargas(context)
     }
 }
 

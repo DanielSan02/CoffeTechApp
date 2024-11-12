@@ -1,4 +1,3 @@
-// FinanceReportViewModel.kt
 package com.example.coffetech.viewmodel.reports
 
 import android.content.Context
@@ -18,8 +17,11 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.util.Log // Importación añadida para Logcat
 
 class FinanceReportViewModel : ViewModel() {
+
+    private val TAG = "FinanceReportViewModel" // Tag para los logs
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -35,13 +37,17 @@ class FinanceReportViewModel : ViewModel() {
         context: Context,
         plotIds: List<Int>,
         fechaInicio: String,
-        fechaFin: String
+        fechaFin: String,
+        includeTransactionHistory: Boolean // Parámetro adicional
+
     ) {
+        Log.d(TAG, "Obteniendo reporte financiero con plotIds=$plotIds, fechaInicio=$fechaInicio, fechaFin=$fechaFin, includeTransactionHistory=$includeTransactionHistory")
         _isLoading.value = true
         _errorMessage.value = null
 
         val sharedPreferencesHelper = SharedPreferencesHelper(context)
         val sessionToken = sharedPreferencesHelper.getSessionToken() ?: run {
+            Log.e(TAG, "No se encontró el token de sesión.")
             _errorMessage.value = "No se encontró el token de sesión."
             Toast.makeText(
                 context,
@@ -52,11 +58,16 @@ class FinanceReportViewModel : ViewModel() {
             return
         }
 
+        Log.d(TAG, "Token de sesión obtenido: $sessionToken")
+
         val request = FinancialReportRequest(
             plot_ids = plotIds,
             fechaInicio = fechaInicio,
-            fechaFin = fechaFin
+            fechaFin = fechaFin,
+            include_transaction_history = includeTransactionHistory // Incluir en la solicitud
         )
+
+        Log.d(TAG, "Realizando llamada a la API con request: $request")
 
         RetrofitInstance.api.getFinancialReport(sessionToken, request)
             .enqueue(object : Callback<FinancialReportResponse> {
@@ -64,20 +75,26 @@ class FinanceReportViewModel : ViewModel() {
                     call: Call<FinancialReportResponse>,
                     response: Response<FinancialReportResponse>
                 ) {
+                    Log.d(TAG, "Respuesta de la API recibida con código: ${response.code()}")
                     _isLoading.value = false
                     if (response.isSuccessful) {
                         val responseBody = response.body()
+                        Log.d(TAG, "Respuesta de la API exitosa: $responseBody")
                         responseBody?.let {
                             if (it.status == "success") {
                                 _reportData.value = it.data
+                                Log.d(TAG, "Datos del reporte actualizados: ${it.data}")
                             } else {
                                 _errorMessage.value = it.message ?: "Error desconocido al generar el reporte."
+                                Log.e(TAG, "Error en la respuesta de la API: ${it.message}")
                             }
                         } ?: run {
                             _errorMessage.value = "No se pudo generar el reporte."
+                            Log.e(TAG, "Respuesta de la API es nula")
                         }
                     } else {
                         val errorBody = response.errorBody()?.string()
+                        Log.e(TAG, "Respuesta de la API no exitosa: $errorBody")
                         errorBody?.let {
                             try {
                                 val errorJson = JSONObject(it)
@@ -85,16 +102,20 @@ class FinanceReportViewModel : ViewModel() {
                                     "message",
                                     "Error desconocido al generar el reporte."
                                 )
+                                Log.e(TAG, "Mensaje de error de la API: ${errorJson.optString("message")}")
                             } catch (e: Exception) {
                                 _errorMessage.value = "Error al procesar la respuesta del servidor."
+                                Log.e(TAG, "Excepción al procesar el errorBody: ${e.message}")
                             }
                         } ?: run {
                             _errorMessage.value = "Error al generar el reporte: respuesta vacía del servidor."
+                            Log.e(TAG, "Respuesta de la API sin cuerpo de error")
                         }
                     }
                 }
 
                 override fun onFailure(call: Call<FinancialReportResponse>, t: Throwable) {
+                    Log.e(TAG, "Fallo en la llamada a la API: ${t.message}")
                     _isLoading.value = false
                     _errorMessage.value = "Error de conexión"
                 }
@@ -102,6 +123,7 @@ class FinanceReportViewModel : ViewModel() {
     }
 
     fun generarRecomendaciones(): List<LoteRecommendation> {
+        Log.d(TAG, "Generando recomendaciones basadas en los datos del reporte")
         val recomendaciones = mutableListOf<LoteRecommendation>()
 
         reportData.value?.plot_financials?.forEach { plot ->
@@ -114,6 +136,8 @@ class FinanceReportViewModel : ViewModel() {
                 balance > 0.1 * ingresos -> "Buen rendimiento"
                 else -> "Rendimiento bajo"
             }
+
+            Log.d(TAG, "Rendimiento para lote ${plot.plot_name}: $rendimiento")
 
             val recomendacionesLote = mutableListOf<String>()
 
@@ -170,8 +194,10 @@ class FinanceReportViewModel : ViewModel() {
                     recomendaciones = recomendacionesLote
                 )
             )
+            Log.d(TAG, "Recomendaciones para lote ${plot.plot_name}: $recomendacionesLote")
         }
 
+        Log.d(TAG, "Recomendaciones generadas: $recomendaciones")
         return recomendaciones
     }
 

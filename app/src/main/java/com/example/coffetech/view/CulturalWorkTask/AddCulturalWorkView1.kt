@@ -30,6 +30,15 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel1
 
 
+/**
+ * Vista principal para añadir una nueva tarea de labor cultural.
+ *
+ * @param navController Controlador de navegación para gestionar la navegación entre vistas.
+ * @param plotId ID del lote en el que se añadirá la labor cultural.
+ * @param plotName Nombre del lote asociado (opcional).
+ * @param viewModel ViewModel que maneja el estado y la lógica para añadir una labor cultural.
+ */
+
 @Composable
 fun AddCulturalWorkView1(
     navController: NavController,
@@ -37,6 +46,7 @@ fun AddCulturalWorkView1(
     plotName: String = "",
     viewModel: AddCulturalWorkViewModel1 = viewModel()
 ) {
+    // Observación de los estados desde el ViewModel
     val flowering_date by viewModel.flowering_date.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val typeCulturalWorkList by viewModel.typeCulturalWorkList.collectAsState()
@@ -44,18 +54,21 @@ fun AddCulturalWorkView1(
     val isFormSubmitted by viewModel.isFormSubmitted.collectAsState()
     val isFormValid by viewModel.isFormValid.collectAsState()
 
+    // Efecto lanzado para inicializar la lista de tipos de labores culturales
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         // Simula la carga de tipos de labores culturales
         viewModel.setTypeCulturalWorkList(listOf("Chequeo de Salud", "Chequeo de estado de maduración"))
     }
 
+    // Efecto lanzado para actualizar el nombre del lote si está disponible
     LaunchedEffect(plotName) {
         if (plotName.isNotEmpty()) {
             viewModel.updatePlotName(plotName)
         }
     }
 
+    // Caja contenedora principal con fondo oscuro
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -64,17 +77,20 @@ fun AddCulturalWorkView1(
             .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Contenedor blanco donde se encuentra el formulario de la tarea
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
+            // Columna que contiene los elementos del formulario
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
+                // Botón para regresar a la vista anterior
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -87,6 +103,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Título de la vista
                 Text(
                     text = "Añadir Labor",
                     textAlign = TextAlign.Center,
@@ -96,6 +113,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Texto que muestra el nombre del lote
                 Text(
                     text = "Lote: $plotName",
                     textAlign = TextAlign.Center,
@@ -107,6 +125,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Etiqueta para el tipo de labor cultural
                 Text(
                     text = "Tipo Labor Cultural",
                     textAlign = TextAlign.Center,
@@ -116,6 +135,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
+                // Desplegable para seleccionar el tipo de labor cultural
                 TypeCulturalWorkDropdown(
                     selectedCulturalWork = selectedTypeCulturalWork,
                     onTypeCulturalWorkChange = { selected ->
@@ -130,6 +150,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Etiqueta para seleccionar la fecha de la tarea
                 Text(
                     text = "Fecha",
                     textAlign = TextAlign.Center,
@@ -139,6 +160,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
+                // Selector de fecha para la tarea de labor cultural
                 DatePickerComposable(
                     label = "Fecha de la tarea",
                     selectedDate = flowering_date,  // Pasa la fecha actual
@@ -153,6 +175,7 @@ fun AddCulturalWorkView1(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Botón de "Siguiente" para proceder a la siguiente vista con los datos ingresados
                 ReusableButton(
                     text = "Siguiente",
                     onClick = {
@@ -173,7 +196,9 @@ fun AddCulturalWorkView1(
 
 
 
-
+/**
+ * Vista previa de la función AddCulturalWorkView1 para ver cómo se muestra en Android Studio.
+ */
 
 // Mueve la función Preview fuera de la función CreatePlotView
 @Preview(showBackground = true)

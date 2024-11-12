@@ -145,7 +145,6 @@ fun FarmView(
                     mainButtonIcon = painterResource(id = R.drawable.plus_icon),
                     modifier = Modifier
                         .align(Alignment.BottomEnd) // Align to the bottom right
-                        .padding(16.dp) // Padding for positioning
                 )
             }
 

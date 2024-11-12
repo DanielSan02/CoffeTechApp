@@ -167,7 +167,7 @@ class FormFinanceReportViewModel : ViewModel() {
     /**
      * Método para manejar el envío del formulario
      */
-    fun onSubmit(navController: NavController) {
+    fun onSubmit(navController: NavController, includeTransactionHistory: Boolean) {
         if (!isFormValid.value) {
             _errorMessage.value = "Por favor, completa todos los campos correctamente."
             return
@@ -180,7 +180,9 @@ class FormFinanceReportViewModel : ViewModel() {
         if (plotIds.isNotEmpty() && !startDate.isNullOrBlank() && !endDate.isNullOrBlank()) {
             // Construir una ruta con los parámetros
             val plotIdsParam = plotIds.joinToString(",")
-            val route = "financeReport/$plotIdsParam/$startDate/$endDate"
+            val historyParam = if (includeTransactionHistory) "1" else "0"
+
+            val route = "financeReport/$plotIdsParam/$startDate/$endDate/$historyParam"
             navController.navigate(route)
         } else {
             _errorMessage.value = "Por favor, completa todos los campos."

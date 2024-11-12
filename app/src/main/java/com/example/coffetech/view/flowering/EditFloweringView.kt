@@ -40,6 +40,18 @@ import com.example.coffetech.view.Collaborator.AddCollaboratorView
 import com.example.coffetech.viewmodel.flowering.AddFloweringViewModel
 import com.example.coffetech.viewmodel.flowering.EditFloweringViewModel
 
+/**
+ * Función composable que muestra la vista para editar una floración, permitiendo a los usuarios actualizar
+ * o eliminar una floración existente.
+ *
+ * @param navController Controlador de navegación para manejar acciones de navegación.
+ * @param floweringId ID de la floración a editar.
+ * @param floweringTypeName Nombre del tipo de floración.
+ * @param floweringDate Fecha de la floración.
+ * @param harvestDate Fecha de cosecha.
+ * @param plotId ID de la parcela asociada con la floración.
+ * @param viewModel ViewModel que gestiona el estado y lógica para editar una floración.
+ */
 
 @Composable
 fun EditFloweringView(
@@ -54,7 +66,7 @@ fun EditFloweringView(
 
     Log.d("EditFloweringView", "Iniciando EditFloweringView con ID: $floweringId")
 
-
+    // Variables para obtener el contexto y observar los valores de estado del ViewModel
     val context = LocalContext.current
     val showDeleteConfirmation = remember { mutableStateOf(false) }
     val currentFloweringName by viewModel.selectedFloweringName.collectAsState()
@@ -65,6 +77,8 @@ fun EditFloweringView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val hasChanges by viewModel.hasChanges.collectAsState()
 
+
+    // Inicializar la vista con datos existentes de la floración
     LaunchedEffect(Unit) {
         viewModel.initialize(
             floweringId = floweringId,
@@ -74,6 +88,7 @@ fun EditFloweringView(
         )
     }
 
+    // Contenedor principal de la interfaz de edición de floración
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -107,6 +122,7 @@ fun EditFloweringView(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Título de la pantalla de edición
                 Text(
                     text = "Editar Floración",
                     textAlign = TextAlign.Center,
@@ -117,6 +133,8 @@ fun EditFloweringView(
                 )
 
                 Spacer(modifier = Modifier.height(45.dp))
+
+                // Etiqueta y desplegable para el tipo de floración, solo para visualización
                 Text(
                     text = "Tipo de floración",
                     textAlign = TextAlign.Center,
@@ -140,8 +158,7 @@ fun EditFloweringView(
                     showArrow = false
                 )
 
-
-
+                // Etiqueta para la fecha de floración, solo para visualización
                 Text(
                     text = "Fecha de Floración",
                     textAlign = TextAlign.Center,
@@ -165,6 +182,7 @@ fun EditFloweringView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Etiqueta para la fecha de cosecha, permitiendo cambios
                 Text(
                     text = "Fecha de Cosecha",
                     textAlign = TextAlign.Center,
@@ -190,7 +208,7 @@ fun EditFloweringView(
                 if (errorMessage.isNotEmpty()) {
                     Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(bottom = 16.dp))
                 }
-                // Botón para guardar cambios
+                // Botón para guardar cambios en la floración
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
@@ -206,9 +224,9 @@ fun EditFloweringView(
                     enabled = hasChanges && !isLoading && errorMessage.isEmpty()
                 )
 
-                // Botón para eliminar el colaborador
                 Spacer(modifier = Modifier.height(16.dp)) // Espaciado entre botones
 
+                // Botón para eliminar la floracion
                 ReusableButton(
                     text = if (isLoading) "Cargando..." else "Eliminar",
                     onClick = {showDeleteConfirmation.value = true},
@@ -220,7 +238,8 @@ fun EditFloweringView(
                 )
 
                 val image = painterResource(id = R.drawable.delete_confirmation_icon)
-                //Confirmación para eliminar colaborador
+
+                // Diálogo de confirmación para eliminar la floración
                 if (showDeleteConfirmation.value) {
                     ReusableAlertDialog(
                         title = "¡ESTA ACCIÓN\nES IRREVERSIBLE!",
@@ -247,7 +266,9 @@ fun EditFloweringView(
     }
 }
 
-
+/**
+ * Función de vista previa para mostrar la vista de Editar Floración en el modo de vista previa de Android Studio.
+ */
 @Preview(showBackground = true)
 @Composable
 fun EditFloweringViewPreview() {

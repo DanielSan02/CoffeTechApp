@@ -1,17 +1,29 @@
 package com.example.coffetech.view.CulturalWorkTask
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,11 +39,24 @@ import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.ReusableButton
-import com.example.coffetech.common.ReusableTextField
 import com.example.coffetech.ui.theme.CoffeTechTheme
-import com.example.coffetech.viewmodel.CulturalWorkTask.AddCulturalWorkViewModel1
 import com.example.coffetech.viewmodel.CulturalWorkTask.EditCulturalWorkViewModel
 
+/**
+ * Vista para editar una tarea de labor cultural. Permite al usuario modificar detalles de la tarea,
+ * como el tipo de labor, la fecha, y el colaborador asignado. También incluye opciones para guardar
+ * o eliminar la tarea.
+ *
+ * @param navController Controlador de navegación para manejar el flujo entre vistas.
+ * @param culturalWorkTaskId ID de la tarea de labor cultural.
+ * @param culturalWorksName Nombre de la labor cultural.
+ * @param collaboratorUserId ID del colaborador asignado.
+ * @param collaborator_name Nombre del colaborador asignado.
+ * @param taskDate Fecha de la tarea.
+ * @param plotName Nombre del lote asociado.
+ * @param plotId ID del lote asociado.
+ * @param viewModel ViewModel que gestiona el estado y lógica de esta vista.
+ */
 @Composable
 fun EditCulturalWorkView(
     navController: NavController,
@@ -60,7 +85,7 @@ fun EditCulturalWorkView(
     val selectedCulturalWork by viewModel.selectedCulturalWork.collectAsState()
     val selectedDate by viewModel.taskDate.collectAsState()
 
-    // Inicializa los datos en el ViewModel
+    // Inicializa los datos en el ViewModel cuando se monta el composable
     LaunchedEffect(Unit) {
         viewModel.initialize(
             culturalWorkTaskId,
@@ -86,6 +111,7 @@ fun EditCulturalWorkView(
         )
     }
 
+    // Caja principal con fondo oscuro
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -94,6 +120,7 @@ fun EditCulturalWorkView(
             .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Contenedor del formulario de edición de tarea
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
@@ -118,6 +145,7 @@ fun EditCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Título de la vista
                 Text(
                     text = "Editar Labor",
                     textAlign = TextAlign.Center,
@@ -129,6 +157,7 @@ fun EditCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Información del lote
                 Text(
                     text = "Lote: $plotName",
                     style = MaterialTheme.typography.titleSmall.copy(
@@ -140,6 +169,7 @@ fun EditCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // Dropdown para seleccionar el tipo de labor cultural
                 Text(
                     text = "Tipo Labor Cultural",
                     textAlign = TextAlign.Center,
@@ -164,6 +194,7 @@ fun EditCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Selector de fecha
                 Text(
                     text = "Fecha",
                     textAlign = TextAlign.Center,
@@ -185,6 +216,7 @@ fun EditCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+                // Dropdown para seleccionar colaborador
                 Text(
                     text = "Colaborador",
                     textAlign = TextAlign.Center,
@@ -196,10 +228,10 @@ fun EditCulturalWorkView(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Dropdown de colaboradores o mensaje si no hay
+
                 when {
                     isFetchingCollaborators -> {
-                        // Mostrar un círculo cargando
+                        // Indicador de carga para colaboradores
                         CircularProgressIndicator(
                             color = Color(0xFF5D8032),
                             modifier = Modifier.size(24.dp)
@@ -207,7 +239,7 @@ fun EditCulturalWorkView(
                     }
 
                     collaborators.isEmpty() -> {
-                        // Mostrar mensaje si no hay colaboradores
+                        // Mensaje si no hay colaboradores disponibles
                         Text(
                             text = "Usted no tiene colaboradores operadores de campo en su finca, agréguelos para continuar.",
                             color = Color.Red,
@@ -219,6 +251,7 @@ fun EditCulturalWorkView(
                     }
 
                     else -> {
+                        // Dropdown de colaboradores
                         CollaboratorDropdownWithId(
                             selectedCollaboratorId = selectedCollaboratorId,
                             collaborators = collaborators,
@@ -263,7 +296,7 @@ fun EditCulturalWorkView(
                 )
 
                 val image = painterResource(id = R.drawable.delete_confirmation_icon)
-                // Confirmación para eliminar tarea
+                // Dialogo de Confirmación para eliminar tarea
                 if (showDeleteConfirmation) {
                     ReusableAlertDialog(
                         title = "¡ESTA ACCIÓN\nES IRREVERSIBLE!",
@@ -286,9 +319,9 @@ fun EditCulturalWorkView(
     }
 }
 
-
-
-
+/**
+ * Vista previa de EditCulturalWorkView para Android Studio.
+ */
 // Mueve la función Preview fuera de la función CreatePlotView
 @Preview(showBackground = true)
 @Composable

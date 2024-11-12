@@ -818,7 +818,19 @@ data class FinancialReportData(
     val lotes_incluidos: List<String>,
     val periodo: String,
     val plot_financials: List<PlotFinancial>,
-    val farm_summary: FarmSummary
+    val farm_summary: FarmSummary,
+    val transaction_history: List<TransactionHistory>? // Campo opcional para historial de transacciones
+
+)
+
+data class TransactionHistory(
+    val date: String,
+    val plot_name: String,
+    val farm_name: String,
+    val transaction_type: String,
+    val transaction_category: String,
+    val creator_name: String,
+    val value: Long
 )
 
 data class PlotFinancial(
@@ -846,7 +858,9 @@ data class CategoryAmount(
 data class FinancialReportRequest(
     val plot_ids: List<Int>,
     val fechaInicio: String, // Formato "yyyy-MM-dd"
-    val fechaFin: String     // Formato "yyyy-MM-dd"
+    val fechaFin: String   ,  // Formato "yyyy-MM-dd"
+    val include_transaction_history: Boolean // Nuevo parámetro para incluir historial de transacciones
+
 )
 
 // Solicitud para detección

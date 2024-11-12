@@ -1,5 +1,6 @@
 package com.example.coffetech.view.healthcheck
 
+import android.content.Context
 import com.example.coffetech.common.ReusableAlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,29 +30,44 @@ import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.DetectionResultInfoCard
 import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
+import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.viewmodel.Collaborator.EditCollaboratorViewModel
 import com.example.coffetech.viewmodel.healthcheck.EditResultHealthCheckViewModel
 
 
+// EditResultHealthCheckView.kt
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 @Composable
 fun EditResultHealthCheckView(
     navController: NavController,
-    checkingId: Int,
-    farmId: Int,
     farmName: String,
     plotName: String,
-
+    detectionId: Int,
+    prediction: String,
+    recommendation: String,
+    date: String,
+    performedBy: String,
     viewModel: EditResultHealthCheckViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val showDeleteConfirmation = remember { mutableStateOf(false) }
 
-
-
+    // Obtener el token de sesión desde SharedPreferences u otro método
+    val sessionToken = remember { SharedPreferencesHelper(context).getSessionToken() ?: "" }
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val scrollState = rememberScrollState()
 
+    // Decodificar los parámetros de tipo String
+    val decodedFarmName = URLDecoder.decode(farmName, StandardCharsets.UTF_8.toString())
+    val decodedPlotName = URLDecoder.decode(plotName, StandardCharsets.UTF_8.toString())
+    val decodedPrediction = URLDecoder.decode(prediction, StandardCharsets.UTF_8.toString())
+    val decodedRecommendation = URLDecoder.decode(recommendation, StandardCharsets.UTF_8.toString())
+    val decodedDate = URLDecoder.decode(date, StandardCharsets.UTF_8.toString())
+    val decodedPerformedBy = URLDecoder.decode(performedBy, StandardCharsets.UTF_8.toString())
 
     Box(
         modifier = Modifier
@@ -62,17 +78,15 @@ fun EditResultHealthCheckView(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
+                .fillMaxWidth(0.95f) // Contenedor ocupa el 95% del ancho
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp) // Añadir padding interno
+                    .padding(10.dp)
                     .verticalScroll(scrollState)
-
-
             ) {
                 // Botón de cerrar o volver (BackButton)
                 Row(
@@ -81,50 +95,64 @@ fun EditResultHealthCheckView(
                 ) {
                     BackButton(
                         navController = navController,
-                        modifier = Modifier.size(32.dp) // Tamaño más manejable
+                        modifier = Modifier.size(32.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Detección",
+                    text = "Editar Resultado de Salud",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium.copy( // Usamos el estilo predefinido y sobreescribimos algunas propiedades
-                        // Sobrescribir el tamaño de la fuente
-                        color = Color(0xFF49602D)      // Sobrescribir el color
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = Color(0xFF49602D)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Finca: $farmName",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF94A84B)
                     ),
                     modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
+
                 )
+                Text(
+                    text = "Lote: $plotName",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = Color(0xFF94A84B)
+                    ),
+                    modifier = Modifier.fillMaxWidth()  // Ocupa todo el ancho disponible
 
-                Spacer(modifier = Modifier.height(45.dp))
-/*
-                DetectionResultInfoCard(
-                    detectionId = checkingId,
-                    nameFarm = farmName,
-                    namePlot = plotName,
-                    description = "Descripción de la detección aquí.", // Aquí puedes ajustar la descripción
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
                 )
-*/
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(2.dp))
+                // Mostrar los parámetros como título y contenido
+                ParameterDisplay(title = "Predicción", content = decodedPrediction)
+                ParameterDisplay(title = "Recomendación", content = decodedRecommendation)
+                ParameterDisplay(title = "Fecha", content = decodedDate)
+                ParameterDisplay(title = "Realizado por", content = decodedPerformedBy)
 
-
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Mostrar mensaje de error si lo hay
                 if (errorMessage.isNotEmpty()) {
-                    Text(text = errorMessage, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-
                 ReusableButton(
                     text = if (isLoading) "Regresando..." else "Volver",
-                    onClick = {},
+                    onClick = { navController.popBackStack() }, // Acción de volver
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
                         .align(Alignment.CenterHorizontally),
@@ -132,12 +160,11 @@ fun EditResultHealthCheckView(
                     enabled = !isLoading
                 )
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ReusableButton(
                     text = if (isLoading) "Cargando..." else "Eliminar",
-                    onClick = {showDeleteConfirmation.value = true},
+                    onClick = { showDeleteConfirmation.value = true },
                     enabled = !isLoading,
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -146,7 +173,7 @@ fun EditResultHealthCheckView(
                 )
 
                 val image = painterResource(id = R.drawable.delete_confirmation_icon)
-                //Confirmación para eliminar deteccion
+                // Confirmación para eliminar detección
                 if (showDeleteConfirmation.value) {
                     ReusableAlertDialog(
                         title = "¡ESTA ACCIÓN\nES IRREVERSIBLE!",
@@ -154,31 +181,58 @@ fun EditResultHealthCheckView(
                         confirmButtonText = "Descartar detección",
                         cancelButtonText = "Cancelar",
                         isLoading = isLoading,
-                        onConfirmClick = {},
+                        onConfirmClick = {
+                            viewModel.deleteDetection(context = context, navController = navController, sessionToken = sessionToken, detectionId = detectionId)
+                            showDeleteConfirmation.value = false
+                        },
                         onCancelClick = { showDeleteConfirmation.value = false },
                         onDismissRequest = { showDeleteConfirmation.value = false },
                         image = image
                     )
                 }
-
-
-
             }
         }
     }
 }
 
+@Composable
+fun ParameterDisplay(title: String, content: String) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(
+            text = title,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall.copy(
+                color = Color(0xFF3F3D3D)
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = content,
+            style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun EditResultHealthCheckViewPreview() {
-    val mockNavController = rememberNavController() // MockNavController
+    val mockNavController = rememberNavController()
     CoffeTechTheme {
         EditResultHealthCheckView(
             navController = mockNavController,
-            checkingId = 1, // Ejemplo de ID de la finca
-            farmId = 1,
-            farmName = "Finca 2",
-            plotName = "Lote 1"
+            farmName = URLEncoder.encode("Finca Ejemplo", StandardCharsets.UTF_8.toString()),
+            plotName = URLEncoder.encode("Lote 1", StandardCharsets.UTF_8.toString()),
+            detectionId = 1,
+            prediction = URLEncoder.encode("Positivo", StandardCharsets.UTF_8.toString()),
+            recommendation = URLEncoder.encode("Aplicar tratamiento X", StandardCharsets.UTF_8.toString()),
+            date = URLEncoder.encode("2024-04-27", StandardCharsets.UTF_8.toString()),
+            performedBy = URLEncoder.encode("Juan Pérez", StandardCharsets.UTF_8.toString())
         )
     }
 }
+

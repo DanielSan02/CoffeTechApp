@@ -61,6 +61,8 @@ import com.example.coffetech.view.flowering.AddFloweringView
 import com.example.coffetech.view.flowering.EditFloweringView
 import com.example.coffetech.view.flowering.FloweringInformationView
 import com.example.coffetech.view.flowering.RecommendationFloweringView
+import com.example.coffetech.view.healthcheck.DetectionHistoryView
+import com.example.coffetech.view.healthcheck.EditResultHealthCheckView
 import com.example.coffetech.view.healthcheck.ResultHealthCheckView
 import com.example.coffetech.view.reports.ReportsSelectionView
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
@@ -890,7 +892,7 @@ fun AppNavHost(context: Context) {
                 farmName = farmName
             )
         }
-//Reports
+     //Reports
         composable(
             route = "financeReport/{plotIds}/{startDate}/{endDate}",
             arguments = listOf(
@@ -944,8 +946,65 @@ fun AppNavHost(context: Context) {
         }
 
 
+        composable(
+            route = "${Routes.DetectionHistoryView}/{plotId}/{plotName}/{farmName}/{farmId}",
+            arguments = listOf(
+                navArgument("plotId") { type = NavType.IntType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("farmId") { type = NavType.IntType },
 
 
+                )
+        ) { backStackEntry ->
+            val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
 
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            DetectionHistoryView(
+                navController = navController,
+                plotId = plotId,
+                plotName = plotName,
+                farmId = farmId,
+                farmName = farmName
+            )
+        }
+
+        composable(
+            route = "${Routes.EditResultHealthCheckView}/{farmName}/{plotName}/{detectionId}/{prediction}/{recommendation}/{date}/{performedBy}",
+            arguments = listOf(
+                navArgument("farmName") { type = NavType.StringType },
+                navArgument("plotName") { type = NavType.StringType },
+                navArgument("detectionId") { type = NavType.IntType },
+                navArgument("prediction") { type = NavType.StringType },
+                navArgument("recommendation") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType },
+                navArgument("performedBy") { type = NavType.StringType },
+            )
+        ) { backStackEntry ->
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+            val plotName = backStackEntry.arguments?.getString("plotName") ?: ""
+            val detectionId = backStackEntry.arguments?.getInt("detectionId") ?: 0
+            val prediction = backStackEntry.arguments?.getString("prediction") ?: ""
+            val recommendation = backStackEntry.arguments?.getString("recommendation") ?: ""
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            val performedBy = backStackEntry.arguments?.getString("performedBy") ?: ""
+
+            EditResultHealthCheckView(
+                navController = navController,
+                farmName = farmName,
+                plotName = plotName,
+                detectionId = detectionId,
+                prediction = prediction,
+                recommendation = recommendation,
+                date = date,
+                performedBy = performedBy
+            )
+        }
 
     }}

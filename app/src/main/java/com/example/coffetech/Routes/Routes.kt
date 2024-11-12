@@ -63,5 +63,7 @@ object Routes {
 
     //HealthCheck
     const val SendDectectionView = "SendDectectionView"
-const val ResultHealthCheckView ="ResultHealthCheckView"
+    const val ResultHealthCheckView ="ResultHealthCheckView"
+    const val  DetectionHistoryView = "DetectionHistoryView"
+    const val  EditResultHealthCheckView = "EditResultHealthCheckView "
 }

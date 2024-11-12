@@ -906,6 +906,32 @@ data class GenericResponse(
 )
 
 
+//HEALTHCHECK
+
+// Solicitud para listar detecciones
+data class ListDetectionsRequest(
+    val plot_id: Int
+)
+
+// Respuesta para listar detecciones
+data class ListDetectionsResponse(
+    val status: String,
+    val message: String,
+    val data: DetectionsData
+)
+
+data class DetectionsData(
+    val detections: List<Detection>
+)
+
+data class Detection(
+    val detection_id: Int,
+    val collaborator_name: String,
+    val date: String,
+    val result: String,
+    val recommendation: String
+)
+
 // API service interface for interacting with backend services
 
 /**
@@ -1281,6 +1307,18 @@ interface ApiService {
         @Body requestBody: PredictionIdsRequest
     ): Call<GenericResponse>
 
+
+    @POST("/detection/list-detections")
+    fun listDetections(
+        @Query("session_token") sessionToken: String,
+        @Body request: ListDetectionsRequest
+    ): Call<ListDetectionsResponse>
+
+    @POST("/detection/delete-detection")
+    fun deleteDetection(
+        @Query("session_token") sessionToken: String,
+        @Body request: PredictionIdsRequest
+    ): Call<GenericResponse>
 
 }
 

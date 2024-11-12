@@ -209,6 +209,16 @@ fun PlotInformationView(
 
                                     .padding(start = 2.5.dp)
                             )
+                            ActionCard(
+                                buttonText = "Historial de chequeos",
+                                onClick = {
+
+                                    navController.navigate("${Routes.DetectionHistoryView}/$plotId/$plotName/$farmName/$farmId")
+                                },
+                                modifier = Modifier
+
+                                    .padding(start = 2.5.dp)
+                            )
                             Spacer(modifier = Modifier.height(50.dp))
 
                     Text(

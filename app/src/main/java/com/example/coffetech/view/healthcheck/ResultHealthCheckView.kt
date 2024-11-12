@@ -103,10 +103,7 @@ fun ResultHealthCheckView(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    BackButton(
-                        navController = navController,
-                        modifier = Modifier.size(32.dp) // Tamaño manejable
-                    )
+
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))

@@ -224,7 +224,7 @@ class EditMapPlotViewModel : ViewModel() {
 
             override fun onFailure(call: Call<UpdatePlotLocationResponse>, t: Throwable) {
                 _isLoading.value = false
-                _errorMessage.value = "Error de conexión: ${t.message}"
+                _errorMessage.value = "Error de conexión"
             }
         })
     }

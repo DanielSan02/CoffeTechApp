@@ -96,7 +96,7 @@ class RecommendationFloweringViewModel: ViewModel() {
 
                 override fun onFailure(call: Call<GetRecommendationsResponse>, t: Throwable) {
                     _isLoading.value = false
-                    _errorMessage.value = "Error de conexión: ${t.message}"
+                    _errorMessage.value = "Error de conexión"
                     Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
                 }
             })

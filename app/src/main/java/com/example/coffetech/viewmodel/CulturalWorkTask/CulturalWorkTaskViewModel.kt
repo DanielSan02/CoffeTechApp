@@ -124,7 +124,7 @@ class CulturalWorkTaskViewModel : ViewModel() {
                 override fun onFailure(call: Call<ListCulturalWorkTasksResponse>, t: Throwable) {
                     Log.e("CulturalWorkTaskViewModel", "Fallo en la llamada API: ${t.message}", t)
                     _isLoading.value = false
-                    _errorMessage.value = "Error de conexión: ${t.message}"
+                    _errorMessage.value = "Error de conexión"
                 }
             })
     }

@@ -142,10 +142,10 @@ class ResultHealthCheckViewModel : ViewModel() {
 
                     override fun onFailure(call: Call<DiseaseDeficiencyResponse>, t: Throwable) {
                         _isLoading.value = false
-                        _errorMessage.value = "Error de conexión: ${t.message}"
+                        _errorMessage.value = "Error de conexión"
                         Toast.makeText(
                             context,
-                            "Error de conexión: ${t.message}",
+                            "Error de conexión",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -210,7 +210,7 @@ class ResultHealthCheckViewModel : ViewModel() {
 
                     override fun onFailure(call: Call<MaturityResponse>, t: Throwable) {
                         _isLoading.value = false
-                        _errorMessage.value = "Error de conexión: ${t.message}"
+                        _errorMessage.value = "Error de conexión"
                         Toast.makeText(
                             context,
                             "Error de conexión: ${t.message}",
@@ -268,7 +268,7 @@ class ResultHealthCheckViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<GenericResponse>, t: Throwable) {
                     _isLoading.value = false
-                    _errorMessage.value = "Error de conexión: ${t.message}"
+                    _errorMessage.value = "Error de conexión"
                     Toast.makeText(context, _errorMessage.value, Toast.LENGTH_LONG).show()
                 }
             })
@@ -321,7 +321,7 @@ class ResultHealthCheckViewModel : ViewModel() {
 
                 override fun onFailure(call: Call<GenericResponse>, t: Throwable) {
                     _isLoading.value = false
-                    _errorMessage.value = "Error de conexión: ${t.message}"
+                    _errorMessage.value = "Error de conexión"
                     Toast.makeText(context, _errorMessage.value, Toast.LENGTH_LONG).show()
                 }
             })

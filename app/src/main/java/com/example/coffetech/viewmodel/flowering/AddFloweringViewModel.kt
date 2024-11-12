@@ -264,7 +264,7 @@ class AddFloweringViewModel: ViewModel() {
                         errorMessage.value = "Error de conexión"
                         Toast.makeText(
                             context,
-                            "Error de conexión: ${t.message}",
+                            "Error de conexión",
                             Toast.LENGTH_LONG
                         ).show()
                     }

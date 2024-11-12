@@ -119,15 +119,15 @@ fun DateDropdown(
         }
     }
 }
-
 @Composable
 fun CheckingInfoCard(
-    checkingId: String,
     date: String,
     collaboratorName: String,
+    prediction: String,        // Nuevo parámetro para la predicción
+    recommendation: String,     // Nuevo parámetro para la recomendación
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
-    showEditIcon: Boolean = false // Nuevo parámetro opcional para mostrar el botón
+    showEditIcon: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -141,13 +141,25 @@ fun CheckingInfoCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp) // Agrega espacio al final de la columna
             ) {
+                // Sección para mostrar la predicción
                 Text(
-                    text = "Chequeo ID: $checkingId",
+                    text = "Predicción: $prediction",
                     color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Sección para mostrar la recomendación
+                Text(
+                    text = "Recomendación: $recommendation",
+                    color = Color.Black,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -168,12 +180,14 @@ fun CheckingInfoCard(
                     fontSize = 16.sp
                 )
             }
+
+            // Icono de edición
             if (showEditIcon) {
+                Spacer(modifier = Modifier.width(8.dp)) // Agrega espacio entre la columna y el icono
                 IconButton(
                     onClick = onEditClick,
                     modifier = Modifier
-                        .offset(x = -10.dp)
-                        .size(20.dp)
+                        .size(36.dp) // Aumenta el tamaño del botón para que sea más fácil de presionar
                         .background(Color(0xFFB31D34), shape = CircleShape)
                 ) {
                     Icon(
@@ -187,6 +201,9 @@ fun CheckingInfoCard(
         }
     }
 }
+
+
+
 @Composable
 fun DetectionResultInfoCard(
     imagen_numero: Int,
@@ -252,13 +269,15 @@ fun DetectionResultInfoCard(
 fun CheckingInfoCardPreview() {
     CoffeTechTheme {
         CheckingInfoCard(
-            checkingId= "3",
             date= "24-02-34",
             collaboratorName = "Nombre",
+            prediction= " alta de nutrientes",
+            recommendation= "Hacer una siembra con caca",
             onEditClick = {},
             showEditIcon = true,
         )
     }
+
 }
 
 

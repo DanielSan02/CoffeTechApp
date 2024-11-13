@@ -87,7 +87,7 @@ fun ReportsSelectionView(
                 )
 
                 ActionCard(
-                    buttonText = "Reporte historia de salud", // Texto para el primer botón
+                    buttonText = "Reporte general de detecciones", // Texto para el primer botón
                     onClick = {
                         navController.navigate("${Routes.FormDetectionReportView}/$farmId/$farmName")
 

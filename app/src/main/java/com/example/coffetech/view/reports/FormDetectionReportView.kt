@@ -92,7 +92,7 @@ fun FormDetectionReportView(
 
                     // Título
                     Text(
-                        text = "Reporte de detecciones",
+                        text = "Reporte general de detecciones",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF49602D)),
                         modifier = Modifier.fillMaxWidth()

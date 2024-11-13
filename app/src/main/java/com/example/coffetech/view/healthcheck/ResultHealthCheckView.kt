@@ -103,6 +103,14 @@ fun ResultHealthCheckView(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
+                    BackButton(
+                        navController = navController,
+                        modifier = Modifier.size(32.dp),
+                        onClick = {
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
+                    )
 
                 }
 

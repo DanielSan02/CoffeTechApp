@@ -176,7 +176,7 @@ fun DetectionReportView(
                 navController.popBackStack()
 
             },
-            title = "Historial de Detecciones"
+            title = "Reporte general de Detecciones"
         )
 
         Box(
@@ -317,7 +317,7 @@ fun ReportContent(
     ) {
         // Título del reporte
         Text(
-            text = "Historial de Detecciones",
+            text = "Reporte general de Detecciones",
             style = MaterialTheme.typography.titleLarge,
             color = Color(0xFF49602D),
             textAlign = TextAlign.Center,

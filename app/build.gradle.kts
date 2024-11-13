@@ -13,7 +13,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 4 // Este es el código de versión
-        versionName = "4.1.1"  // Este es el nombre de la versión
+        versionName = "4.1.3"  // Este es el nombre de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

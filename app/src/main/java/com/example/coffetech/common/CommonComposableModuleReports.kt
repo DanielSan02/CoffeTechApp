@@ -51,6 +51,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.shape.CircleShape
 import androidx.core.content.FileProvider
+import com.example.coffetech.model.DetectionHistory
 import com.example.coffetech.model.FinancialReportData
 import com.example.coffetech.viewmodel.reports.LoteRecommendation
 import java.io.File
@@ -808,3 +809,150 @@ fun abrirCsv(context: Context, csvUri: Uri) {
     }
 }
 
+
+fun generatePdfDetection(
+    context: Context,
+    detections: List<DetectionHistory>,
+    fileName: String
+) {
+    val document = PdfDocument()
+
+    // Definir las dimensiones de una página A4 en puntos (595 x 842)
+    val pageWidth = 595
+    val pageHeight = 842
+
+    var y = 25f // Posición Y inicial
+    val lineHeight = 20f // Altura de línea ajustada para más líneas por página
+    val margin = 25f // Margen lateral
+
+    var pageNumber = 1
+    var currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+    var page: PdfDocument.Page = document.startPage(currentPageInfo)
+    var canvas: Canvas = page.canvas
+    val paint = Paint().apply {
+        textSize = 12f
+        color = android.graphics.Color.BLACK
+        isAntiAlias = true
+    }
+
+    // Función auxiliar para dibujar texto y manejar saltos de página
+    fun drawText(text: String, x: Float, isCentered: Boolean = false) {
+        val textWidth = paint.measureText(text)
+        val adjustedX = if (isCentered) (pageWidth - textWidth) / 2 else x
+
+        if (y + paint.textSize > pageHeight - margin) {
+            // Finalizar la página actual
+            document.finishPage(page)
+            // Crear una nueva página
+            pageNumber += 1
+            currentPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            page = document.startPage(currentPageInfo)
+            canvas = page.canvas
+            y = margin
+        }
+        canvas.drawText(text, adjustedX, y, paint)
+        y += lineHeight
+    }
+
+    // Función auxiliar para dibujar texto multilínea
+    fun drawMultilineText(text: String, x: Float, maxWidth: Float) {
+        val words = text.split(" ")
+        var currentLine = ""
+
+        for (word in words) {
+            val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            val textWidth = paint.measureText(testLine)
+            if (textWidth > maxWidth) {
+                if (currentLine.isNotEmpty()) {
+                    drawText(currentLine, x)
+                }
+                currentLine = word
+            } else {
+                currentLine = testLine
+            }
+        }
+
+        // Dibujar la última línea
+        if (currentLine.isNotEmpty()) {
+            drawText(currentLine, x)
+        }
+    }
+
+    // Inicio de la escritura del contenido
+
+    // 1. Título del reporte
+    paint.textSize = 16f
+    paint.isFakeBoldText = true
+    drawText("Historial de Detecciones", pageWidth / 2f, isCentered = true)
+    y += lineHeight / 2 // Ajuste para separación
+    paint.isFakeBoldText = false
+
+    // 2. Lista de detecciones
+    paint.textSize = 12f
+    detections.forEach { detection ->
+        drawText("Fecha: ${detection.date}", margin)
+        drawText("Persona: ${detection.person_name}", margin)
+        drawText("Detección: ${detection.detection}", margin)
+        drawText("Recomendación: ${detection.recommendation}", margin)
+        drawText("Trabajo Cultural: ${detection.cultural_work}", margin)
+        drawText("Lote: ${detection.lote_name}", margin)
+        drawText("Finca: ${detection.farm_name}", margin)
+        y += lineHeight
+
+        // Agregar una línea separadora
+        drawText("------------------------------", margin)
+        y += lineHeight
+    }
+
+    // Finalizar la última página
+    document.finishPage(page)
+
+    // Guardar el PDF en la carpeta de Descargas utilizando MediaStore
+    val pdfUri: Uri? = savePdfToDownloads(context, document, fileName)
+
+    // Cerrar el documento
+    document.close()
+
+    if (pdfUri != null) {
+        Toast.makeText(context, "PDF generado correctamente.", Toast.LENGTH_LONG).show()
+        abrirPdf(context, pdfUri)
+    } else {
+        Toast.makeText(context, "Error al guardar el PDF.", Toast.LENGTH_LONG).show()
+    }
+}
+
+
+fun generateCsvDetection(
+    context: Context,
+    detections: List<DetectionHistory>,
+    fileName: String
+) {
+    try {
+        // Crear el contenido del CSV
+        val csvBuilder = StringBuilder()
+
+        // Encabezados
+        csvBuilder.append("Fecha,Persona,Detección,Recomendación,Trabajo Cultural,Lote,Finca\n")
+
+        // Datos
+        detections.forEach { detection ->
+            csvBuilder.append("${detection.date},${detection.person_name},${detection.detection},${detection.recommendation},${detection.cultural_work},${detection.lote_name},${detection.farm_name}\n")
+        }
+
+        // Convertir el contenido a bytes
+        val csvBytes = csvBuilder.toString().toByteArray()
+
+        // Guardar el CSV en la carpeta de Descargas utilizando MediaStore
+        val csvUri: Uri? = saveCsvToDownloads(context, csvBytes, fileName)
+
+        if (csvUri != null) {
+            Toast.makeText(context, "CSV generado correctamente.", Toast.LENGTH_LONG).show()
+            abrirCsv(context, csvUri)
+        } else {
+            Toast.makeText(context, "Error al guardar el CSV.", Toast.LENGTH_LONG).show()
+        }
+    } catch (e: Exception) {
+        Log.e("generateCsvDetection", "Error al generar el CSV: ${e.message}")
+        Toast.makeText(context, "Error al generar el CSV.", Toast.LENGTH_LONG).show()
+    }
+}

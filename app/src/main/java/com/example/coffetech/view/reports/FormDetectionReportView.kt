@@ -1,6 +1,4 @@
-// FormFinanceReport.kt
-package com.example.coffetech.view
-
+package com.example.coffetech.view.reports
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,13 +25,14 @@ import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.utils.SharedPreferencesHelper
 import com.example.coffetech.view.components.PlotsList
 import com.example.coffetech.viewmodel.FormFinanceReportViewModel
+import com.example.coffetech.viewmodel.reports.FormDetectionReportViewModel
 
 @Composable
-fun FormFinanceReportView(
+fun FormDetectionReportView(
     navController: NavController,
     farmId: Int,
     farmName: String,
-    viewModel: FormFinanceReportViewModel = viewModel()
+    viewModel: FormDetectionReportViewModel = viewModel()
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -69,7 +68,7 @@ fun FormFinanceReportView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
                 // Botón de retroceso
@@ -93,7 +92,7 @@ fun FormFinanceReportView(
 
                     // Título
                     Text(
-                        text = "Reporte de Costos",
+                        text = "Reporte de detecciones",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF49602D)),
                         modifier = Modifier.fillMaxWidth()
@@ -183,25 +182,6 @@ fun FormFinanceReportView(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Checkbox para historial de transacciones
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Checkbox(
-                            checked = includeTransactionHistory,
-                            onCheckedChange = { includeTransactionHistory = it },
-                            colors = CheckboxDefaults.colors(Color(0xFF5D8032))
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Desea el historial de las transacciones para poderlo descargar en .csv y en el pdf?",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF3F3D3D)),
-                            modifier = Modifier.fillMaxWidth(0.8f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Mostrar mensaje de error si existe
                     if (errorMessage != null) {
@@ -219,7 +199,7 @@ fun FormFinanceReportView(
                     ReusableButton(
                         text = "Generar Reporte",
                         onClick = {
-                            viewModel.onSubmit(navController, includeTransactionHistory) // Paso el estado del checkbox
+                            viewModel.onSubmit(navController) // Paso el estado del checkbox
                             // Implementa la lógica para generar el reporte
                             // Por ejemplo, navegar a otra pantalla o mostrar un diálogo de éxito
                         },
@@ -244,7 +224,7 @@ fun FormFinanceReportView(
 fun FormFinanceReportPreview() {
     val navController = rememberNavController()
     CoffeTechTheme {
-        FormFinanceReportView(
+        FormDetectionReportView(
             navController = navController,
             farmId = 1,
             farmName = "Finca El Paraíso"

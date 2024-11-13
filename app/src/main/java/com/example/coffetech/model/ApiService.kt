@@ -1,5 +1,6 @@
 package com.example.coffetech.model
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -861,6 +862,33 @@ data class FinancialReportRequest(
     val fechaFin: String   ,  // Formato "yyyy-MM-dd"
     val include_transaction_history: Boolean // Nuevo parámetro para incluir historial de transacciones
 
+
+)
+
+data class DetectionHistoryRequest(
+    @SerializedName("plot_ids") val plotIds: List<Int>,
+    @SerializedName("fechaInicio") val fechaInicio: String, // Formato "yyyy-MM-dd"
+    @SerializedName("fechaFin") val fechaFin: String // Formato "yyyy-MM-dd"
+)
+
+data class DetectionHistoryResponse(
+    val status: String,
+    val message: String,
+    val data: DetectionHistoryData
+)
+
+data class DetectionHistoryData(
+    val detections: List<DetectionHistory>
+)
+
+data class DetectionHistory(
+    val date: String,
+    val person_name: String,
+    val detection: String,
+    val recommendation: String,
+    val cultural_work: String,
+    val lote_name: String,
+    val farm_name: String
 )
 
 // Solicitud para detección
@@ -907,7 +935,6 @@ data class MaturityDetection(
     val recomendacion: String
 )
 
-// Models.kt
 
 data class PredictionIdsRequest(
     val prediction_ids: List<Int>
@@ -1301,6 +1328,12 @@ interface ApiService {
         @Query("session_token") sessionToken: String,
         @Body request: DetectionRequest
     ): Call<DiseaseDeficiencyResponse>
+
+        @POST("/reports/detection-report")
+        fun getDetectionHistory(
+            @Query("session_token") sessionToken: String,
+            @Body request: DetectionHistoryRequest
+        ): Call<DetectionHistoryResponse>
 
     // Endpoint para detección de madurez
     @POST("/detection/detection-maturity")

@@ -60,6 +60,9 @@ object Routes {
     //Reports
     const val ReportsSelectionView = "ReportsSelectionView"
     const val FormFinanceReportView ="FormFinanceReportView"
+    const val FormDetectionReportView = "FormDetectionReportView"
+    const val DetectionReportView = "DetectionReportView"
+
 
     //HealthCheck
     const val SendDectectionView = "SendDectectionView"

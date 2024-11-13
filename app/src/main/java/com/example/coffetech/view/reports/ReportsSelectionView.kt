@@ -87,13 +87,10 @@ fun ReportsSelectionView(
                 )
 
                 ActionCard(
-                    buttonText = "Reporte general de salud", // Texto para el primer botón
+                    buttonText = "Reporte historia de salud", // Texto para el primer botón
                     onClick = {
-                        Toast.makeText(
-                            context,
-                            "Función disponible proximamente",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        navController.navigate("${Routes.FormDetectionReportView}/$farmId/$farmName")
+
                     }
                 )
 

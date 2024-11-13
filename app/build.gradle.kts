@@ -12,8 +12,8 @@ android {
         applicationId = "com.example.coffetech"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3 // Este es el código de versión
-        versionName = "3.2.2"  // Este es el nombre de la versión
+        versionCode = 4 // Este es el código de versión
+        versionName = "4.1.1"  // Este es el nombre de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

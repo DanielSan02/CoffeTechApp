@@ -43,6 +43,7 @@ import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskGeneralView
 import com.example.coffetech.view.CulturalWorkTask.CulturalWorkTaskInformationView
 import com.example.coffetech.view.CulturalWorkTask.EditCulturalWorkView
 import com.example.coffetech.view.CulturalWorkTask.ReminderCulturalWorkView
+import com.example.coffetech.view.DetectionReportView
 import com.example.coffetech.view.FinanceReportView
 import com.example.coffetech.view.FormFinanceReportView
 import com.example.coffetech.view.Plot.CreateMapPlotView
@@ -64,6 +65,7 @@ import com.example.coffetech.view.flowering.RecommendationFloweringView
 import com.example.coffetech.view.healthcheck.DetectionHistoryView
 import com.example.coffetech.view.healthcheck.EditResultHealthCheckView
 import com.example.coffetech.view.healthcheck.ResultHealthCheckView
+import com.example.coffetech.view.reports.FormDetectionReportView
 import com.example.coffetech.view.reports.ReportsSelectionView
 import com.example.coffetech.viewmodel.Plot.CreatePlotInformationViewModel
 import com.example.coffetech.viewmodel.SharedViewModel
@@ -892,7 +894,30 @@ fun AppNavHost(context: Context) {
                 farmName = farmName
             )
         }
-     //Reports
+
+
+        composable(
+            route = "${Routes.FormDetectionReportView}/{farmId}/{farmName}",
+            arguments = listOf(
+                navArgument("farmId") { type = NavType.IntType },
+                navArgument("farmName") { type = NavType.StringType },
+            )
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getInt("farmId") ?: 0
+            val farmName = backStackEntry.arguments?.getString("farmName") ?: ""
+
+            BackHandler {
+                // No action performed, back gesture is disabled
+            }
+            FormDetectionReportView(
+                navController = navController,
+                farmId = farmId,
+                farmName = farmName
+            )
+        }
+
+
+
         composable(
             route = "financeReport/{plotIds}/{startDate}/{endDate}/{historyParam}",
             arguments = listOf(
@@ -918,6 +943,29 @@ fun AppNavHost(context: Context) {
                 includeTransactionHistory = includeTransactionHistory // Pasar el valor booleano
             )
         }
+
+        composable(
+            route = "DetectionReportView/{plotIds}/{startDate}/{endDate}",
+            arguments = listOf(
+                navArgument("plotIds") { type = NavType.StringType },
+                navArgument("startDate") { type = NavType.StringType },
+                navArgument("endDate") { type = NavType.StringType },
+            )
+        ) { backStackEntry ->
+            val plotIdsParam = backStackEntry.arguments?.getString("plotIds") ?: ""
+            val startDate = backStackEntry.arguments?.getString("startDate") ?: ""
+            val endDate = backStackEntry.arguments?.getString("endDate") ?: ""
+
+            val plotIds = plotIdsParam.split(",").mapNotNull { it.toIntOrNull() }
+
+            DetectionReportView(
+                navController = navController,
+                plotIds = plotIds,
+                startDate = startDate,
+                endDate = endDate
+            )
+        }
+
 
 
         //HealthCheck

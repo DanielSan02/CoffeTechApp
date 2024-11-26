@@ -64,6 +64,7 @@ fun FinanceReportView(
     val reportData by viewModel.reportData.collectAsState()
 
     var chartBitmaps by remember { mutableStateOf<List<Pair<String, Bitmap>>>(emptyList()) }
+    val username by viewModel.username.collectAsState()
 
     fun handleChartsCaptured(bitmaps: List<Pair<String, Bitmap>>) {
         Log.d(TAG, "Capturando gráficas: ${bitmaps.size} imágenes")
@@ -236,7 +237,9 @@ fun FinanceReportView(
                         recomendaciones = recomendaciones,
                         onChartsCaptured = { bitmaps ->
                             handleChartsCaptured(bitmaps)
-                        }
+                        },
+                        username = username // Pasando el username aquí
+
                     )
                 }
                 else -> {
@@ -345,6 +348,8 @@ fun FinanceReportView(
 fun ReportContent(
     reportData: FinancialReportData,
     recomendaciones: List<LoteRecommendation>,
+    username: String, // Nuevo parámetro
+
     onChartsCaptured: (List<Pair<String, Bitmap>>) -> Unit // Callback para recibir las gráficas con su sección
 ) {
     val TAG = "ReportContent"
@@ -383,24 +388,25 @@ fun ReportContent(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-
+        Text(
+            text = "Reporte Generado Por: $username",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3F3D3D),
+            modifier = Modifier.fillMaxWidth()
+        )
         // Periodo
         Text(
             text = "Periodo: ${reportData.periodo}",
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF3F3D3D),
-            textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Lotes incluidos
         Text(
             text = "Lotes Incluidos: ${reportData.lotes_incluidos.joinToString(", ")}",
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF3F3D3D),
-            textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -417,7 +423,7 @@ fun ReportContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Este es el reporte financiero de la finca: ${reportData.finca_nombre} que incluye los lotes: ${reportData.lotes_incluidos.joinToString(", ")}, en el periodo ${reportData.periodo}. A continuación, se presenta un análisis de los ingresos y gastos por lote y para la finca en su conjunto.",
+            text = "Este reporte, elaborado por $username, está dirigido a las partes interesadas. El reporte financiero de la finca: ${reportData.finca_nombre} incluye los lotes: ${reportData.lotes_incluidos.joinToString(", ")}, en el periodo ${reportData.periodo}. A continuación, se presenta un análisis de los ingresos y gastos por lote y para la finca en su conjunto.",
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF3F3D3D)
         )
@@ -726,6 +732,7 @@ fun FinanceReportPreview() {
             recomendaciones = listOf(
                 // Agrega recomendaciones de ejemplo aquí
             ),
+            username ="",
             onChartsCaptured = {}
         )
     }

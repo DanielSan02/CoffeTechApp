@@ -32,6 +32,8 @@ class FinanceReportViewModel : ViewModel() {
     private val _reportData = MutableStateFlow<FinancialReportData?>(null)
     val reportData: StateFlow<FinancialReportData?> = _reportData.asStateFlow()
 
+    private val _username = MutableStateFlow("Usuario")
+    val username: StateFlow<String> = _username
 
     fun getFinancialReport(
         context: Context,
@@ -56,7 +58,12 @@ class FinanceReportViewModel : ViewModel() {
             ).show()
             _isLoading.value = false
             return
+
         }
+        // Obtener y actualizar el username
+        val username = sharedPreferencesHelper.getUserName()
+        Log.d(TAG, "Nombre de usuario obtenido: $username")
+        _username.value = username // Aquí actualizamos el StateFlow
 
         Log.d(TAG, "Token de sesión obtenido: $sessionToken")
 

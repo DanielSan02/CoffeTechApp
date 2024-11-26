@@ -940,13 +940,13 @@ fun generatePdfDetection(
     y += lineHeight
 
     // 3. Introducción
-    drawText("Introducción", margin, textSize = 14f, isBold = true)
+    drawText("1. Introducción", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
     drawMultilineText(introduction, margin, pageWidth - 2 * margin, textSize = 12f)
     y += lineHeight
 
     // 4. Sección de Deficiencias de Nutrientes
-    drawText("Deficiencias de Nutrientes", margin, textSize = 14f, isBold = true)
+    drawText("2. Deficiencias de Nutrientes", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
 
     nutrientDeficiencies.forEach { deficiency ->
@@ -978,7 +978,7 @@ fun generatePdfDetection(
     y += lineHeight
 
     // 5. Sección de Estado de Salud por Lote
-    drawText("Estado de Salud por Lote", margin, textSize = 14f, isBold = true)
+    drawText("3. Estado de Salud por Lote", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
 
     healthStatuses.forEach { status ->
@@ -1011,7 +1011,7 @@ fun generatePdfDetection(
     y += lineHeight
 
     // 6. Sección de Estado de Maduración por Fecha
-    drawText("Estado de Maduración por Fecha", margin, textSize = 14f, isBold = true)
+    drawText("4. Estado de Maduración", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
 
     // Insertar la gráfica de línea correspondiente
@@ -1030,7 +1030,7 @@ fun generatePdfDetection(
     y += lineHeight / 2
 
     // Resumen de Estado de Maduración por Fecha
-    drawText("Resumen de Estado de Maduración por Fecha", margin, textSize = 14f, isBold = true)
+    drawText("5. Resumen de Estado de Maduración por Fecha", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
     maturityStatusPerDate.forEach { maturityStatus ->
         drawText("Fecha: ${maturityStatus.date}", margin + 10f, textSize = 12f)
@@ -1041,7 +1041,7 @@ fun generatePdfDetection(
     }
 
     // 7. Lista de Detecciones
-    drawText("Lista de Detecciones", margin, textSize = 14f, isBold = true)
+    drawText("6. Lista de Detecciones", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
     detections.forEach { detection ->
         drawText("Fecha: ${detection.date}", margin, textSize = 12f)
@@ -1057,7 +1057,7 @@ fun generatePdfDetection(
     }
 
     // 8. Apartado "Reporte Generado Por"
-    drawText("Reporte Generado Por:", margin, textSize = 14f, isBold = true)
+    drawText("7. Reporte Generado Por:", margin, textSize = 14f, isBold = true)
     y += lineHeight / 2
     drawText(generatedBy, margin + 10f, textSize = 12f)
     y += lineHeight

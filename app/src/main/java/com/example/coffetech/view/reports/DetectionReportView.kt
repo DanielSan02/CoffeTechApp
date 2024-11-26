@@ -410,7 +410,7 @@ fun ReportContent(
 
         // Introducción
         Text(
-            text = "Introducción",
+            text = "1. Introducción",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF49602D),
             modifier = Modifier.fillMaxWidth()
@@ -428,7 +428,7 @@ fun ReportContent(
 
         // Sección de Deficiencias de Nutrientes
         Text(
-            text = "Deficiencias de Nutrientes",
+            text = "2. Deficiencias de Nutrientes",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF49602D),
             modifier = Modifier.fillMaxWidth()
@@ -486,7 +486,7 @@ fun ReportContent(
 
         // Gráficos de Estado de Salud
         Text(
-            text = "Estado de Salud por Lote",
+            text = "3. Estado de Salud por Lote",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF49602D),
             modifier = Modifier.fillMaxWidth()
@@ -540,7 +540,7 @@ fun ReportContent(
 
         // Gráfica de Estado de Maduración
         Text(
-            text = "Estado de Maduración por Fecha",
+            text = "4. Estado de Maduración",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF49602D),
             modifier = Modifier.fillMaxWidth()
@@ -575,7 +575,7 @@ fun ReportContent(
 
         // Resumen de Estado de Maduración por Fecha
         Text(
-            text = "Resumen de Estado de Maduración por Fecha",
+            text = "5. Resumen de Estado de Maduración por Fecha",
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF3F3D3D)
         )
@@ -600,7 +600,7 @@ fun ReportContent(
 
         // Lista de detecciones
         Text(
-            text = "Lista de Detecciones",
+            text = "6. Lista de Detecciones",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF49602D),
             modifier = Modifier.fillMaxWidth()
@@ -617,7 +617,7 @@ fun ReportContent(
 
         // Apartado "Reporte Generado Por:"
         Text(
-            text = "Reporte Generado Por:",
+            text = "7. Reporte Generado Por:",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF49602D),
             modifier = Modifier.fillMaxWidth()

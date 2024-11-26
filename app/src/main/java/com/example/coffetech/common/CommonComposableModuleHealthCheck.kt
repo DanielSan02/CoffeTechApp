@@ -3,6 +3,7 @@ package com.example.coffetech.common
 import androidx.compose.runtime.Composable
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,8 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +51,7 @@ fun DateDropdown(
     expandedArrowDropUp: Painter,
     arrowDropDown: Painter
 ) {
+
     Box(
         modifier = Modifier
             .wrapContentWidth()
@@ -202,13 +207,12 @@ fun CheckingInfoCard(
     }
 }
 
-
-
 @Composable
 fun DetectionResultInfoCard(
     imagen_numero: Int,
     prediction: String,
     recommendation: String,
+    image: ImageBitmap? = null,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -217,50 +221,54 @@ fun DetectionResultInfoCard(
             .background(Color(0xFF95A94B), RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        Column( // Cambiamos Row por Column para que los elementos estén en filas separadas
+            verticalArrangement = Arrangement.spacedBy(8.dp), // Espaciado entre filas
+            horizontalAlignment = Alignment.CenterHorizontally, // Centra horizontalmente
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.weight(1f) // Permite que el texto ocupe todo el espacio disponible
-            ) {
-                Text(
-                    text = "Numero de la imagen: $imagen_numero",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp
+            // Mostrar la imagen en la primera fila
+            if (image != null) {
+
+                Image(
+                    bitmap = image,
+                    contentDescription = "Imagen de la detección",
+                    modifier = Modifier
+                        .fillMaxWidth() // La imagen ocupa todo el ancho disponible
+                        .height(200.dp) // Altura fija para la imagen
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Gray),
+                    contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = "Predicción: $prediction",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = "Recomendación: $recommendation",
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-
-
             }
+            // Mostrar los textos en filas separadas
+            Text(
+                text = "Número de la imagen: $imagen_numero",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                fontSize = 18.sp,
+                modifier = Modifier.fillMaxWidth() // El texto ocupa todo el ancho disponible
+            )
+
+            Text(
+                text = "Predicción: $prediction",
+                color = Color.Black,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                modifier = Modifier.fillMaxWidth() // El texto ocupa todo el ancho disponible
+            )
+
+            Text(
+                text = "Recomendación: $recommendation",
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                modifier = Modifier.fillMaxWidth() // El texto ocupa todo el ancho disponible
+            )
         }
     }
 }
-
 
 
 
@@ -281,14 +289,5 @@ fun CheckingInfoCardPreview() {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewDetectionResultInfoCard() {
-    DetectionResultInfoCard(
-        imagen_numero = 1,
-        prediction = "Predicción de ejemplo",
-        recommendation = "Recomendación de ejemplo",
-    )
-}
 
 

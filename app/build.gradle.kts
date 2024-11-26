@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.play.services.location)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.appcompat.resources)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

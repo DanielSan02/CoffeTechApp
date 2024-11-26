@@ -1,9 +1,10 @@
 // ResultHealthCheckView.kt
 package com.example.coffetech.view.healthcheck
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Base64
-import android.widget.Toast
+import android.graphics.Canvas
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,14 +22,16 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.coffetech.R
 import com.example.coffetech.common.BackButton
 import com.example.coffetech.common.ButtonType
 import com.example.coffetech.common.DetectionResultInfoCard
@@ -36,6 +39,11 @@ import com.example.coffetech.common.ReusableButton
 import com.example.coffetech.ui.theme.CoffeTechTheme
 import com.example.coffetech.viewmodel.SharedViewModel
 import com.example.coffetech.viewmodel.healthcheck.ResultHealthCheckViewModel
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.draw.clip
+import kotlinx.coroutines.launch
 
 @Composable
 fun ResultHealthCheckView(
@@ -78,6 +86,45 @@ fun ResultHealthCheckView(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val detectionResults by viewModel.detectionResults.collectAsState()
 
+    // Decodificar todas las imágenes una vez y almacenarlas en una lista
+    val decodedImages: List<ImageBitmap?> = remember(imagesBase64) {
+        imagesBase64.map { base64Str ->
+            try {
+                val decodedBytes = android.util.Base64.decode(base64Str, android.util.Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(
+                    decodedBytes,
+                    0,
+                    decodedBytes.size
+                )
+                bitmap?.asImageBitmap()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    // Función para convertir un Vector Drawable a ImageBitmap
+    fun vectorDrawableToBitmap(@DrawableRes id: Int, context: android.content.Context): ImageBitmap? {
+        val drawable = AppCompatResources.getDrawable(context, id) ?: return null
+        val bitmap = Bitmap.createBitmap(
+            drawable.intrinsicWidth,
+            drawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap.asImageBitmap()
+    }
+
+    // Cargar la imagen placeholder una sola vez
+    val placeholderBitmap: ImageBitmap? = remember {
+        vectorDrawableToBitmap(R.drawable.placeholder_image, context)
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +135,7 @@ fun ResultHealthCheckView(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.95f) // Haz que el contenedor ocupe el 95% del ancho de la pantalla
+                .fillMaxWidth(0.95f) // Contenedor ocupa el 95% del ancho de la pantalla
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(horizontal = 20.dp, vertical = 30.dp)
         ) {
@@ -108,10 +155,9 @@ fun ResultHealthCheckView(
                         modifier = Modifier.size(32.dp),
                         onClick = {
                             navController.popBackStack()
-                            navController.popBackStack()
+                            // navController.popBackStack() // Elimina este segundo llamado si no es necesario
                         }
                     )
-
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -153,32 +199,51 @@ fun ResultHealthCheckView(
                         textAlign = TextAlign.Center
                     )
                 } else if (detectionResults.isNotEmpty()) {
-                    // Mostrar los resultados de la detección
+                    // Mostrar los resultados de la detección con imágenes
                     detectionResults.forEach { result ->
-                        DetectionResultInfoCard(
-                            imagen_numero = result.imagenNumero,
-                            prediction = result.prediccion,
-                            recommendation = result.recomendacion,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        val imageIndex =
+                            result.imagenNumero - 1 // Asumiendo que imagenNumero comienza en 1
+                        val image =
+                            if (imageIndex in decodedImages.indices) decodedImages[imageIndex] else null
+                        if (image != null) {
+                            DetectionResultInfoCard(
+                                imagen_numero = result.imagenNumero,
+                                prediction = result.prediccion,
+                                recommendation = result.recomendacion,
+                                image = image, // Pasar la imagen al card
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        } else {
+                            // Mostrar un placeholder si la imagen no está disponible
+                            if (placeholderBitmap != null) {
+                                DetectionResultInfoCard(
+                                    imagen_numero = result.imagenNumero,
+                                    prediction = result.prediccion,
+                                    recommendation = result.recomendacion,
+                                    image = placeholderBitmap, // Usar el bitmap decodificado
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            } else {
+                                // Mostrar un cuadro vacío o algún otro indicador
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                        .background(Color.Gray, RoundedCornerShape(8.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Imagen no disponible",
+                                        color = Color.White,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
                     }
                 } else {
                     // Mostrar las imágenes recibidas si no hay resultados de detección
                     if (imagesBase64.isNotEmpty()) {
-                        val images: List<ImageBitmap> = imagesBase64.mapNotNull { base64Str ->
-                            try {
-                                val decodedBytes = Base64.decode(base64Str, Base64.DEFAULT)
-                                val bitmap = BitmapFactory.decodeByteArray(
-                                    decodedBytes,
-                                    0,
-                                    decodedBytes.size
-                                )
-                                bitmap?.asImageBitmap()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                null
-                            }
-                        }
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = 100.dp),
                             modifier = Modifier
@@ -188,15 +253,45 @@ fun ResultHealthCheckView(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(8.dp)
                         ) {
-                            items(images.size) { index ->
-                                Image(
-                                    bitmap = images[index],
-                                    contentDescription = "Imagen de la tarea",
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .background(Color.Gray, RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
+                            items(decodedImages.size) { index ->
+                                val image = decodedImages[index]
+                                if (image != null) {
+                                    Image(
+                                        bitmap = image,
+                                        contentDescription = "Imagen de la tarea",
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .background(Color.Gray, RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    // Mostrar placeholder si la imagen no se pudo decodificar
+                                    if (placeholderBitmap != null) {
+                                        Image(
+                                            bitmap = placeholderBitmap,
+                                            contentDescription = "Imagen de la tarea",
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .background(Color.Gray, RoundedCornerShape(8.dp)),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        // Mostrar un cuadro vacío o algún otro indicador
+                                        Box(
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .background(Color.Gray, RoundedCornerShape(8.dp)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "No Image",
+                                                color = Color.White,
+                                                textAlign = TextAlign.Center,
+                                                fontSize = 12.sp
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -229,15 +324,16 @@ fun ResultHealthCheckView(
                 ReusableButton(
                     text = if (isLoading) "Guardando..." else "Guardar",
                     onClick = {
-                        // Implementa la lógica para guardar las imágenes o resultados
-                        Toast.makeText(context, "Guardando resultados...", Toast.LENGTH_SHORT)
-                            .show()
-                        // Simular una acción de guardado
+                        // Mostrar un Toast o iniciar un proceso de guardado
+                        Toast.makeText(context, "Guardando resultados...", Toast.LENGTH_SHORT).show()
                         viewModel.acceptPredictions(context) {
-                            Toast.makeText(context, "Predicciones aceptadas correctamente.", Toast.LENGTH_SHORT).show()
+                            // Navegar antes de limpiar los datos
+                            navController.popBackStack()
+                            navController.popBackStack()
+
+                            // Ahora puedes limpiar los datos
                             sharedViewModel.clearData()
-                            navController.popBackStack()
-                            navController.popBackStack()
+                            Toast.makeText(context, "Predicciones aceptadas correctamente.", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier
@@ -253,17 +349,22 @@ fun ResultHealthCheckView(
                 ReusableButton(
                     text = if (isLoading) "Descartando..." else "Descartar",
                     onClick = {
-                        // Implementa la lógica para descartar los resultados
-                        Toast.makeText(context, "Descartando resultados...", Toast.LENGTH_SHORT)
-                            .show()
-                        // Simular una acción de descarte
+                        Log.d("ResultHealthCheckView", "Descartar botón presionado")
+                        Toast.makeText(context, "Descartando resultados...", Toast.LENGTH_SHORT).show()
                         viewModel.discardPredictions(context) {
-                            Toast.makeText(context, "Predicciones descartadas correctamente.", Toast.LENGTH_SHORT).show()
-                            // Limpia los datos en el SharedViewModel si es necesario
-                            sharedViewModel.clearData()
-                            navController.popBackStack()
-                            navController.popBackStack()
-
+                            coroutineScope.launch {
+                                try {
+                                    Log.d("ResultHealthCheckView", "Descartando: Navegación iniciada")
+                                    navController.popBackStack()
+                                    navController.popBackStack()
+                                    sharedViewModel.clearData()
+                                    Toast.makeText(context, "Predicciones descartadas correctamente.", Toast.LENGTH_SHORT).show()
+                                    Log.d("ResultHealthCheckView", "Descartando: Operación exitosa")
+                                } catch (e: Exception) {
+                                    Log.e("ResultHealthCheckView", "Error al descartar: ${e.message}", e)
+                                    Toast.makeText(context, "Error al descartar: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
                     },
                     enabled = !isLoading,
@@ -272,20 +373,21 @@ fun ResultHealthCheckView(
                         .align(Alignment.CenterHorizontally),
                     buttonType = ButtonType.Red,
                 )
+
             }
         }
     }
 }
-    @Preview(showBackground = true)
-    @Composable
-    fun ResultHealthCheckViewPreview() {
-        val navController = rememberNavController()
-        val sharedViewModel: SharedViewModel = viewModel()
-        CoffeTechTheme {
-            ResultHealthCheckView(
-                navController = navController,
-                sharedViewModel = sharedViewModel
-            )
-        }
-    }
 
+@Preview(showBackground = true)
+@Composable
+fun ResultHealthCheckViewPreview() {
+    val navController = rememberNavController()
+    val sharedViewModel: SharedViewModel = viewModel()
+    CoffeTechTheme {
+        ResultHealthCheckView(
+            navController = navController,
+            sharedViewModel = sharedViewModel
+        )
+    }
+}
